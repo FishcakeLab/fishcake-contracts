@@ -168,7 +168,7 @@ contract MerchantManger is OwnableUpgradeable, Initializable, ReentrancyGuardUpg
             if (totalMineAmt >= minedAmt + tmpBusinessMinedAmt) {
                 aie.businessMinedAmt = tmpBusinessMinedAmt;
                 minedAmt += tmpBusinessMinedAmt;
-                TransferHelper.safeTransfer(FccTokenAddr, _msgSender(), tmpBusinessMinedAmt);
+                FccTokenAddr.safeTransfer(_msgSender(), tmpBusinessMinedAmt);
             }
         }
 
@@ -207,7 +207,7 @@ contract MerchantManger is OwnableUpgradeable, Initializable, ReentrancyGuardUpg
         require(ai.dropNumber > aie.alreadyDropNumber, "Exceeded the number of rewards.");
         require(ai.maxDropAmt * ai.dropNumber >= _dropAmt + aie.alreadyDropAmts, "The reward amount has been exceeded.");
 
-        TransferHelper.safeTransfer(ai.tokenContractAddr, _userAccount, _dropAmt);
+        ai.tokenContractAddr.safeTransfer(_userAccount, _dropAmt);
 
         activityDropedToAccount[_activityId][_userAccount] = true;
 
