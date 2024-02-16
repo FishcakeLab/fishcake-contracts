@@ -8,10 +8,11 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 
-contract MerchantManger is OwnableUpgradeable, Initializable, ReentrancyGuardUpgradeable  {
+contract MerchantManger is Initializable, OwnableUpgradeable,ReentrancyGuardUpgradeable  {
     using SafeERC20 for IERC20;
 
-    IERC20 constant public FccTokenAddr = IERC20(0x67AAFdb3aD974A6797D973F00556c603485F7158);
+    //IERC20 constant public FccTokenAddr = IERC20(0x67AAFdb3aD974A6797D973F00556c603485F7158);
+    IERC20  public FccTokenAddr; 
     uint256 public totalMineAmt;
     uint256 public minedAmt;
     uint8 public minePercent = 50;     // 挖矿百分比
@@ -28,7 +29,7 @@ contract MerchantManger is OwnableUpgradeable, Initializable, ReentrancyGuardUpg
         uint256 dropNumber;             // 奖励份数
         uint256 minDropAmt;             // 当dropType为1时，填0，为2时，填每份最少领取数量
         uint256 maxDropAmt;             // 当dropType为1时，填每份奖励数量，为2时，填每份最多领取数量，奖励总量根据该字段 * 奖励份数确定
-        IERC20 tokenContractAddr;       //Token Contract Address，For example, USDT contract address: 0x55d398326f99059fF775485246999027B3197955
+        address tokenContractAddr;       //Token Contract Address，For example, USDT contract address: 0x55d398326f99059fF775485246999027B3197955
     }
     ActivityInfo[] public activityInfoArrs; // 所有活动数组
 
@@ -64,18 +65,20 @@ contract MerchantManger is OwnableUpgradeable, Initializable, ReentrancyGuardUpg
         _ret = true;
     }
 
-
+    event AddMineAmt(address indexed who,uint256 _addMineAmt);
     /*
      添加给商家进行奖励的奖池，输入要新增的数量，授权后，合约会将这个数量的币转到本合约中。
     */
     function addMineAmt(uint256 _addMineAmt) public nonReentrant returns(bool _ret) {
         require(_addMineAmt > 0, "Mine Amount Error.");
         // 转币到本合约锁定
-        FccTokenAddr.safeTransfer(address(this), _addMineAmt);
+        FccTokenAddr.safeTransferFrom(_msgSender(),address(this), _addMineAmt);
         totalMineAmt += _addMineAmt;
-        _ret = true;
+        emit AddMineAmt(_msgSender(),_addMineAmt);
+        _ret = true;      
     }
 
+    event ActivityAdd(address indexed who,uint256 _activityId,uint256 _totalDropAmts);
     /*
         增加活动，任何人都可以增加
         参数：
@@ -97,7 +100,7 @@ contract MerchantManger is OwnableUpgradeable, Initializable, ReentrancyGuardUpg
     */
     function activityAdd(
         string memory _businessName, string memory _activityContent, string memory _latitudeLongitude, uint256 _activityDeadLine,
-        uint256 _totalDropAmts, uint8 _dropType, uint256 _dropNumber, uint256 _minDropAmt, uint256 _maxDropAmt, IERC20 _tokenContractAddr) public nonReentrant returns(bool _ret, uint256 _activityId) {
+        uint256 _totalDropAmts, uint8 _dropType, uint256 _dropNumber, uint256 _minDropAmt, uint256 _maxDropAmt, address _tokenContractAddr) public nonReentrant returns(bool _ret, uint256 _activityId) {
 
         require(_dropType == 2 || _dropType == 1, "Drop Type Error.");
         require(_totalDropAmts > 0, "Drop Amount Error.");
@@ -105,7 +108,7 @@ contract MerchantManger is OwnableUpgradeable, Initializable, ReentrancyGuardUpg
         require(_totalDropAmts == _maxDropAmt * _dropNumber, "Drop Number Not Meet Total Drop Amounts.");
 
         // 转币到本合约锁定
-        _tokenContractAddr.safeTransfer(address(this), _totalDropAmts);
+        IERC20(_tokenContractAddr).safeTransferFrom(_msgSender(),address(this), _totalDropAmts);
 
 
         ActivityInfo memory ai = ActivityInfo({
@@ -133,7 +136,7 @@ contract MerchantManger is OwnableUpgradeable, Initializable, ReentrancyGuardUpg
             activityStatus: 1
         });
         activityInfoExtArrs.push(aie);
-
+        emit ActivityAdd(_msgSender(), ai.activityId, _totalDropAmts);
         _ret = true;
         _activityId = ai.activityId;
     }
@@ -158,10 +161,10 @@ contract MerchantManger is OwnableUpgradeable, Initializable, ReentrancyGuardUpg
         aie.activityStatus = 2;
 
         if (ai.maxDropAmt * ai.dropNumber > aie.alreadyDropAmts) {
-            ai.tokenContractAddr.safeTransfer(_msgSender(), ai.maxDropAmt * ai.dropNumber - aie.alreadyDropAmts);
+            IERC20(ai.tokenContractAddr).safeTransfer(_msgSender(), ai.maxDropAmt * ai.dropNumber - aie.alreadyDropAmts);
         }
 
-        if (minePercent > 0 && FccTokenAddr == ai.tokenContractAddr) {
+        if (minePercent > 0 && address(FccTokenAddr) == ai.tokenContractAddr) {
             // 对于在平台上托管的每个FCC释放活动，活动发起人可以基于活动消耗的总代币数量的50％，或者参与者总数乘以20的50％，以较低的值为准来挖取代币。
             uint256 tmpDropedVal = aie.alreadyDropNumber * 20 * 1e18;
             uint256 tmpBusinessMinedAmt = (aie.alreadyDropAmts > tmpDropedVal ? tmpDropedVal : aie.alreadyDropAmts) * minePercent / 100;
@@ -207,7 +210,7 @@ contract MerchantManger is OwnableUpgradeable, Initializable, ReentrancyGuardUpg
         require(ai.dropNumber > aie.alreadyDropNumber, "Exceeded the number of rewards.");
         require(ai.maxDropAmt * ai.dropNumber >= _dropAmt + aie.alreadyDropAmts, "The reward amount has been exceeded.");
 
-        ai.tokenContractAddr.safeTransfer(_userAccount, _dropAmt);
+        IERC20(ai.tokenContractAddr).safeTransfer(_userAccount, _dropAmt);
 
         activityDropedToAccount[_activityId][_userAccount] = true;
 
@@ -226,4 +229,10 @@ contract MerchantManger is OwnableUpgradeable, Initializable, ReentrancyGuardUpg
 
         _ret = true;
     }
+
+    function initialize(address fcc)public initializer{
+		__Context_init_unchained();
+		__Ownable_init_unchained();
+        FccTokenAddr=IERC20(fcc);
+	}
 }

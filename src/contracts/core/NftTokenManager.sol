@@ -39,6 +39,9 @@ contract NftTokenManager is ERC721A, Ownable, AccessControl {
     event MerkleRootSet(address indexed changedBy, bytes32 root);
     event UriPrefixSet(address indexed changedBy, string urlPrefix);
 
+    error BurnNotActive();
+    error NotOwner();
+
     constructor(uint256 _supplyLimit, bytes32 _merkleRoot) ERC721A('FishCakeNFT', 'FCK') Ownable(msg.sender) {
         supplyLimit = _supplyLimit;
         merkleRoot = _merkleRoot;

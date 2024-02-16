@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 
-import "../src/test/mocks/EmptyContract.sol";
+import "../test/mocks/EmptyContract.sol";
 
 import "forge-std/Script.sol";
 
