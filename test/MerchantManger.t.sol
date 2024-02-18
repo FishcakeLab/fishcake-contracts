@@ -4,8 +4,10 @@ pragma solidity ^0.8.0;
 import {Test, console} from "forge-std/Test.sol";
 import {MerchantManger} from "../src/contracts/core/MerchantManger.sol";
 import {FccToken} from "../src/contracts/core/FccToken.sol";
+import {Strings} from '@openzeppelin/contracts/utils/Strings.sol';
 
 contract MerchantMangerTest is Test {
+    using Strings for uint256;
     address admin = makeAddr("admin");
     address merchant = makeAddr("merchant");
     address user = makeAddr("user");
@@ -22,7 +24,9 @@ contract MerchantMangerTest is Test {
         merchantManger.initialize(address(fct));
         vm.stopPrank();
     }
-
+    /**
+     * 模糊测试 设置挖矿百分比
+     */
     function testFuzz_SetMinePercent(uint8 amount) public {
         vm.assume(amount < 101);
         vm.startPrank(admin);
@@ -31,7 +35,9 @@ contract MerchantMangerTest is Test {
         }
         vm.stopPrank();
     }
-
+    /**
+     * 测试添加给商家进行奖励的奖池
+     */
     function test_AddMineAmt() public {
         //vm.assume(amount<101);
         vm.startPrank(admin);
@@ -47,7 +53,9 @@ contract MerchantMangerTest is Test {
         }
         vm.stopPrank();
     }
-
+    /**
+     * 模糊测试 添加给商家进行奖励的奖池
+     */
     function testFuzz_AddMineAmt(uint256 amount) public {
         vm.assume(amount > 0 && amount < 1e18);
         vm.startPrank(admin);
@@ -62,8 +70,10 @@ contract MerchantMangerTest is Test {
         }
         vm.stopPrank();
     }
-
-    function set_ActivityAdd() public {
+    /*
+    奖励规则为1,添加活动详情
+    */
+    function set_ActivityAdd() public returns(bool _ret, uint256 _activityId){
         vm.startPrank(merchant);
         {
             fct.approve(address(merchantManger), UINT256_MAX);
@@ -73,17 +83,58 @@ contract MerchantMangerTest is Test {
             string memory _latitudeLongitude = "35.384581,115.664607";
             uint256 _activityDeadLine = 1710592488;
 
-            //平均分 1表示平均获得  2表示随机
+            //奖励规则：1表示平均获得  2表示随机
             uint8 _dropType = 1;
-            //
-            uint256 _dropNumber = 1000000;
-            //当dropType为1时，填0，为2时，填每份最少领取数量
+            //奖励份数
+            uint256 _dropNumber = 100;
+            //当dropType为1时，_minDropAmt填0，为2时，填每份最少领取数量
             uint256 _minDropAmt = 0;
-            uint256 _maxDropAmt = 10;
+            //当dropType为1时，_maxDropAmt填每份奖励数量，为2时，填每份最多领取数量
+            uint256 _maxDropAmt = 100;
             //根据_maxDropAmt * _dropNumber得到，不用用户输入
             uint256 _totalDropAmts = _maxDropAmt * _dropNumber;
             address _tokenContractAddr = address(fct);
-            merchantManger.activityAdd(
+            (_ret,_activityId)=merchantManger.activityAdd(
+                _businessName,
+                _activityContent,
+                _latitudeLongitude,
+                _activityDeadLine,
+                _totalDropAmts,
+                _dropType,
+                _dropNumber,
+                _minDropAmt,
+                _maxDropAmt,
+                _tokenContractAddr
+            );
+        }
+
+        vm.stopPrank();
+    }
+    /*
+    奖励规则为2,添加活动详情
+    */
+    function set_ActivityAddWithType2() public returns(bool _ret, uint256 _activityId){
+        vm.startPrank(merchant);
+        {
+            fct.approve(address(merchantManger), UINT256_MAX);
+            string memory _businessName = "Fishcake Store Grand open";
+            string
+                memory _activityContent = "2000 FCC even drop to 100 people whovisit store on grand open day";
+            string memory _latitudeLongitude = "35.384581,115.664607";
+            uint256 _activityDeadLine = 1710592488;
+
+            //奖励规则：1表示平均获得  2表示随机
+            uint8 _dropType = 2;
+            //奖励份数
+            uint256 _dropNumber = 100;
+            //当dropType为1时，_minDropAmt填0，为2时，填每份最少领取数量
+            uint256 _minDropAmt = 10;
+            //当dropType为1时，_maxDropAmt填每份奖励数量，为2时，填每份最多领取数量
+            uint256 _maxDropAmt = 100;
+            //根据_maxDropAmt * _dropNumber得到，不用用户输入
+            uint256 _totalDropAmts = _maxDropAmt * _dropNumber;
+            address _tokenContractAddr = address(fct);
+            (_ret,_activityId)=merchantManger.activityAdd(
                 _businessName,
                 _activityContent,
                 _latitudeLongitude,
@@ -103,15 +154,115 @@ contract MerchantMangerTest is Test {
     function test_ActivityAdd() public {
         set_ActivityAdd();
     }
-
+    function test_ActivityAddWhenType2() public {
+        set_ActivityAddWithType2();
+    }
+    /*
+    奖励规则为1时，领取奖励测试
+    */
     function test_Drop() public {
-        set_ActivityAdd();
+        bool _ret;
+        uint256 _activityId;
+        (_ret,_activityId)=set_ActivityAdd();
         vm.startPrank(merchant);
+        //type为1时，该参数可以忽略
+        uint256 _dropAmt=0;
+        uint256 contractBeforeBalance=fct.balanceOf(address(merchantManger));
         {
-          console.log("contract before balance=", fct.balanceOf(address(merchantManger)));
-          merchantManger.drop(1, address(user), 0);  
-          console.log("contract after balance=", fct.balanceOf(address(merchantManger)));
-          console.log("user balance=", fct.balanceOf(address(user)));
+            //console.log("contract before balance=",fct.balanceOf(address(merchantManger)));
+            merchantManger.drop(_activityId, address(user), _dropAmt);
+            uint256 contractAfterBalance=fct.balanceOf(address(merchantManger));
+            uint256 userBalance=fct.balanceOf(address(user));
+            assertEq(userBalance, contractBeforeBalance - contractAfterBalance);
+            //console.log("contract after balance=",fct.balanceOf(address(merchantManger)));
+            //console.log("user balance=", fct.balanceOf(address(user)));
+        }
+        vm.stopPrank();
+    }
+    /*
+    奖励规则为1时，领取奖励测试
+    把奖励份数都领完
+    */
+    function test_DropWith100Users() public {
+        bool _ret;
+        uint256 _activityId;
+        //设置了100份奖励
+        (_ret,_activityId)=set_ActivityAdd();
+        vm.startPrank(merchant);
+        //type为1时，该参数可以忽略
+        uint256 _dropAmt=0;
+        
+        {
+            //console.log("contract before balance=",fct.balanceOf(address(merchantManger)));
+            for(uint256 i=0;i<101;i++){
+            uint256 contractBeforeBalance=fct.balanceOf(address(merchantManger));
+            address users = makeAddr(i.toString());
+            if(i==100)
+            vm.expectRevert(bytes("Exceeded the number of rewards."));
+            merchantManger.drop(_activityId, address(users), _dropAmt);
+            uint256 contractAfterBalance=fct.balanceOf(address(merchantManger));
+            uint256 userBalance=fct.balanceOf(address(users));
+            assertEq(userBalance, contractBeforeBalance - contractAfterBalance);
+            }
+            
+            //console.log("contract after balance=",fct.balanceOf(address(merchantManger)));
+            //console.log("user balance=", fct.balanceOf(address(user)));
+        }
+        vm.stopPrank();
+    }
+
+
+    /*
+    奖励规则为2时，领取奖励测试
+    */
+    function test_DropWhenType2() public {
+        bool _ret;
+        uint256 _activityId;
+        (_ret,_activityId)=set_ActivityAddWithType2();
+        vm.startPrank(merchant);
+        //type为2时，该参数为领取奖励的token数量
+        uint256 _dropAmt=100;
+        uint256 contractBeforeBalance=fct.balanceOf(address(merchantManger));
+        {
+            //console.log("contract before balance=",fct.balanceOf(address(merchantManger)));
+            merchantManger.drop(_activityId, address(user), _dropAmt);
+            uint256 contractAfterBalance=fct.balanceOf(address(merchantManger));
+            uint256 userBalance=fct.balanceOf(address(user));
+            assertEq(userBalance, contractBeforeBalance - contractAfterBalance);
+            //console.log("contract after balance=",fct.balanceOf(address(merchantManger)));
+            //console.log("user balance=", fct.balanceOf(address(user)));
+        }
+        vm.stopPrank();
+    }
+
+    /*
+    奖励规则为2时，领取奖励测试
+    把奖励份数都领完
+    */
+    function test_DropWhenType2With100Users() public {
+        bool _ret;
+        uint256 _activityId;
+        //设置了100份奖励
+        (_ret,_activityId)=set_ActivityAddWithType2();
+        vm.startPrank(merchant);
+        //type为2时，该参数为领取奖励的token数量
+        uint256 _dropAmt=100;
+        
+        {
+            //console.log("contract before balance=",fct.balanceOf(address(merchantManger)));
+            for(uint256 i=0;i<101;i++){
+            uint256 contractBeforeBalance=fct.balanceOf(address(merchantManger));
+            address users = makeAddr(i.toString());
+            if(i==100)
+            vm.expectRevert(bytes("Exceeded the number of rewards."));
+            merchantManger.drop(_activityId, address(users), _dropAmt);
+            uint256 contractAfterBalance=fct.balanceOf(address(merchantManger));
+            uint256 userBalance=fct.balanceOf(address(users));
+            assertEq(userBalance, contractBeforeBalance - contractAfterBalance);
+            }
+            //vm.expectRevert(MintPriceNotPaid.selector);
+            //console.log("contract after balance=",fct.balanceOf(address(merchantManger)));
+            //console.log("user balance=", fct.balanceOf(address(user)));
         }
         vm.stopPrank();
     }
