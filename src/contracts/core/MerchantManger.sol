@@ -58,6 +58,11 @@ contract MerchantManger is Initializable, OwnableUpgradeable,ReentrancyGuardUpgr
 
 
     event SetMinePercent(uint8 minePercent);
+    event AddMineAmt(address indexed who,uint256 _addMineAmt);
+    event ActivityAdd(address indexed who,uint256 _activityId,uint256 _totalDropAmts);
+    event ActivityFinish(uint256 indexed _activityId);
+    event Drop(address indexed who,uint256 _activityId,uint256 _dropAmt);
+
     function setMinePercent(uint8 _minePercent) public onlyOwner returns(bool _ret) {
         require(_minePercent >= 0 && _minePercent <= 100, "Mine Percent Error.");
         minePercent = _minePercent;
@@ -65,7 +70,7 @@ contract MerchantManger is Initializable, OwnableUpgradeable,ReentrancyGuardUpgr
         _ret = true;
     }
 
-    event AddMineAmt(address indexed who,uint256 _addMineAmt);
+    
     /*
      添加给商家进行奖励的奖池，输入要新增的数量，授权后，合约会将这个数量的币转到本合约中。
     */
@@ -78,7 +83,7 @@ contract MerchantManger is Initializable, OwnableUpgradeable,ReentrancyGuardUpgr
         _ret = true;      
     }
 
-    event ActivityAdd(address indexed who,uint256 _activityId,uint256 _totalDropAmts);
+    
     /*
         增加活动，任何人都可以增加
         参数：
@@ -142,7 +147,7 @@ contract MerchantManger is Initializable, OwnableUpgradeable,ReentrancyGuardUpgr
     }
 
 
-    event ActivityFinish(uint256 indexed _activityId);
+    
     /*
         商家结束活动
         参数：
@@ -226,7 +231,7 @@ contract MerchantManger is Initializable, OwnableUpgradeable,ReentrancyGuardUpgr
         aie.alreadyDropNumber ++;
 
         activityInfoChangedIdx.push(_activityId - 1);
-
+        emit Drop(_userAccount, _activityId, _dropAmt);
         _ret = true;
     }
 
