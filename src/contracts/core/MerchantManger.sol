@@ -59,7 +59,8 @@ contract MerchantManger is Initializable, OwnableUpgradeable,ReentrancyGuardUpgr
 
     event SetMinePercent(uint8 minePercent);
     event AddMineAmt(address indexed who,uint256 _addMineAmt);
-    event ActivityAdd(address indexed who,uint256 _activityId,uint256 _totalDropAmts);
+    event ActivityAdd(address indexed who,uint256 indexed _activityId,uint256 _totalDropAmts,string _businessName, string _activityContent, string _latitudeLongitude, uint256 _activityDeadLine,
+        uint8 _dropType, uint256 _dropNumber, uint256 _minDropAmt, uint256 _maxDropAmt, address _tokenContractAddr);
     event ActivityFinish(uint256 indexed _activityId);
     event Drop(address indexed who,uint256 _activityId,uint256 _dropAmt);
 
@@ -141,7 +142,7 @@ contract MerchantManger is Initializable, OwnableUpgradeable,ReentrancyGuardUpgr
             activityStatus: 1
         });
         activityInfoExtArrs.push(aie);
-        emit ActivityAdd(_msgSender(), ai.activityId, _totalDropAmts);
+        emit ActivityAdd(_msgSender(), ai.activityId, _totalDropAmts,_businessName,_activityContent,_latitudeLongitude,_activityDeadLine,_dropType,_dropNumber,_minDropAmt,_maxDropAmt,_tokenContractAddr);
         _ret = true;
         _activityId = ai.activityId;
     }
