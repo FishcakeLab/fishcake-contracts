@@ -20,7 +20,7 @@ contract MerchantMangerTest is Test {
         fct = new FccToken(admin);
         fct.mint(admin, 10000e18);
         fct.mint(merchant, 10000e18);
-        
+
         merchantManger = new MerchantManger();
         merchantManger.initialize(address(fct));
         fct.approve(address(merchantManger), UINT256_MAX);
@@ -113,6 +113,11 @@ contract MerchantMangerTest is Test {
                 _maxDropAmt,
                 _tokenContractAddr
             );
+
+            (uint256 aaaactivityId, , , , , ) = merchantManger
+                .activityInfoExtArrs(_activityId - 1);
+            assertEq(_activityId, aaaactivityId);
+            //console.log("data:",aaaactivityId);
         }
 
         vm.stopPrank();
@@ -330,6 +335,22 @@ contract MerchantMangerTest is Test {
                 "userMerchant after3 balance=",
                 fct.balanceOf(address(merchant))
             );
+            (
+                uint256 aaaactivityId,
+                ,
+                ,
+                ,
+                ,
+                uint8 activityStatus
+            ) = merchantManger.activityInfoExtArrs(_activityId - 1);
+            assertEq(2, activityStatus);
+            assertEq(_activityId, aaaactivityId);
+
+            /**
+             * Finish again,vm.expectRevert(bytes("Activity Status Error."));
+             */
+            vm.expectRevert(bytes("Activity Status Error."));
+            merchantManger.activityFinish(_activityId);
 
             //console.log("user balance=", fct.balanceOf(address(user)));
         }
@@ -345,19 +366,19 @@ contract MerchantMangerTest is Test {
     function test_ActivityFinishWith100Users() public {
         console.log(
             "contract begin balance=",
-            fct.balanceOf(address(merchantManger))/ 1 ether
+            fct.balanceOf(address(merchantManger)) / 1 ether
         );
         console.log(
             "userMerchant begin balance=",
-            fct.balanceOf(address(merchant))/ 1 ether
+            fct.balanceOf(address(merchant)) / 1 ether
         );
         console.log(
             "contract begin balance=",
-            fct.balanceOf(address(merchantManger))/ 1 ether
+            fct.balanceOf(address(merchantManger)) / 1 ether
         );
         console.log(
             "userMerchant begin balance=",
-            fct.balanceOf(address(merchant))/ 1 ether
+            fct.balanceOf(address(merchant)) / 1 ether
         );
         bool _ret;
         uint256 _activityId;
@@ -377,12 +398,39 @@ contract MerchantMangerTest is Test {
                     merchantManger.activityFinish(_activityId);
                     console.log(
                         "contract after balance=",
-                        fct.balanceOf(address(merchantManger))/ 1 ether
+                        fct.balanceOf(address(merchantManger)) / 1 ether
                     );
                     console.log(
                         "userMerchant after balance=",
-                        fct.balanceOf(address(merchant))/ 1 ether
+                        fct.balanceOf(address(merchant)) / 1 ether
                     );
+                    /**
+                     *  (
+                        uint256 activityId,
+                        uint256 alreadyDropAmts,
+                        uint256 alreadyDropNumber,
+                        uint256 businessMinedAmt,
+                        uint256 businessMinedWithdrawedAmt,
+                        uint8 activityStatus
+                    )
+                     */
+
+                    (
+                        uint256 aaaactivityId,
+                        ,
+                        ,
+                        ,
+                        ,
+                        uint8 activityStatus
+                    ) = merchantManger.activityInfoExtArrs(_activityId - 1);
+                    assertEq(2, activityStatus);
+                    assertEq(_activityId, aaaactivityId);
+
+                    /**
+                     * Finish again,vm.expectRevert(bytes("Activity Status Error."));
+                     */
+                    vm.expectRevert(bytes("Activity Status Error."));
+                    merchantManger.activityFinish(_activityId);
 
                     return;
                 }
