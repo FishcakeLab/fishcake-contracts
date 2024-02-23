@@ -113,6 +113,7 @@ contract MerchantMangerTest is Test {
                 _maxDropAmt,
                 _tokenContractAddr
             );
+            assertTrue(_ret);
 
             (uint256 aaaactivityId, , , , , ) = merchantManger
                 .activityInfoExtArrs(_activityId - 1);
@@ -162,6 +163,7 @@ contract MerchantMangerTest is Test {
                 _maxDropAmt,
                 _tokenContractAddr
             );
+            assertTrue(_ret);
         }
 
         vm.stopPrank();
