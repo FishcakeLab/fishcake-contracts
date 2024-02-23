@@ -18,7 +18,7 @@ optimizer = true
 # The number of optimizer runs
 optimizer_runs = 200
 # Whether or not to use the Yul intermediate representation compilation pipeline
-via_ir = false
+via_ir = true
 # Override the Solidity version (this overrides `auto_detect_solc`)
 
 [rpc_endpoints]
