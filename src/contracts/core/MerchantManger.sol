@@ -131,7 +131,7 @@ contract MerchantManger is Initializable, OwnableUpgradeable,ReentrancyGuardUpgr
             maxDropAmt: _maxDropAmt,
             tokenContractAddr: _tokenContractAddr
         });
-        activityInfoArrs.push(ai);
+        
 
         ActivityInfoExt memory aie = ActivityInfoExt({
             activityId: activityInfoArrs.length + 1,
@@ -141,6 +141,7 @@ contract MerchantManger is Initializable, OwnableUpgradeable,ReentrancyGuardUpgr
             businessMinedWithdrawedAmt: 0,
             activityStatus: 1
         });
+        activityInfoArrs.push(ai);
         activityInfoExtArrs.push(aie);
         emit ActivityAdd(_msgSender(), ai.activityId, _totalDropAmts,_businessName,_activityContent,_latitudeLongitude,_activityDeadLine,_dropType,_dropNumber,_minDropAmt,_maxDropAmt,_tokenContractAddr);
         _ret = true;
