@@ -62,7 +62,7 @@ contract MerchantManger is Initializable, OwnableUpgradeable,ReentrancyGuardUpgr
     event ActivityAdd(address indexed who,uint256 indexed _activityId,uint256 _totalDropAmts,string _businessName, string _activityContent, string _latitudeLongitude, uint256 _activityDeadLine,
         uint8 _dropType, uint256 _dropNumber, uint256 _minDropAmt, uint256 _maxDropAmt, address _tokenContractAddr);
     event ActivityFinish(uint256 indexed _activityId);
-    event Drop(address indexed who,uint256 _activityId,uint256 _dropAmt);
+    event Drop(address indexed who,uint256 indexed _activityId,uint256 _dropAmt);
 
     function setMinePercent(uint8 _minePercent) public onlyOwner returns(bool _ret) {
         require(_minePercent >= 0 && _minePercent <= 100, "Mine Percent Error.");
