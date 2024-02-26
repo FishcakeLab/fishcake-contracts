@@ -250,7 +250,7 @@ contract MerchantMangerTest is Test {
         (_ret, _activityId) = set_ActivityAddWithType2();
         vm.startPrank(merchant);
         //type为2时，该参数为领取奖励的token数量
-        uint256 _dropAmt = 100;
+        uint256 _dropAmt = 1e18;
         uint256 contractBeforeBalance = fct.balanceOf(address(merchantManger));
         {
             //console.log("contract before balance=",fct.balanceOf(address(merchantManger)));
@@ -277,7 +277,7 @@ contract MerchantMangerTest is Test {
         (_ret, _activityId) = set_ActivityAddWithType2();
         vm.startPrank(merchant);
         //type为2时，该参数为领取奖励的token数量
-        uint256 _dropAmt = 100;
+        uint256 _dropAmt = 1e18;
 
         {
             //console.log("contract before balance=",fct.balanceOf(address(merchantManger)));
