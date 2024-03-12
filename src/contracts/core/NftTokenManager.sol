@@ -5,7 +5,7 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/access/AccessControl.sol';
 import 'solmate/utils/MerkleProofLib.sol';
 import {Strings} from '@openzeppelin/contracts/utils/Strings.sol';
-import {ERC721A} from 'erc721a/ERC721A.sol';
+import {ERC721A} from 'ERC721A/ERC721A.sol';
 
 
 contract NftTokenManager is ERC721A, Ownable, AccessControl {
@@ -15,6 +15,8 @@ contract NftTokenManager is ERC721A, Ownable, AccessControl {
     bool public allowlistMintActive;
     bool public burnActive;
     string public uriPrefix;
+    //tokenid==>deadline
+    mapping(uint256 => uint256) public allowDeadLine;
 
     bytes32 public immutable MINTER_ROLE = keccak256('MINTER');
     bytes32 public immutable PAUSER_ROLE = keccak256('PAUSER');

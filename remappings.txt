@@ -1,5 +1,13 @@
+forge-std/=lib/forge-std/src/
 @openzeppelin/=lib/openzeppelin-contracts/
 @openzeppelin-upgrades/=lib/openzeppelin-contracts-upgradeable/
-forge-std/=lib/forge-std/src/
+@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/
+@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
+ERC721A/=lib/ERC721A/contracts/
+ds-test/=lib/forge-std/lib/ds-test/src/
+erc4626-tests/=lib/openzeppelin-contracts-upgradeable/lib/erc4626-tests/
+openzeppelin-contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/
+openzeppelin-contracts/=lib/openzeppelin-contracts/
+openzeppelin-foundry-upgrades/=lib/openzeppelin-foundry-upgrades/src/
+solidity-stringutils/=lib/openzeppelin-foundry-upgrades/lib/solidity-stringutils/
 solmate/=lib/solmate/src/
-erc721a/=lib/ERC721A/contracts/

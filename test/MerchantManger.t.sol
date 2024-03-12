@@ -6,13 +6,19 @@ import {MerchantManger} from "../src/contracts/core/MerchantManger.sol";
 import {FccToken} from "../src/contracts/core/FccToken.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
+import {UsdtToken} from "../src/contracts/core/UsdtToken.sol";
+
+import {NFTManager} from "../src/contracts/core/NFTManager.sol";
+
 contract MerchantMangerTest is Test {
     using Strings for uint256;
     address admin = makeAddr("admin");
     address merchant = makeAddr("merchant");
     address user = makeAddr("user");
     MerchantManger public merchantManger;
+    NFTManager public nftManager;
     FccToken public fct;
+    UsdtToken public usdt;
 
     function setUp() public {
         //管理员身份先部署以及铸造基本
@@ -21,8 +27,20 @@ contract MerchantMangerTest is Test {
         fct.mint(admin, 10000e18);
         fct.mint(merchant, 10000e18);
 
+        usdt = new UsdtToken(admin);
+        usdt.mint(admin, 1000000000e18);
+        usdt.mint(merchant, 1000000000e18);
+        usdt.mint(user, 1000000000e18);
+
+        //nftManager = new NFTManager(address(fct), address(usdt));
+        nftManager = new NFTManager();
+
         merchantManger = new MerchantManger();
-        merchantManger.initialize(address(fct));
+        merchantManger.initialize(
+            address(admin),
+            address(fct),
+            address(nftManager)
+        );
         fct.approve(address(merchantManger), UINT256_MAX);
         merchantManger.addMineAmt(1000e18);
         vm.stopPrank();

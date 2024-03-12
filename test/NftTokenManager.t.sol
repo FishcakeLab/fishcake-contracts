@@ -64,12 +64,24 @@ Tree
             nftTokenManager.allowlistMint(proof);
         }
         vm.stopPrank();
-        console.log("balanceOf admin:",nftTokenManager.balanceOf(address(admin)));
+        console.log(
+            "balanceOf admin:",
+            nftTokenManager.balanceOf(address(admin))
+        );
     }
+
     function test_BatchMintRemainingTokens() public {
-         vm.startPrank(admin);
+        vm.startPrank(admin);
         {
-            nftTokenManager.batchMintRemainingTokens(admin,10);
+            nftTokenManager.batchMintRemainingTokens(admin, 10);
+        }
+        vm.stopPrank();
+    }
+
+    function test_Mint() public {
+        vm.startPrank(admin);
+        {
+            //nftTokenManager._mint(admin, 1);
         }
         vm.stopPrank();
     }
