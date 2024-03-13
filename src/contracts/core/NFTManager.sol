@@ -53,6 +53,7 @@ contract NFTManager is
         string _webSite,
         string _social,
         uint256 _value,
+        uint256 _deadline,
         uint8 _type
     );
     event WithdrawUToken(
@@ -105,11 +106,11 @@ contract NFTManager is
         }
 
         uint256 _value = (_type == 1 ? merchantValue : userValue);
-
+        uint256 _deadline=block.timestamp + validTime;
         if (_type == 1) {
-            merchantNTFDeadline[_msgSender()] = (block.timestamp + validTime);
+            merchantNTFDeadline[_msgSender()] = _deadline;
         } else {
-            userNTFDeadline[_msgSender()] = (block.timestamp + validTime);
+            userNTFDeadline[_msgSender()] = _deadline;
         }
 
         UsdtTokenAddr.safeTransferFrom(_msgSender(), address(this), _value);
@@ -127,6 +128,7 @@ contract NFTManager is
             _webSite,
             _social,
             _value,
+            _deadline,
             _type
         );
         _ret = true;
