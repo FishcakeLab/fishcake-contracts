@@ -47,7 +47,7 @@ contract NFTManagerTest is Test {
 
             //nFTManager = new NFTManager(address(fct), address(usdt));
             //console.log("nftManager:", nFTManager);
-            nFTManager = NFTManager(proxy);
+            nFTManager = NFTManager(payable(proxy));
             //nFTManager.initialize(address(admin));
         }
         vm.stopPrank();
@@ -66,6 +66,7 @@ contract NFTManagerTest is Test {
     }
 
     function test_UserMint() public {
+        //use user account
         vm.startPrank(user);
         {
             usdt.approve(address(nFTManager), 8e18);
@@ -99,7 +100,7 @@ contract NFTManagerTest is Test {
                 );
                 console.log(
                     "mint success,merchantNTFDeadline:",
-                    nFTManager.getMerchantNTFDeadline(address(nFTManager))
+                    nFTManager.getMerchantNTFDeadline(address(user))
                 );
                 console.log(
                     "mint success,userNTFDeadline:",
@@ -125,6 +126,52 @@ contract NFTManagerTest is Test {
                     usdt.balanceOf(address(nFTManager))
                 );
             }*/
+        }
+        vm.stopPrank();
+    }
+    function test_UserMintWithType1() public {
+        //use merchant account
+        vm.startPrank(merchant);
+        {
+            usdt.approve(address(nFTManager), 80e18);
+            string memory _businessName = "im big man";
+            string memory _description = "this is bing man";
+            string memory _imgUrl = "https://bing.com/img";
+            string memory _businessAddress = "budao street";
+            string memory _webSite = "https://bing.com";
+            string memory _social = "https://bing.com/social";
+            uint8 _type = 1;
+            (bool _ret, uint256 _tokenId) = nFTManager.mintNewEvent(
+                _businessName,
+                _description,
+                _imgUrl,
+                _businessAddress,
+                _webSite,
+                _social,
+                _type
+            );
+
+            if (_ret) {
+                console.log("mint success,block.timestamp:", block.timestamp);
+                console.log("mint success,tokenId:", _tokenId);
+                console.log(
+                    "mint success,user balance:",
+                    usdt.balanceOf(address(user))
+                );
+                console.log(
+                    "mint success,nFTManager balance",
+                    usdt.balanceOf(address(nFTManager))
+                );
+                console.log(
+                    "mint success,merchantNTFDeadline:",
+                    nFTManager.getMerchantNTFDeadline(address(merchant))
+                );
+                console.log(
+                    "mint success,userNTFDeadline:",
+                    nFTManager.getUserNTFDeadline(address(merchant))
+                );
+            }
+            
         }
         vm.stopPrank();
     }
@@ -179,29 +226,23 @@ contract NFTManagerTest is Test {
         vm.stopPrank();
     }
 
-    function test_withdrawUTokenWithOrthers(
-        address _account,
-        uint256 _value
-    ) public {
+    function test_withdrawUTokenWithOrthers() public {
         test_UserMint();
         vm.startPrank(user);
         {
             vm.expectRevert(bytes("Ownable: caller is not the owner"));
-            nFTManager.withdrawUToken(address(user), 16e18);
+            nFTManager.withdrawUToken(address(usdt),address(user), 16e18);
         }
         vm.stopPrank();
     }
 
-    function test_withdrawUTokenWithToMoreValue(
-        address _account,
-        uint256 _value
-    ) public {
+    function test_withdrawUTokenWithToMoreValue() public {
         test_UserMint();
         vm.startPrank(admin);
         {
             console.log("before balance", usdt.balanceOf(address(admin)));
             //vm.expectRevert(bytes("Balance not enough."));
-            nFTManager.withdrawUToken(address(admin), 1000e18);
+            nFTManager.withdrawUToken(address(usdt),address(admin), 1000e18);
             console.log("after balance", usdt.balanceOf(address(admin)));
         }
         vm.stopPrank();

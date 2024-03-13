@@ -36,6 +36,7 @@ contract MerchantManger is
         uint256 maxDropAmt; // 当dropType为1时，填每份奖励数量，为2时，填每份最多领取数量，奖励总量根据该字段 * 奖励份数确定
         address tokenContractAddr; //Token Contract Address，For example, USDT contract address: 0x55d398326f99059fF775485246999027B3197955
     }
+
     ActivityInfo[] public activityInfoArrs; // 所有活动数组
 
     struct ActivityInfoExt {
@@ -46,6 +47,7 @@ contract MerchantManger is
         uint256 businessMinedWithdrawedAmt; // 商家已提取的挖矿奖励
         uint8 activityStatus; // 活动状态：1表示进行中  2表示已结束
     }
+
     ActivityInfoExt[] public activityInfoExtArrs; // 所有活动数组
 
     uint256[] public activityInfoChangedIdx; // 状态有改变的下标
@@ -56,6 +58,7 @@ contract MerchantManger is
         uint256 dropTime; // 获奖时间
         uint256 dropAmt; // 获奖数量
     }
+
     DropInfo[] public dropInfoArrs; // 所有获奖数组
 
     // 活动ID => 用户 => 是否已获得过奖励
@@ -83,6 +86,16 @@ contract MerchantManger is
         uint256 indexed _activityId,
         uint256 _dropAmt
     );
+    event WithdrawUToken(
+        address indexed who,
+        address indexed _tokenAddr,
+        address indexed _account,
+        uint256 _value
+    );
+    event SetValidTime(address indexed who, uint256 _time);
+
+    event Wthdraw(address indexed who, uint256 _amount);
+    event Received(address indexed who, uint _value);
 
     function setMinePercent(
         uint8 _minePercent
@@ -225,13 +238,19 @@ contract MerchantManger is
             );
         }
         if (
-            iNFTManager.merchantNTFDeadline(_msgSender()) > block.timestamp ||
-            iNFTManager.userNTFDeadline(_msgSender()) > block.timestamp
+            iNFTManager.getMerchantNTFDeadline(_msgSender()) >
+            block.timestamp ||
+            iNFTManager.getUserNTFDeadline(_msgSender()) > block.timestamp
         ) {
             if (
                 minePercent > 0 && address(FccTokenAddr) == ai.tokenContractAddr
             ) {
-                uint8 baifenbi=(iNFTManager.merchantNTFDeadline(_msgSender()) > block.timestamp?minePercent:minePercent/2);
+                uint8 baifenbi = (
+                    iNFTManager.getMerchantNTFDeadline(_msgSender()) >
+                        block.timestamp
+                        ? minePercent
+                        : minePercent / 2
+                );
                 // 对于在平台上托管的每个FCC释放活动，活动发起人可以基于活动消耗的总代币数量的50％，或者参与者总数乘以20的50％，以较低的值为准来挖取代币。
                 uint256 tmpDropedVal = aie.alreadyDropNumber * 20 * 1e18;
                 uint256 tmpBusinessMinedAmt = ((
@@ -320,7 +339,41 @@ contract MerchantManger is
         _ret = true;
     }
 
-    function initialize(address initialOwner,address _fcc, address _NFTManagerAddr) public initializer {
+    function withdrawUToken(
+        address _tokenAddr,
+        address _account,
+        uint256 _value
+    ) public onlyOwner nonReentrant returns (bool _ret) {
+        require(_tokenAddr != address(0x0), "token address error.");
+        require(
+            IERC20(_tokenAddr).balanceOf(address(this)) >= _value,
+            "Balance not enough."
+        );
+
+        IERC20(_tokenAddr).safeTransfer(_account, _value);
+        _ret = true;
+        emit WithdrawUToken(_msgSender(), _tokenAddr, _account, _value);
+    }
+
+    function withdraw(
+        address payable _recipient,
+        uint256 _amount
+    ) public onlyOwner nonReentrant returns (bool _ret) {
+        require(_recipient != address(0x0), "recipient address error.");
+        require(_amount <= address(this).balance, "Balance not enough.");
+        (_ret, ) = _recipient.call{value: _amount}("");
+        emit Wthdraw(_recipient, _amount);
+    }
+
+    receive() external payable {
+        emit Received(msg.sender, msg.value);
+    }
+
+    function initialize(
+        address initialOwner,
+        address _fcc,
+        address _NFTManagerAddr
+    ) public initializer {
         __Context_init_unchained();
         __Ownable_init(initialOwner);
         FccTokenAddr = IERC20(_fcc);

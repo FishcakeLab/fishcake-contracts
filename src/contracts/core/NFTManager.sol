@@ -17,6 +17,7 @@ contract NFTManager is
 {
     using Strings for uint256;
     using SafeERC20 for IERC20;
+
     uint256 private _nextTokenId;
     string public uriPrefix;
     uint256 private merchantValue;
@@ -43,7 +44,7 @@ contract NFTManager is
         uint256 _userValue
     );
     event MintNewEvent(
-        address indexed _who,
+        address indexed who,
         uint256 _tokenId,
         string _businessName,
         string _description,
@@ -56,12 +57,20 @@ contract NFTManager is
     );
     event WithdrawUToken(
         address indexed who,
+        address indexed _tokenAddr,
         address indexed _account,
-        uint256 indexed _value
+        uint256 _value
     );
     event SetValidTime(address indexed who, uint256 _time);
 
-    function initialize(address initialOwner,address _fccAddress, address _usdtAddress) public initializer {
+    event Wthdraw(address indexed who, uint256 _amount);
+    event Received(address indexed who, uint _value);
+
+    function initialize(
+        address initialOwner,
+        address _fccAddress,
+        address _usdtAddress
+    ) public initializer {
         __ERC721_init("FCCNFT", "FCCNFT");
         __Ownable_init(initialOwner);
         FccTokenAddr = IERC20(_fccAddress);
@@ -81,24 +90,27 @@ contract NFTManager is
         uint8 _type
     ) public nonReentrant returns (bool _ret, uint256 _tokenId) {
         require(_type == 2 || _type == 1, "Type Error.");
-        if (_type == 1)
+        if (_type == 1) {
             require(
                 UsdtTokenAddr.allowance(_msgSender(), address(this)) >=
                     merchantValue,
                 "Approve token not enough Error."
             );
-        else
+        } else {
             require(
                 UsdtTokenAddr.allowance(_msgSender(), address(this)) >=
                     userValue,
                 "Approve token not enough Error."
             );
+        }
 
         uint256 _value = (_type == 1 ? merchantValue : userValue);
 
-        if (_type == 1)
+        if (_type == 1) {
             merchantNTFDeadline[_msgSender()] = (block.timestamp + validTime);
-        else userNTFDeadline[_msgSender()] = (block.timestamp + validTime);
+        } else {
+            userNTFDeadline[_msgSender()] = (block.timestamp + validTime);
+        }
 
         UsdtTokenAddr.safeTransferFrom(_msgSender(), address(this), _value);
 
@@ -161,16 +173,29 @@ contract NFTManager is
     }
 
     function withdrawUToken(
+        address _tokenAddr,
         address _account,
         uint256 _value
     ) public onlyOwner nonReentrant returns (bool _ret) {
+        require(_tokenAddr != address(0x0), "token address error.");
         require(
-            UsdtTokenAddr.balanceOf(address(this)) >= _value,
+            IERC20(_tokenAddr).balanceOf(address(this)) >= _value,
             "Balance not enough."
         );
-        UsdtTokenAddr.safeTransfer(_account, _value);
+
+        IERC20(_tokenAddr).safeTransfer(_account, _value);
         _ret = true;
-        emit WithdrawUToken(_msgSender(), _account, _value);
+        emit WithdrawUToken(_msgSender(), _tokenAddr, _account, _value);
+    }
+
+    function withdraw(
+        address payable _recipient,
+        uint256 _amount
+    ) public onlyOwner nonReentrant returns (bool _ret) {
+        require(_recipient != address(0x0), "recipient address error.");
+        require(_amount <= address(this).balance, "Balance not enough.");
+        (_ret, ) = _recipient.call{value: _amount}("");
+        emit Wthdraw(_recipient, _amount);
     }
 
     function getMerchantNTFDeadline(
@@ -193,6 +218,10 @@ contract NFTManager is
         validTime = _time;
         _ret = true;
         emit SetValidTime(_msgSender(), _time);
+    }
+
+    receive() external payable {
+        emit Received(msg.sender, msg.value);
     }
 
     function supportsInterface(

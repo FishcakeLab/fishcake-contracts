@@ -2,11 +2,7 @@
 pragma solidity ^0.8.0;
 
 interface INFTManager {
-    function merchantNTFDeadline(
-        address _account
-    ) external view returns (uint256 _deadline);
+    function getMerchantNTFDeadline(address _account) external view returns (uint256);
 
-    function userNTFDeadline(
-        address _account
-    ) external view returns (uint256 _deadline);
+    function getUserNTFDeadline(address _account) external view returns (uint256);
 }

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import {Test, console} from "forge-std/Test.sol";
+import {Test, console, StdAssertions} from "forge-std/Test.sol";
 import {MerchantManger} from "../src/contracts/core/MerchantManger.sol";
 import {FccToken} from "../src/contracts/core/FccToken.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
@@ -9,6 +9,7 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {UsdtToken} from "../src/contracts/core/UsdtToken.sol";
 
 import {NFTManager} from "../src/contracts/core/NFTManager.sol";
+import {Upgrades, Options} from "openzeppelin-foundry-upgrades/Upgrades.sol";
 
 contract MerchantMangerTest is Test {
     using Strings for uint256;
@@ -16,7 +17,7 @@ contract MerchantMangerTest is Test {
     address merchant = makeAddr("merchant");
     address user = makeAddr("user");
     MerchantManger public merchantManger;
-    NFTManager public nftManager;
+    NFTManager public nFTManager;
     FccToken public fct;
     UsdtToken public usdt;
 
@@ -32,14 +33,29 @@ contract MerchantMangerTest is Test {
         usdt.mint(merchant, 1000000000e18);
         usdt.mint(user, 1000000000e18);
 
-        //nftManager = new NFTManager(address(fct), address(usdt));
-        nftManager = new NFTManager();
+        //nFTManager = new NFTManager(address(fct), address(usdt));
+        //nFTManager = new NFTManager();
+        Options memory opts;
+        opts.unsafeSkipAllChecks = true;
+        address proxy = Upgrades.deployTransparentProxy(
+            "NFTManager.sol",
+            admin,
+            abi.encodeCall(
+                NFTManager.initialize,
+                (address(admin), address(fct), address(usdt))
+            ),
+            opts
+        );
+        console.log("proxy~:", proxy);
+        nFTManager = NFTManager(payable(proxy));
 
+        /*nFTManager = new NFTManager();
+       nFTManager.initialize(address(admin),address(fct), address(usdt));*/
         merchantManger = new MerchantManger();
         merchantManger.initialize(
             address(admin),
             address(fct),
-            address(nftManager)
+            address(nFTManager)
         );
         fct.approve(address(merchantManger), UINT256_MAX);
         merchantManger.addMineAmt(1000e18);
@@ -111,7 +127,7 @@ contract MerchantMangerTest is Test {
             //奖励规则：1表示平均获得  2表示随机
             uint8 _dropType = 1;
             //奖励份数
-            uint256 _dropNumber = 100;
+            uint256 _dropNumber = 10;
             //当dropType为1时，_minDropAmt填0，为2时，填每份最少领取数量
             uint256 _minDropAmt = 0;
             //当dropType为1时，_maxDropAmt填每份奖励数量，为2时，填每份最多领取数量
@@ -131,12 +147,15 @@ contract MerchantMangerTest is Test {
                 _maxDropAmt,
                 _tokenContractAddr
             );
-            assertTrue(_ret);
+            //assertTrue(_ret);
+            require(_ret, "activityAdd return false");
 
             (uint256 aaaactivityId, , , , , ) = merchantManger
                 .activityInfoExtArrs(_activityId - 1);
-            assertEq(_activityId, aaaactivityId);
-            //console.log("data:",aaaactivityId);
+            //assertEq(_activityId, aaaactivityId);
+            require(_activityId == aaaactivityId, "activityId is not equal");
+
+            //console.log("data:", aaaactivityId);
         }
 
         vm.stopPrank();
@@ -187,7 +206,7 @@ contract MerchantMangerTest is Test {
         vm.stopPrank();
     }
 
-    function test_ActivityAdd() public {
+    function test_ActivityAdda() public {
         set_ActivityAdd();
     }
 
@@ -470,6 +489,125 @@ contract MerchantMangerTest is Test {
 
             //console.log("contract after balance=",fct.balanceOf(address(merchantManger)));
             //console.log("user balance=", fct.balanceOf(address(user)));
+        }
+        vm.stopPrank();
+    }
+
+    /*
+    奖励规则为1时，领取奖励测试
+    把奖励份数都领完
+    50中断，结束，看用户和商家是否分别能获得挖矿奖励
+    */
+    function test_ActivityFinishWithAllUsers() public {
+        console.log(
+            "contract begin balance=",
+            fct.balanceOf(address(merchantManger)) / 1 ether
+        );
+        console.log(
+            "userMerchant begin balance=",
+            fct.balanceOf(address(merchant)) / 1 ether
+        );
+        console.log(
+            "contract begin balance=",
+            fct.balanceOf(address(merchantManger)) / 1 ether
+        );
+        console.log(
+            "userMerchant begin balance=",
+            fct.balanceOf(address(merchant)) / 1 ether
+        );
+        bool _ret;
+        uint256 _activityId;
+        //设置了100份奖励
+        (_ret, _activityId) = set_ActivityAdd();
+         //铸造NFT
+        test_UserMintWithType1();
+        vm.startPrank(merchant);
+        //type为1时，该参数可以忽略
+        uint256 _dropAmt = 0;
+       
+
+        {
+            console.log(
+                "merchantManger contract befor balance=",
+                fct.balanceOf(address(merchantManger)) / 1 ether
+            );
+            console.log(
+                "merchant user befor balance=",
+                fct.balanceOf(address(merchant)) / 1 ether
+            );
+            for (uint256 i = 0; i < 10; i++) {
+                uint256 contractBeforeBalance = fct.balanceOf(
+                    address(merchantManger)
+                );
+
+                address users = makeAddr(i.toString());
+                merchantManger.drop(_activityId, address(users), _dropAmt);
+                uint256 contractAfterBalance = fct.balanceOf(
+                    address(merchantManger)
+                );
+                uint256 userBalance = fct.balanceOf(address(users));
+                /*assertEqUint(
+                    userBalance,
+                    contractBeforeBalance - contractAfterBalance
+                );*/
+            require(userBalance==contractBeforeBalance - contractAfterBalance,"drop error");
+            }
+            merchantManger.activityFinish(_activityId);
+            console.log(
+                "merchantManger contract after balance=",
+                fct.balanceOf(address(merchantManger)) / 1 ether
+            );
+            console.log(
+                "merchant user after balance=",
+                fct.balanceOf(address(merchant)) / 1 ether
+            );
+        }
+        vm.stopPrank();
+    }
+
+    function test_UserMintWithType1() public {
+        //use merchant account
+        vm.startPrank(merchant);
+        {
+            usdt.approve(address(nFTManager), 80e18);
+            string memory _businessName = "im big man";
+            string memory _description = "this is bing man";
+            string memory _imgUrl = "https://bing.com/img";
+            string memory _businessAddress = "budao street";
+            string memory _webSite = "https://bing.com";
+            string memory _social = "https://bing.com/social";
+            uint8 _type = 1;
+            (bool _ret, uint256 _tokenId) = nFTManager.mintNewEvent(
+                _businessName,
+                _description,
+                _imgUrl,
+                _businessAddress,
+                _webSite,
+                _social,
+                _type
+            );
+
+            /*if (_ret) {
+                console.log("mint success,block.timestamp:", block.timestamp);
+                console.log("mint success,tokenId:", _tokenId);
+                console.log(
+                    "mint success,user balance:",
+                    usdt.balanceOf(address(user))
+                );
+                console.log(
+                    "mint success,nFTManager balance",
+                    usdt.balanceOf(address(nFTManager))
+                );
+                console.log(
+                    "mint success,merchantNTFDeadline:",
+                    nFTManager.getMerchantNTFDeadline(address(merchant))
+                );
+                console.log(
+                    "mint success,userNTFDeadline:",
+                    nFTManager.getUserNTFDeadline(address(merchant))
+                );
+            }*/
+            
         }
         vm.stopPrank();
     }

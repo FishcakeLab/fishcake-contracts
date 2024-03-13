@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import '@openzeppelin/contracts/access/Ownable.sol';
-import '@openzeppelin/contracts/access/AccessControl.sol';
-import 'solmate/utils/MerkleProofLib.sol';
-import {Strings} from '@openzeppelin/contracts/utils/Strings.sol';
-import {ERC721A} from 'ERC721A/ERC721A.sol';
-
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
+import "solmate/utils/MerkleProofLib.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
+import {ERC721A} from "ERC721A/ERC721A.sol";
 
 contract NftTokenManager is ERC721A, Ownable, AccessControl {
     using Strings for uint256;
+
     uint256 public supplyLimit;
     bytes32 public merkleRoot;
     bool public allowlistMintActive;
@@ -18,19 +18,19 @@ contract NftTokenManager is ERC721A, Ownable, AccessControl {
     //tokenid==>deadline
     mapping(uint256 => uint256) public allowDeadLine;
 
-    bytes32 public immutable MINTER_ROLE = keccak256('MINTER');
-    bytes32 public immutable PAUSER_ROLE = keccak256('PAUSER');
+    bytes32 public immutable MINTER_ROLE = keccak256("MINTER");
+    bytes32 public immutable PAUSER_ROLE = keccak256("PAUSER");
 
     modifier onlyAdmin() {
         if (!hasRole(DEFAULT_ADMIN_ROLE, _msgSender())) {
-            revert ("Only admin can do this operate");
+            revert("Only admin can do this operate");
         }
         _;
     }
 
     modifier onlyRoleOrAdmin(bytes32 role) {
         if (!hasRole(DEFAULT_ADMIN_ROLE, _msgSender()) && !hasRole(role, _msgSender())) {
-            revert ("Missing role or admin");
+            revert("Missing role or admin");
         }
         _;
     }
@@ -44,28 +44,24 @@ contract NftTokenManager is ERC721A, Ownable, AccessControl {
     error BurnNotActive();
     error NotOwner();
 
-    constructor(uint256 _supplyLimit, bytes32 _merkleRoot) ERC721A('FishCakeNFT', 'FCK') Ownable(msg.sender) {
+    constructor(uint256 _supplyLimit, bytes32 _merkleRoot) ERC721A("FishCakeNFT", "FCK") Ownable(msg.sender) {
         supplyLimit = _supplyLimit;
         merkleRoot = _merkleRoot;
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
     function allowlistMint(bytes32[] calldata proof) external {
-        if (!allowlistMintActive) revert ("Allow list mint not active");
-        if (hasMinted(msg.sender)) revert ("Mint limit reached");
-        if (_totalMinted() >= supplyLimit) revert ("Supply limit reached");
-        if (
-            !MerkleProofLib.verify(
-                proof,
-                merkleRoot,
-                keccak256(abi.encodePacked(msg.sender))
-            )
-        ) revert ("Invalid merkle proof");
+        if (!allowlistMintActive) revert("Allow list mint not active");
+        if (hasMinted(msg.sender)) revert("Mint limit reached");
+        if (_totalMinted() >= supplyLimit) revert("Supply limit reached");
+        if (!MerkleProofLib.verify(proof, merkleRoot, keccak256(abi.encodePacked(msg.sender)))) {
+            revert("Invalid merkle proof");
+        }
         _safeMint(msg.sender, 1);
     }
 
     function batchMintRemainingTokens(address receiver, uint256 amount) external onlyRoleOrAdmin(MINTER_ROLE) {
-        if (_totalMinted() + amount > supplyLimit) revert ("Supply limit reached");
+        if (_totalMinted() + amount > supplyLimit) revert("Supply limit reached");
         _safeMint(receiver, amount);
     }
 
@@ -80,7 +76,7 @@ contract NftTokenManager is ERC721A, Ownable, AccessControl {
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         _requireMinted(tokenId);
         string memory baseURI = _baseURI();
-        return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, tokenId.toString(), '.json')) : '';
+        return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, tokenId.toString(), ".json")) : "";
     }
 
     function burn(uint256 tokenId) external {
@@ -90,7 +86,7 @@ contract NftTokenManager is ERC721A, Ownable, AccessControl {
     }
 
     function setMaxSupply(uint256 _supplyLimit) external onlyAdmin {
-        if (_supplyLimit < _totalMinted()) revert ("Invalid supply");
+        if (_supplyLimit < _totalMinted()) revert("Invalid supply");
         supplyLimit = _supplyLimit;
         emit SupplyLimitSet(msg.sender, _supplyLimit);
     }
@@ -125,7 +121,7 @@ contract NftTokenManager is ERC721A, Ownable, AccessControl {
 
     function _requireMinted(uint256 tokenId) internal view virtual {
         if (!_exists(tokenId)) {
-            revert ("ERC721 non existent token");
+            revert("ERC721 non existent token");
         }
     }
 
