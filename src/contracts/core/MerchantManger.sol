@@ -20,7 +20,7 @@ contract MerchantManger is
     INFTManager public iNFTManager;
     uint256 public totalMineAmt;
     uint256 public minedAmt;
-    uint8 public minePercent = 50; // 挖矿百分比
+    uint8 public minePercent; // 挖矿百分比
 
     struct ActivityInfo {
         uint256 activityId; // 活动ID
@@ -96,6 +96,23 @@ contract MerchantManger is
 
     event Wthdraw(address indexed who, uint256 _amount);
     event Received(address indexed who, uint _value);
+
+     /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+    
+    function initialize(
+        address initialOwner,
+        address _fcc,
+        address _NFTManagerAddr
+    ) public initializer {
+        __Context_init_unchained();
+        __Ownable_init(initialOwner);
+        FccTokenAddr = IERC20(_fcc);
+        minePercent = 50;
+        iNFTManager = INFTManager(_NFTManagerAddr);
+    }
 
     function setMinePercent(
         uint8 _minePercent
@@ -367,16 +384,5 @@ contract MerchantManger is
 
     receive() external payable {
         emit Received(msg.sender, msg.value);
-    }
-
-    function initialize(
-        address initialOwner,
-        address _fcc,
-        address _NFTManagerAddr
-    ) public initializer {
-        __Context_init_unchained();
-        __Ownable_init(initialOwner);
-        FccTokenAddr = IERC20(_fcc);
-        iNFTManager = INFTManager(_NFTManagerAddr);
     }
 }

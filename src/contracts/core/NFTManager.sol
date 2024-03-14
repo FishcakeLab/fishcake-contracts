@@ -32,11 +32,6 @@ contract NFTManager is
     //tokenId => deadline timestamp
     //mapping(uint256 => uint256)  public nftDeadline;
 
-    /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor() {
-        _disableInitializers();
-    }
-
     event UriPrefixSet(address indexed who, string urlPrefix);
     event SetValues(
         address indexed who,
@@ -66,6 +61,13 @@ contract NFTManager is
 
     event Wthdraw(address indexed who, uint256 _amount);
     event Received(address indexed who, uint _value);
+
+
+
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
 
     function initialize(
         address initialOwner,

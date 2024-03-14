@@ -37,7 +37,7 @@ contract MerchantMangerTest is Test {
         //nFTManager = new NFTManager();
         Options memory opts;
         opts.unsafeSkipAllChecks = true;
-        address proxy = Upgrades.deployTransparentProxy(
+        address nftManagerProxy = Upgrades.deployTransparentProxy(
             "NFTManager.sol",
             admin,
             abi.encodeCall(
@@ -46,17 +46,30 @@ contract MerchantMangerTest is Test {
             ),
             opts
         );
-        console.log("proxy~:", proxy);
-        nFTManager = NFTManager(payable(proxy));
+        console.log("proxy~:", nftManagerProxy);
+        nFTManager = NFTManager(payable(nftManagerProxy));
 
         /*nFTManager = new NFTManager();
-       nFTManager.initialize(address(admin),address(fct), address(usdt));*/
-        merchantManger = new MerchantManger();
+        nFTManager.initialize(address(admin),address(fct), address(usdt));*/
+        /*merchantManger = new MerchantManger();
         merchantManger.initialize(
             address(admin),
             address(fct),
             address(nFTManager)
+        );*/
+        address merManagerProxy = Upgrades.deployTransparentProxy(
+            "MerchantManger.sol",
+            admin,
+            abi.encodeCall(
+                MerchantManger.initialize,
+                (address(admin), address(fct), address(nFTManager))
+            ),
+            opts
         );
+        console.log("merManagerProxy proxy~:", merManagerProxy);
+        merchantManger = MerchantManger(payable(merManagerProxy));
+
+
         fct.approve(address(merchantManger), UINT256_MAX);
         merchantManger.addMineAmt(1000e18);
         vm.stopPrank();
@@ -496,7 +509,7 @@ contract MerchantMangerTest is Test {
     /*
     奖励规则为1时，领取奖励测试
     把奖励份数都领完
-    50中断，结束，看用户和商家是否分别能获得挖矿奖励
+    ，结束，看用户和商家是否分别能获得挖矿奖励
     */
     function test_ActivityFinishWithAllUsers() public {
         console.log(
@@ -519,7 +532,8 @@ contract MerchantMangerTest is Test {
         uint256 _activityId;
         //设置了100份奖励
         (_ret, _activityId) = set_ActivityAdd();
-         //铸造NFT
+
+         //铸造NFT 铸造权限
         test_UserMintWithType1();
         vm.startPrank(merchant);
         //type为1时，该参数可以忽略
