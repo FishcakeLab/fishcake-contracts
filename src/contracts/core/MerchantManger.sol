@@ -351,7 +351,7 @@ contract MerchantManger is
         aie.alreadyDropAmts += _dropAmt;
         aie.alreadyDropNumber++;
 
-        activityInfoChangedIdx.push(_activityId - 1);
+        //activityInfoChangedIdx.push(_activityId - 1);
         emit Drop(_userAccount, _activityId, _dropAmt);
         _ret = true;
     }
