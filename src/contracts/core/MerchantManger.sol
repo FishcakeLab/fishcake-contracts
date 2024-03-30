@@ -94,10 +94,10 @@ contract MerchantManger is Ownable, ReentrancyGuard {
 
     constructor(
         address initialOwner,
-        address _fccAddr,
+        address _fccAddress,
         address _NFTManagerAddr
     ) Ownable(initialOwner) {
-        FccTokenAddr = IERC20(_fccAddr);
+        FccTokenAddr = IERC20(_fccAddress);
         iNFTManager = INFTManager(_NFTManagerAddr);
     }
 

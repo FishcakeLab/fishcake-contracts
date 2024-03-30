@@ -28,7 +28,7 @@ contract NFTManagerTest is Test {
             usdt.mint(admin, 66666666e18);
             usdt.mint(merchant, 66666666e18);
             usdt.mint(user, 66666666e18);
-
+            /*
             Options memory opts;
             opts.unsafeSkipAllChecks = true;
             address proxy = Upgrades.deployTransparentProxy(
@@ -41,14 +41,19 @@ contract NFTManagerTest is Test {
                 opts
             );
             console.log("proxy~:", proxy);
-
+        */
             //bytes32 ADMIN_SLOT = bytes32(uint256(keccak256("eip1967.proxy.admin")) - 1);
             //address admin = address(uint160(uint256(bytes32(vm.load(address(proxy), ADMIN_SLOT)))));
 
             //nFTManager = new NFTManager(address(fct), address(usdt));
             //console.log("nftManager:", nFTManager);
-            nFTManager = NFTManager(payable(proxy));
+            //nFTManager = NFTManager(payable(proxy));
             //nFTManager.initialize(address(admin));
+            nFTManager = new NFTManager(
+                address(admin),
+                address(fct),
+                address(usdt)
+            );
         }
         vm.stopPrank();
     }
@@ -129,6 +134,7 @@ contract NFTManagerTest is Test {
         }
         vm.stopPrank();
     }
+
     function test_UserMintWithType1() public {
         //use merchant account
         vm.startPrank(merchant);
@@ -171,7 +177,6 @@ contract NFTManagerTest is Test {
                     nFTManager.getUserNTFDeadline(address(merchant))
                 );
             }
-            
         }
         vm.stopPrank();
     }
@@ -231,7 +236,7 @@ contract NFTManagerTest is Test {
         vm.startPrank(user);
         {
             vm.expectRevert(bytes("Ownable: caller is not the owner"));
-            nFTManager.withdrawUToken(address(usdt),address(user), 16e18);
+            nFTManager.withdrawUToken(address(usdt), address(user), 16e18);
         }
         vm.stopPrank();
     }
@@ -242,7 +247,7 @@ contract NFTManagerTest is Test {
         {
             console.log("before balance", usdt.balanceOf(address(admin)));
             //vm.expectRevert(bytes("Balance not enough."));
-            nFTManager.withdrawUToken(address(usdt),address(admin), 1000e18);
+            nFTManager.withdrawUToken(address(usdt), address(admin), 1000e18);
             console.log("after balance", usdt.balanceOf(address(admin)));
         }
         vm.stopPrank();
@@ -258,8 +263,8 @@ contract NFTManagerTest is Test {
             Upgrades.upgradeProxy(
                 address(nFTManager),
                 "NFTManagerUpgrades.sol:NFTManagerUpgrades",
-                ""
-                ,address(admin)
+                "",
+                address(admin)
             );
             NFTManagerUpgrades up = NFTManagerUpgrades(address(nFTManager));
             console.log("proxy2222~address:", address(nFTManager));

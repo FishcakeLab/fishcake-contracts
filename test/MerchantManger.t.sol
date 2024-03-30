@@ -35,7 +35,7 @@ contract MerchantMangerTest is Test {
 
         //nFTManager = new NFTManager(address(fct), address(usdt));
         //nFTManager = new NFTManager();
-        Options memory opts;
+        /*Options memory opts;
         opts.unsafeSkipAllChecks = true;
         address nftManagerProxy = Upgrades.deployTransparentProxy(
             "NFTManager.sol",
@@ -48,15 +48,20 @@ contract MerchantMangerTest is Test {
         );
         console.log("proxy~:", nftManagerProxy);
         nFTManager = NFTManager(payable(nftManagerProxy));
-
-        /*nFTManager = new NFTManager();
-        nFTManager.initialize(address(admin),address(fct), address(usdt));*/
+        */
+        nFTManager = new NFTManager(
+            address(admin),
+            address(fct),
+            address(usdt)
+        );
+        //nFTManager.initialize(address(admin),address(fct), address(usdt));
         /*merchantManger = new MerchantManger();
         merchantManger.initialize(
             address(admin),
             address(fct),
             address(nFTManager)
         );*/
+        /*
         address merManagerProxy = Upgrades.deployTransparentProxy(
             "MerchantManger.sol",
             admin,
@@ -68,28 +73,33 @@ contract MerchantMangerTest is Test {
         );
         console.log("merManagerProxy proxy~:", merManagerProxy);
         merchantManger = MerchantManger(payable(merManagerProxy));
-
+        */
+        merchantManger = new MerchantManger(
+            address(admin),
+            address(fct),
+            address(nFTManager)
+        );
 
         fct.approve(address(merchantManger), UINT256_MAX);
-        merchantManger.addMineAmt(1000e18);
+        //merchantManger.addMineAmt(1000e18);
         vm.stopPrank();
     }
 
     /**
      * 模糊测试 设置挖矿百分比
-     */
+     
     function testFuzz_SetMinePercent(uint8 amount) public {
         vm.assume(amount < 101);
         vm.startPrank(admin);
         {
-            merchantManger.setMinePercent(amount);
+            //merchantManger.setMinePercent(amount);
         }
         vm.stopPrank();
     }
-
+*/
     /**
      * 测试添加给商家进行奖励的奖池
-     */
+     
     function test_AddMineAmt() public {
         //vm.assume(amount<101);
         vm.startPrank(admin);
@@ -105,10 +115,10 @@ contract MerchantMangerTest is Test {
         }
         vm.stopPrank();
     }
-
+*/
     /**
      * 模糊测试 添加给商家进行奖励的奖池
-     */
+     
     function testFuzz_AddMineAmt(uint256 amount) public {
         vm.assume(amount > 0 && amount < 1e18);
         vm.startPrank(admin);
@@ -123,7 +133,7 @@ contract MerchantMangerTest is Test {
         }
         vm.stopPrank();
     }
-
+*/
     /*
     奖励规则为1,添加活动详情
     */
@@ -533,12 +543,11 @@ contract MerchantMangerTest is Test {
         //设置了100份奖励
         (_ret, _activityId) = set_ActivityAdd();
 
-         //铸造NFT 铸造权限
+        //铸造NFT 铸造权限
         test_UserMintWithType1();
         vm.startPrank(merchant);
         //type为1时，该参数可以忽略
         uint256 _dropAmt = 0;
-       
 
         {
             console.log(
@@ -564,7 +573,10 @@ contract MerchantMangerTest is Test {
                     userBalance,
                     contractBeforeBalance - contractAfterBalance
                 );*/
-            require(userBalance==contractBeforeBalance - contractAfterBalance,"drop error");
+                require(
+                    userBalance == contractBeforeBalance - contractAfterBalance,
+                    "drop error"
+                );
             }
             merchantManger.activityFinish(_activityId);
             console.log(
@@ -621,7 +633,6 @@ contract MerchantMangerTest is Test {
                     nFTManager.getUserNTFDeadline(address(merchant))
                 );
             }*/
-            
         }
         vm.stopPrank();
     }

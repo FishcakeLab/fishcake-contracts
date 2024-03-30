@@ -210,15 +210,11 @@ contract NFTManager is Ownable, ERC721, ReentrancyGuard {
         return userNTFDeadline[_account];
     }
 
-    function getUTokenBalance() public view onlyOwner returns (uint256) {
+    function getUTokenBalance() public view returns (uint256) {
         return UsdtTokenAddr.balanceOf(address(this));
     }
 
-    function setValidTime(uint256 _time) public onlyOwner returns (bool _ret) {
-        validTime = _time;
-        _ret = true;
-        emit SetValidTime(_msgSender(), _time);
-    }
+
 
     receive() external payable {
         emit Received(msg.sender, msg.value);
