@@ -1,20 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-
-import "@openzeppelin-upgrades/contracts/token/ERC721/ERC721Upgradeable.sol";
-import "@openzeppelin-upgrades/contracts/access/OwnableUpgradeable.sol";
-import "@openzeppelin-upgrades/contracts/proxy/utils/Initializable.sol";
-import "@openzeppelin-upgrades/contracts/utils/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
-contract NFTManager is
-    Initializable,
-    ERC721Upgradeable,
-    OwnableUpgradeable,
-    ReentrancyGuardUpgradeable
-{
+contract NFTManager is Ownable, ERC721, ReentrancyGuard {
     using Strings for uint256;
     using SafeERC20 for IERC20;
 
@@ -23,7 +17,11 @@ contract NFTManager is
     uint256 private merchantValue;
     uint256 private userValue;
     //30 days = 2592000 s
-    uint256 private validTime;
+    uint256 private immutable validTime = 2592000;
+    uint256 public immutable totalMineAmt = 200_000_000 * 10 ** 18;
+    uint256 public immutable proMineAmt = 1000 * 10 ** 18;
+    uint256 public immutable basicMineAmt = 100 * 10 ** 18;
+    uint256 public minedAmt = 0;
     IERC20 public FccTokenAddr;
     IERC20 public UsdtTokenAddr;
     mapping(address => uint256) public merchantNTFDeadline;
@@ -62,25 +60,15 @@ contract NFTManager is
     event Wthdraw(address indexed who, uint256 _amount);
     event Received(address indexed who, uint _value);
 
-
-
-    /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor() {
-        _disableInitializers();
-    }
-
-    function initialize(
+    constructor(
         address initialOwner,
         address _fccAddress,
         address _usdtAddress
-    ) public initializer {
-        __ERC721_init("FCCNFT", "FCCNFT");
-        __Ownable_init(initialOwner);
+    ) ERC721("FCCNFT", "FCCNFT") Ownable(initialOwner) {
         FccTokenAddr = IERC20(_fccAddress);
         UsdtTokenAddr = IERC20(_usdtAddress);
         merchantValue = 80e18;
         userValue = 8e18;
-        validTime = 2592000;
     }
 
     function mintNewEvent(
@@ -108,11 +96,19 @@ contract NFTManager is
         }
 
         uint256 _value = (_type == 1 ? merchantValue : userValue);
-        uint256 _deadline=block.timestamp + validTime;
+        uint256 _deadline = block.timestamp + validTime;
         if (_type == 1) {
             merchantNTFDeadline[_msgSender()] = _deadline;
+            if ((minedAmt + proMineAmt) <= totalMineAmt) {
+                IERC20(FccTokenAddr).safeTransfer(_msgSender(), proMineAmt);
+                minedAmt += proMineAmt;
+            }
         } else {
             userNTFDeadline[_msgSender()] = _deadline;
+            if ((minedAmt + basicMineAmt) <= totalMineAmt) {
+                IERC20(FccTokenAddr).safeTransfer(_msgSender(), basicMineAmt);
+                minedAmt += basicMineAmt;
+            }
         }
 
         UsdtTokenAddr.safeTransferFrom(_msgSender(), address(this), _value);
@@ -146,7 +142,7 @@ contract NFTManager is
 
     function tokenURI(
         uint256 tokenId
-    ) public view override(ERC721Upgradeable) returns (string memory) {
+    ) public view override returns (string memory) {
         string memory baseURI = _baseURI();
         return
             bytes(baseURI).length > 0
@@ -226,11 +222,5 @@ contract NFTManager is
 
     receive() external payable {
         emit Received(msg.sender, msg.value);
-    }
-
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view override(ERC721Upgradeable) returns (bool) {
-        return super.supportsInterface(interfaceId);
     }
 }

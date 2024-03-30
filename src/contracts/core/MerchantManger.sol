@@ -1,26 +1,21 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import "@openzeppelin-upgrades/contracts/proxy/utils/Initializable.sol";
-import "@openzeppelin-upgrades/contracts/access/OwnableUpgradeable.sol";
-import "@openzeppelin-upgrades/contracts/utils/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {INFTManager} from "../interfaces/INFTManager.sol";
 
-contract MerchantManger is
-    Initializable,
-    OwnableUpgradeable,
-    ReentrancyGuardUpgradeable
-{
+contract MerchantManger is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     //IERC20 constant public FccTokenAddr = IERC20(0x67AAFdb3aD974A6797D973F00556c603485F7158);
     IERC20 public FccTokenAddr;
     INFTManager public iNFTManager;
-    uint256 public totalMineAmt;
-    uint256 public minedAmt;
-    uint8 public minePercent; // 挖矿百分比
+    uint256 immutable public totalMineAmt = 300_000_000 * 10 ** 18; // 总挖矿数量
+    uint256 public minedAmt=0; // 已挖数量
+    uint8 public minePercent=50; // 挖矿百分比
 
     struct ActivityInfo {
         uint256 activityId; // 活动ID
@@ -97,47 +92,13 @@ contract MerchantManger is
     event Wthdraw(address indexed who, uint256 _amount);
     event Received(address indexed who, uint _value);
 
-     /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor() {
-        _disableInitializers();
-    }
-    
-    function initialize(
+    constructor(
         address initialOwner,
-        address _fcc,
+        address _fccAddr,
         address _NFTManagerAddr
-    ) public initializer {
-        __Context_init_unchained();
-        __Ownable_init(initialOwner);
-        FccTokenAddr = IERC20(_fcc);
-        minePercent = 50;
+    ) Ownable(initialOwner) {
+        FccTokenAddr = IERC20(_fccAddr);
         iNFTManager = INFTManager(_NFTManagerAddr);
-    }
-
-    function setMinePercent(
-        uint8 _minePercent
-    ) public onlyOwner returns (bool _ret) {
-        require(
-            _minePercent >= 0 && _minePercent <= 100,
-            "Mine Percent Error."
-        );
-        minePercent = _minePercent;
-        emit SetMinePercent(minePercent);
-        _ret = true;
-    }
-
-    /*
-     添加给商家进行奖励的奖池，输入要新增的数量，授权后，合约会将这个数量的币转到本合约中。
-    */
-    function addMineAmt(
-        uint256 _addMineAmt
-    ) public nonReentrant returns (bool _ret) {
-        require(_addMineAmt > 0, "Mine Amount Error.");
-        // 转币到本合约锁定
-        FccTokenAddr.safeTransferFrom(_msgSender(), address(this), _addMineAmt);
-        totalMineAmt += _addMineAmt;
-        emit AddMineAmt(_msgSender(), _addMineAmt);
-        _ret = true;
     }
 
     /*
@@ -230,6 +191,30 @@ contract MerchantManger is
     }
 
     /*
+    Mined_FCC≤30M  -- Pro.currentMiningPercentage = 50%
+    30M<  Mined_FCC≤100M  -- Pro.currentMiningPercentage = 40%
+    100M<  Mined_FCC≤200M  -- Pro.currentMiningPercentage = 20%
+    200M< Mined_FCC≤300M  -- Pro.currentMiningPercentage = 10%
+    */
+    function getCurrentMinePercent()
+        public
+        view
+        returns (uint8 currentMinePercent)
+    {
+        if (minedAmt < 30_000_000 * 1e18) {
+            currentMinePercent = 50;
+        } else if (minedAmt < 100_000_000 * 1e18) {
+            currentMinePercent = 40;
+        } else if (minedAmt < 200_000_000 * 1e18) {
+            currentMinePercent = 20;
+        } else if (minedAmt < 300_000_000 * 1e18) {
+            currentMinePercent = 10;
+        } else {
+            currentMinePercent = 0;
+        }
+    }
+
+    /*
         商家结束活动
         参数：
         _activityId  活动ID
@@ -259,10 +244,15 @@ contract MerchantManger is
             block.timestamp ||
             iNFTManager.getUserNTFDeadline(_msgSender()) > block.timestamp
         ) {
+            //获取当前挖取代币百分比
+            uint8 currentMinePercent = getCurrentMinePercent();
+            if (minePercent != currentMinePercent) {
+                minePercent = currentMinePercent;
+            }
             if (
                 minePercent > 0 && address(FccTokenAddr) == ai.tokenContractAddr
             ) {
-                uint8 baifenbi = (
+                uint8 percent = (
                     iNFTManager.getMerchantNTFDeadline(_msgSender()) >
                         block.timestamp
                         ? minePercent
@@ -274,7 +264,7 @@ contract MerchantManger is
                     aie.alreadyDropAmts > tmpDropedVal
                         ? tmpDropedVal
                         : aie.alreadyDropAmts
-                ) * baifenbi) / 100;
+                ) * percent) / 100;
                 if (totalMineAmt >= minedAmt + tmpBusinessMinedAmt) {
                     aie.businessMinedAmt = tmpBusinessMinedAmt;
                     minedAmt += tmpBusinessMinedAmt;
