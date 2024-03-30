@@ -5,7 +5,7 @@ import "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract FishcakeCoin is ERC20, Ownable {
-    uint256 public constant MaxTotalSupply = 1_000_000_000 * 10 ** 18;
+    uint256 public immutable MaxTotalSupply = 1_000_000_000 * 10 ** 18;
     bool MintingFinished = false;
     uint256 public _burnedTokens; 
     address public MiningPool;
