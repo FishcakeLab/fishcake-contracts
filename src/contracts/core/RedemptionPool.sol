@@ -58,7 +58,7 @@ contract RedemptionPool {
 
     function calculateUSDT(uint256 _amount) public view returns(uint256){
         // USDT balance / fishcakeCoin total supply
-        return balance() * _amount * OneUSDT / (OneFCC * fishcakeCoin.totalSupply());
+        return balance() * _amount * OneUSDT / (OneFCC * (fishcakeCoin.totalSupply()-fishcakeCoin._burnedTokens()));
     }
 
 
