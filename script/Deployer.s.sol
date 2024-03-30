@@ -13,6 +13,7 @@ import {UsdtToken} from "../src/contracts/core/UsdtToken.sol";
 
 
 import {NFTManager} from "../src/contracts/core/NFTManager.sol";
+import {Upgrades, Options} from "openzeppelin-foundry-upgrades/Upgrades.sol";
 
 import "forge-std/Script.sol";
 
@@ -37,18 +38,57 @@ contract PrivacyContractsDeployer is BaseScript {
         usdt.mint(deployer, 1000000000e18);
         console.log("The Deployer address:", deployer);
         console.log("UsdtToken deployed on %s", address(usdt));
-        //NFTManager nftManager = new NFTManager(address(fct), address(usdt));
-        NFTManager nftManager = new NFTManager();
-        MerchantManger merchantManger = new MerchantManger();
-        merchantManger.initialize(address(deployer),address(fct),address(nftManager));   
-        fct.approve(address(merchantManger), UINT256_MAX);    
+        NFTManager nFTManager = new NFTManager(deployer,address(fct), address(usdt));
+        /*Options memory opts;
+        opts.unsafeSkipAllChecks = true;
+        address nftManagerProxy = Upgrades.deployTransparentProxy(
+            "NFTManager.sol",
+            deployer,
+            abi.encodeCall(
+                NFTManager.initialize,
+                (address(deployer), address(fct), address(usdt))
+            ),
+            opts
+        );
+        NFTManager nFTManager = NFTManager(payable(nftManagerProxy));
+        console.log("NFTManager deployed on %s", address(nFTManager));
+
+
+        address merManagerProxy = Upgrades.deployTransparentProxy(
+            "MerchantManger.sol",
+            deployer,
+            abi.encodeCall(
+                MerchantManger.initialize,
+                (address(deployer), address(fct), address(nFTManager))
+            ),
+            opts
+        );
+        MerchantManger merchantManger = MerchantManger(payable(merManagerProxy));
         console.log("MerchantManger deployed on %s", address(merchantManger));
+        */
+        //NFTManager nftManager = new NFTManager();
+        //MerchantManger merchantManger = new MerchantManger();
+        //merchantManger.initialize(address(deployer),address(fct),address(nftManager));  
+        MerchantManger merchantManger = new MerchantManger(
+            deployer,
+            address(fct),
+            address(nFTManager)
+        ); 
+        fct.approve(address(merchantManger),10000e18); 
+        usdt.approve(address(nFTManager),80e18);  
+        //mint nft  80u
+        mintNft(nFTManager);
+
         bool _ret;
         uint256 _activityId;
         address _userAccount = 0x50547aC9b9b3C0717689F7691c2AaB2EF66B6BfE;
         (_ret, _activityId) = set_ActivityAdd(merchantManger,fct);
+
         merchantManger.drop(_activityId, _userAccount, 100e18);
         merchantManger.activityFinish(_activityId);
+        vm.label(address(nFTManager),"nFTManager");
+        vm.label(address(merchantManger),"merchantManger");
+
 
 
 
@@ -85,7 +125,7 @@ contract PrivacyContractsDeployer is BaseScript {
             //奖励规则：1表示平均获得  2表示随机
             uint8 _dropType = 1;
             //奖励份数
-            uint256 _dropNumber = 100;
+            uint256 _dropNumber = 10;
             //当dropType为1时，_minDropAmt填0，为2时，填每份最少领取数量
             uint256 _minDropAmt = 0;
             //当dropType为1时，_maxDropAmt填每份奖励数量，为2时，填每份最多领取数量
@@ -106,5 +146,23 @@ contract PrivacyContractsDeployer is BaseScript {
                 _tokenContractAddr
             );
         
+    }
+    function mintNft(NFTManager nFTManager) public{
+        string memory _businessName = "im big man";
+            string memory _description = "this is bing man";
+            string memory _imgUrl = "https://bing.com/img";
+            string memory _businessAddress = "budao street";
+            string memory _webSite = "https://bing.com";
+            string memory _social = "https://bing.com/social";
+            uint8 _type = 1;
+            nFTManager.mintNewEvent(
+                _businessName,
+                _description,
+                _imgUrl,
+                _businessAddress,
+                _webSite,
+                _social,
+                _type
+            );
     }
 }
