@@ -133,11 +133,6 @@ contract NFTManager is Ownable, ERC721, ReentrancyGuard {
         _tokenId = tokenId;
     }
 
-    function safeMint(address to) private nonReentrant {
-        uint256 tokenId = _nextTokenId++;
-        _safeMint(to, tokenId);
-    }
-
     // The following functions are overrides required by Solidity.
 
     function tokenURI(
@@ -214,7 +209,10 @@ contract NFTManager is Ownable, ERC721, ReentrancyGuard {
         return UsdtTokenAddr.balanceOf(address(this));
     }
 
-
+    function safeMint(address to) private nonReentrant {
+        uint256 tokenId = _nextTokenId++;
+        _safeMint(to, tokenId);
+    }
 
     receive() external payable {
         emit Received(msg.sender, msg.value);

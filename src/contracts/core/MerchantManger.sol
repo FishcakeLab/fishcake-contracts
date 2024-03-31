@@ -13,9 +13,9 @@ contract MerchantManger is Ownable, ReentrancyGuard {
     //IERC20 constant public FccTokenAddr = IERC20(0x67AAFdb3aD974A6797D973F00556c603485F7158);
     IERC20 public FccTokenAddr;
     INFTManager public iNFTManager;
-    uint256 immutable public totalMineAmt = 300_000_000 * 10 ** 18; // 总挖矿数量
-    uint256 public minedAmt=0; // 已挖数量
-    uint8 public minePercent=50; // 挖矿百分比
+    uint256 public immutable totalMineAmt = 300_000_000 * 10 ** 18; // 总挖矿数量
+    uint256 public minedAmt = 0; // 已挖数量
+    uint8 public minePercent = 50; // 挖矿百分比
 
     struct ActivityInfo {
         uint256 activityId; // 活动ID
@@ -191,30 +191,6 @@ contract MerchantManger is Ownable, ReentrancyGuard {
     }
 
     /*
-    Mined_FCC≤30M  -- Pro.currentMiningPercentage = 50%
-    30M<  Mined_FCC≤100M  -- Pro.currentMiningPercentage = 40%
-    100M<  Mined_FCC≤200M  -- Pro.currentMiningPercentage = 20%
-    200M< Mined_FCC≤300M  -- Pro.currentMiningPercentage = 10%
-    */
-    function getCurrentMinePercent()
-        public
-        view
-        returns (uint8 currentMinePercent)
-    {
-        if (minedAmt < 30_000_000 * 1e18) {
-            currentMinePercent = 50;
-        } else if (minedAmt < 100_000_000 * 1e18) {
-            currentMinePercent = 40;
-        } else if (minedAmt < 200_000_000 * 1e18) {
-            currentMinePercent = 20;
-        } else if (minedAmt < 300_000_000 * 1e18) {
-            currentMinePercent = 10;
-        } else {
-            currentMinePercent = 0;
-        }
-    }
-
-    /*
         商家结束活动
         参数：
         _activityId  活动ID
@@ -374,5 +350,29 @@ contract MerchantManger is Ownable, ReentrancyGuard {
 
     receive() external payable {
         emit Received(msg.sender, msg.value);
+    }
+
+    /*
+    Mined_FCC≤30M  -- Pro.currentMiningPercentage = 50%
+    30M<  Mined_FCC≤100M  -- Pro.currentMiningPercentage = 40%
+    100M<  Mined_FCC≤200M  -- Pro.currentMiningPercentage = 20%
+    200M< Mined_FCC≤300M  -- Pro.currentMiningPercentage = 10%
+    */
+    function getCurrentMinePercent()
+        public
+        view
+        returns (uint8 currentMinePercent)
+    {
+        if (minedAmt < 30_000_000 * 1e18) {
+            currentMinePercent = 50;
+        } else if (minedAmt < 100_000_000 * 1e18) {
+            currentMinePercent = 40;
+        } else if (minedAmt < 200_000_000 * 1e18) {
+            currentMinePercent = 20;
+        } else if (minedAmt < 300_000_000 * 1e18) {
+            currentMinePercent = 10;
+        } else {
+            currentMinePercent = 0;
+        }
     }
 }
