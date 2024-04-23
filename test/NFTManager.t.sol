@@ -12,6 +12,7 @@ contract NFTManagerTest is Test {
     address admin = makeAddr("admin");
     address merchant = makeAddr("merchant");
     address user = makeAddr("user");
+    address redemptionPool = makeAddr("redemptionPool");
     NFTManager public nFTManager;
     FccToken public fct;
     UsdtToken public usdt;
@@ -52,8 +53,10 @@ contract NFTManagerTest is Test {
             nFTManager = new NFTManager(
                 address(admin),
                 address(fct),
-                address(usdt)
+                address(usdt),
+                redemptionPool
             );
+            fct.mint(address(nFTManager), 100000000e18);
         }
         vm.stopPrank();
     }
@@ -102,6 +105,10 @@ contract NFTManagerTest is Test {
                 console.log(
                     "mint success,nFTManager balance",
                     usdt.balanceOf(address(nFTManager))
+                );
+                console.log(
+                    "mint success,redemptionPool balance",
+                    usdt.balanceOf(address(redemptionPool))
                 );
                 console.log(
                     "mint success,merchantNTFDeadline:",
@@ -167,6 +174,10 @@ contract NFTManagerTest is Test {
                 console.log(
                     "mint success,nFTManager balance",
                     usdt.balanceOf(address(nFTManager))
+                );
+                console.log(
+                    "mint success,redemptionPool balance",
+                    usdt.balanceOf(address(redemptionPool))
                 );
                 console.log(
                     "mint success,merchantNTFDeadline:",

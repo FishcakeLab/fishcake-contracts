@@ -16,6 +16,8 @@ contract MerchantMangerTest is Test {
     address admin = makeAddr("admin");
     address merchant = makeAddr("merchant");
     address user = makeAddr("user");
+    address redemptionPool = makeAddr("redemptionPool");
+
     MerchantManger public merchantManger;
     NFTManager public nFTManager;
     FccToken public fct;
@@ -52,7 +54,8 @@ contract MerchantMangerTest is Test {
         nFTManager = new NFTManager(
             address(admin),
             address(fct),
-            address(usdt)
+            address(usdt),
+            redemptionPool
         );
         //nFTManager.initialize(address(admin),address(fct), address(usdt));
         /*merchantManger = new MerchantManger();
