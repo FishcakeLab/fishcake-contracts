@@ -21,6 +21,8 @@ contract NFTManager is Ownable, ERC721, ReentrancyGuard {
     uint256 public immutable totalMineAmt = 200_000_000 * 10 ** 18;
     uint256 public immutable proMineAmt = 1000 * 10 ** 18;
     uint256 public immutable basicMineAmt = 100 * 10 ** 18;
+    address public redemptionPoolAddress;
+
     uint256 public minedAmt = 0;
     IERC20 public FccTokenAddr;
     IERC20 public UsdtTokenAddr;
@@ -63,12 +65,14 @@ contract NFTManager is Ownable, ERC721, ReentrancyGuard {
     constructor(
         address initialOwner,
         address _fccAddress,
-        address _usdtAddress
+        address _usdtAddress,
+        address _redemptionPoolAddress
     ) ERC721("FCCNFT", "FCCNFT") Ownable(initialOwner) {
         FccTokenAddr = IERC20(_fccAddress);
         UsdtTokenAddr = IERC20(_usdtAddress);
         merchantValue = 80e18;
         userValue = 8e18;
+        redemptionPoolAddress= _redemptionPoolAddress;
     }
 
     function mintNewEvent(
@@ -112,6 +116,8 @@ contract NFTManager is Ownable, ERC721, ReentrancyGuard {
         }
 
         UsdtTokenAddr.safeTransferFrom(_msgSender(), address(this), _value);
+        UsdtTokenAddr.safeTransfer(redemptionPoolAddress,_value*75/100);
+
 
         uint256 tokenId = _nextTokenId++;
         _safeMint(_msgSender(), tokenId);
