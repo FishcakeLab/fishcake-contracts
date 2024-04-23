@@ -52,20 +52,6 @@ contract PrivacyContractsDeployer is BaseScript {
         console.log("The Deployer address:", deployer);
         console.log("FccToken deployed on %s", address(fct));
         console.log("UsdtToken deployed on %s", address(usdt));
-
-        NFTManager nFTManager = new NFTManager(
-            deployer,
-            address(fct),
-            address(usdt)
-        );
-        MerchantManger merchantManger = new MerchantManger(
-            deployer,
-            address(fct),
-            address(nFTManager)
-        );
-        console.log("NFTManager deployed on %s", address(nFTManager));
-        console.log("MerchantManger deployed on %s", address(merchantManger));
-
         RedemptionPool redemptionPool = new RedemptionPool(address(fct));
         DirectSalePool directSalePool = new DirectSalePool(
             deployer,
@@ -82,6 +68,20 @@ contract PrivacyContractsDeployer is BaseScript {
             "investorSalePool deployed on %s",
             address(investorSalePool)
         );
+        NFTManager nFTManager = new NFTManager(
+            deployer,
+            address(fct),
+            address(usdt),
+            address(redemptionPool)
+        );
+        MerchantManger merchantManger = new MerchantManger(
+            deployer,
+            address(fct),
+            address(nFTManager)
+        );
+        console.log("NFTManager deployed on %s", address(nFTManager));
+        console.log("MerchantManger deployed on %s", address(merchantManger));
+
         //_MiningPool, _DirectSalePool, _InvestorSalePool, _NFTSalesRewardsPool, _EarlyStageAirdropsPool, _FoundationPool
         fct.setPoolAddress(
             address(merchantManger),
