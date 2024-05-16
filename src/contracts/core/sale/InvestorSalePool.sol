@@ -30,7 +30,7 @@ contract InvestorSalePool is Ownable, ReentrancyGuard {
     RedemptionPool public redemptionPool;
     address public valut;
     IERC20 public immutable USDT =
-        IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7);
+        IERC20(0xc2132D05D31c914a87C6611C10748AEb04B58e8F);
 
     uint256 public immutable OneUSDT = 10 ** 6;
     uint256 public immutable OneFCC = 10 ** 18;
