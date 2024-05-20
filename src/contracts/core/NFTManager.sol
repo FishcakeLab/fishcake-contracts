@@ -4,12 +4,13 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
-contract NFTManager is Ownable, ERC721, ReentrancyGuard {
+contract NFTManager is Ownable, ERC721, ERC721URIStorage, ReentrancyGuard {
     using Strings for uint256;
+    using Strings for uint8;
     using SafeERC20 for IERC20;
 
     uint256 private _nextTokenId;
@@ -123,6 +124,10 @@ contract NFTManager is Ownable, ERC721, ReentrancyGuard {
         uint256 tokenId = _nextTokenId++;
         _safeMint(_msgSender(), tokenId);
         nftTypeMap[tokenId] = _type;
+        string memory uri = string(
+            abi.encodePacked(uriPrefix, _type.toString(), ".json")
+        );
+        _setTokenURI(tokenId, uri);
 
         emit CreateNFT(
             _msgSender(),
@@ -145,13 +150,17 @@ contract NFTManager is Ownable, ERC721, ReentrancyGuard {
 
     function tokenURI(
         uint256 tokenId
-    ) public view override returns (string memory) {
+    ) public view override(ERC721, ERC721URIStorage) returns (string memory) {
         string memory baseURI = _baseURI();
         uint256 _type = nftTypeMap[tokenId];
         return
             bytes(baseURI).length > 0
                 ? string(abi.encodePacked(baseURI, _type.toString(), ".json"))
                 : "";
+    }
+
+    function uri(uint256 uri_) public view virtual returns (string memory) {
+        return tokenURI(uri_);
     }
 
     function _baseURI() internal view virtual override returns (string memory) {
@@ -221,6 +230,12 @@ contract NFTManager is Ownable, ERC721, ReentrancyGuard {
     function safeMint(address to) private nonReentrant {
         uint256 tokenId = _nextTokenId++;
         _safeMint(to, tokenId);
+    }
+
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view override(ERC721, ERC721URIStorage) returns (bool) {
+        return super.supportsInterface(interfaceId);
     }
 
     receive() external payable {
