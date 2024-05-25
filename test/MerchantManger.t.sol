@@ -31,9 +31,9 @@ contract MerchantMangerTest is Test {
         fct.mint(merchant, 10000e18);
 
         usdt = new UsdtToken(admin);
-        usdt.mint(admin, 1000000000e18);
-        usdt.mint(merchant, 1000000000e18);
-        usdt.mint(user, 1000000000e18);
+        usdt.mint(admin, 1000000000e6);
+        usdt.mint(merchant, 1000000000e6);
+        usdt.mint(user, 1000000000e6);
 
         //nFTManager = new NFTManager(address(fct), address(usdt));
         //nFTManager = new NFTManager();
@@ -80,6 +80,7 @@ contract MerchantMangerTest is Test {
         merchantManger = new MerchantManger(
             address(admin),
             address(fct),
+            address(usdt),
             address(nFTManager)
         );
 
@@ -142,13 +143,14 @@ contract MerchantMangerTest is Test {
     */
     function set_ActivityAdd() public returns (bool _ret, uint256 _activityId) {
         vm.startPrank(merchant);
+        vm.warp(1716520877);
         {
             fct.approve(address(merchantManger), UINT256_MAX);
             string memory _businessName = "Fishcake Store Grand open";
             string
                 memory _activityContent = "2000 FCC even drop to 100 people whovisit store on grand open day";
             string memory _latitudeLongitude = "35.384581,115.664607";
-            uint256 _activityDeadLine = 1710592488;
+            uint256 _activityDeadLine = 1716550801;
 
             //奖励规则：1表示平均获得  2表示随机
             uint8 _dropType = 1;
@@ -161,7 +163,7 @@ contract MerchantMangerTest is Test {
             //根据_maxDropAmt * _dropNumber得到，不用用户输入
             uint256 _totalDropAmts = _maxDropAmt * _dropNumber;
             address _tokenContractAddr = address(fct);
-            (_ret, _activityId) = merchantManger.activityAdd(
+            (_ret, _activityId) = merchantManger.addActivity(
                 _businessName,
                 _activityContent,
                 _latitudeLongitude,
@@ -214,7 +216,7 @@ contract MerchantMangerTest is Test {
             //根据_maxDropAmt * _dropNumber得到，不用用户输入
             uint256 _totalDropAmts = _maxDropAmt * _dropNumber;
             address _tokenContractAddr = address(fct);
-            (_ret, _activityId) = merchantManger.activityAdd(
+            (_ret, _activityId) = merchantManger.addActivity(
                 _businessName,
                 _activityContent,
                 _latitudeLongitude,
@@ -598,7 +600,7 @@ contract MerchantMangerTest is Test {
         //use merchant account
         vm.startPrank(merchant);
         {
-            usdt.approve(address(nFTManager), 80e18);
+            usdt.approve(address(nFTManager), 80e6);
             string memory _businessName = "im big man";
             string memory _description = "this is bing man";
             string memory _imgUrl = "https://bing.com/img";
@@ -606,7 +608,7 @@ contract MerchantMangerTest is Test {
             string memory _webSite = "https://bing.com";
             string memory _social = "https://bing.com/social";
             uint8 _type = 1;
-            (bool _ret, uint256 _tokenId) = nFTManager.mintNewEvent(
+            (bool _ret, uint256 _tokenId) = nFTManager.mint(
                 _businessName,
                 _description,
                 _imgUrl,

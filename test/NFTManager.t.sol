@@ -26,9 +26,9 @@ contract NFTManagerTest is Test {
             fct.mint(merchant, 10000e18);
 
             usdt = new UsdtToken(admin);
-            usdt.mint(admin, 66666666e18);
-            usdt.mint(merchant, 66666666e18);
-            usdt.mint(user, 66666666e18);
+            usdt.mint(admin, 66666666e6);
+            usdt.mint(merchant, 66666666e6);
+            usdt.mint(user, 66666666e6);
             /*
             Options memory opts;
             opts.unsafeSkipAllChecks = true;
@@ -73,11 +73,23 @@ contract NFTManagerTest is Test {
         vm.stopPrank();
     }
 
+    function test_setUriPrefix() public {
+        vm.startPrank(admin);
+        {
+            nFTManager.setUriPrefix(
+                "https://scarlet-tough-cat-815.mypinata.cloud/ipfs/QmbJtntg8qeGvNZRcJTY3msJ8CUHMx11jGR6aCsPQ88mYv/"
+            );
+            console.log("uriPrefix:", nFTManager.uriPrefix());
+        }
+        vm.stopPrank();
+    }
+
     function test_UserMint() public {
+        test_setUriPrefix();
         //use user account
         vm.startPrank(user);
         {
-            usdt.approve(address(nFTManager), 8e18);
+            usdt.approve(address(nFTManager), 8e6);
             string memory _businessName = "im big man";
             string memory _description = "this is bing man";
             string memory _imgUrl = "https://bing.com/img";
@@ -85,7 +97,7 @@ contract NFTManagerTest is Test {
             string memory _webSite = "https://bing.com";
             string memory _social = "https://bing.com/social";
             uint8 _type = 2;
-            (bool _ret, uint256 _tokenId) = nFTManager.mintNewEvent(
+            (bool _ret, uint256 _tokenId) = nFTManager.mint(
                 _businessName,
                 _description,
                 _imgUrl,
@@ -120,7 +132,7 @@ contract NFTManagerTest is Test {
                 );
             }
             /*
-            (bool _ret1, uint256 _tokenId1) = nFTManager.mintNewEvent(
+            (bool _ret1, uint256 _tokenId1) = nFTManager.mint(
                 _businessName,
                 _description,
                 _imgUrl,
@@ -138,23 +150,26 @@ contract NFTManagerTest is Test {
                     usdt.balanceOf(address(nFTManager))
                 );
             }*/
+            string memory tokenUri = nFTManager.tokenURI(_tokenId);
+            console.log("tokenUri:", tokenUri);
         }
         vm.stopPrank();
     }
 
     function test_UserMintWithType1() public {
+        test_setUriPrefix();
         //use merchant account
         vm.startPrank(merchant);
         {
-            usdt.approve(address(nFTManager), 80e18);
+            usdt.approve(address(nFTManager), 80e6);
             string memory _businessName = "im big man";
             string memory _description = "this is bing man";
             string memory _imgUrl = "https://bing.com/img";
             string memory _businessAddress = "budao street";
             string memory _webSite = "https://bing.com";
             string memory _social = "https://bing.com/social";
-            uint8 _type = 1;
-            (bool _ret, uint256 _tokenId) = nFTManager.mintNewEvent(
+            uint8 _type = 2;
+            (bool _ret, uint256 _tokenId) = nFTManager.mint(
                 _businessName,
                 _description,
                 _imgUrl,
@@ -188,6 +203,8 @@ contract NFTManagerTest is Test {
                     nFTManager.getUserNTFDeadline(address(merchant))
                 );
             }
+            string memory tokenUri = nFTManager.tokenURI(_tokenId);
+            console.log("tokenUri:", tokenUri);
         }
         vm.stopPrank();
     }
@@ -195,7 +212,7 @@ contract NFTManagerTest is Test {
     function test_UserMintWithOrtherType() public {
         vm.startPrank(user);
         {
-            usdt.approve(address(nFTManager), 8e18);
+            usdt.approve(address(nFTManager), 8e6);
             string memory _businessName = "im big man";
             string memory _description = "this is bing man";
             string memory _imgUrl = "https://bing.com/img";
@@ -204,7 +221,7 @@ contract NFTManagerTest is Test {
             string memory _social = "https://bing.com/social";
             uint8 _type = 3;
             vm.expectRevert(bytes("Type Error."));
-            nFTManager.mintNewEvent(
+            nFTManager.mint(
                 _businessName,
                 _description,
                 _imgUrl,
@@ -220,7 +237,7 @@ contract NFTManagerTest is Test {
     function test_UserMintWithNoApprove() public {
         vm.startPrank(user);
         {
-            //usdt.approve(address(nFTManager), 16e18);
+            //usdt.approve(address(nFTManager), 16e6);
             string memory _businessName = "im big man";
             string memory _description = "this is bing man";
             string memory _imgUrl = "https://bing.com/img";
@@ -229,7 +246,7 @@ contract NFTManagerTest is Test {
             string memory _social = "https://bing.com/social";
             uint8 _type = 2;
             vm.expectRevert(bytes("Approve token not enough Error."));
-            nFTManager.mintNewEvent(
+            nFTManager.mint(
                 _businessName,
                 _description,
                 _imgUrl,
@@ -247,7 +264,7 @@ contract NFTManagerTest is Test {
         vm.startPrank(user);
         {
             vm.expectRevert(bytes("Ownable: caller is not the owner"));
-            nFTManager.withdrawUToken(address(usdt), address(user), 16e18);
+            nFTManager.withdrawUToken(address(usdt), address(user), 16e6);
         }
         vm.stopPrank();
     }
@@ -258,7 +275,7 @@ contract NFTManagerTest is Test {
         {
             console.log("before balance", usdt.balanceOf(address(admin)));
             //vm.expectRevert(bytes("Balance not enough."));
-            nFTManager.withdrawUToken(address(usdt), address(admin), 1000e18);
+            nFTManager.withdrawUToken(address(usdt), address(admin), 1000e6);
             console.log("after balance", usdt.balanceOf(address(admin)));
         }
         vm.stopPrank();

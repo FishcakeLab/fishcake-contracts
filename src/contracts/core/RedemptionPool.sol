@@ -20,7 +20,7 @@ contract RedemptionPool is ReentrancyGuard {
     FishcakeCoin public fishcakeCoin;
 
     IERC20 public immutable USDT =
-        IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7);
+        IERC20(0xc2132D05D31c914a87C6611C10748AEb04B58e8F);
 
     uint public immutable TwoYears = 730 days;
     uint256 public immutable OneUSDT = 10 ** 6;

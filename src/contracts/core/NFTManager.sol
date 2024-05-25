@@ -24,10 +24,12 @@ contract NFTManager is Ownable, ERC721, ReentrancyGuard {
     address public redemptionPoolAddress;
 
     uint256 public minedAmt = 0;
-    IERC20 public FccTokenAddr;
-    IERC20 public UsdtTokenAddr;
+    IERC20 public immutable FccTokenAddr;
+    IERC20 public immutable UsdtTokenAddr;
     mapping(address => uint256) public merchantNTFDeadline;
     mapping(address => uint256) public userNTFDeadline;
+    //nftTokenID => 1 merchant,2 user
+    mapping(uint256 => uint8) public nftTypeMap;
 
     //tokenId => deadline timestamp
     //mapping(uint256 => uint256)  public nftDeadline;
@@ -70,12 +72,12 @@ contract NFTManager is Ownable, ERC721, ReentrancyGuard {
     ) ERC721("FCCNFT", "FCCNFT") Ownable(initialOwner) {
         FccTokenAddr = IERC20(_fccAddress);
         UsdtTokenAddr = IERC20(_usdtAddress);
-        merchantValue = 80e18;
-        userValue = 8e18;
-        redemptionPoolAddress= _redemptionPoolAddress;
+        merchantValue = 80e6;
+        userValue = 8e6;
+        redemptionPoolAddress = _redemptionPoolAddress;
     }
 
-    function mintNewEvent(
+    function mint(
         string memory _businessName,
         string memory _description,
         string memory _imgUrl,
@@ -116,11 +118,11 @@ contract NFTManager is Ownable, ERC721, ReentrancyGuard {
         }
 
         UsdtTokenAddr.safeTransferFrom(_msgSender(), address(this), _value);
-        UsdtTokenAddr.safeTransfer(redemptionPoolAddress,_value*75/100);
-
+        UsdtTokenAddr.safeTransfer(redemptionPoolAddress, (_value * 75) / 100);
 
         uint256 tokenId = _nextTokenId++;
         _safeMint(_msgSender(), tokenId);
+        nftTypeMap[tokenId] = _type;
 
         emit MintNewEvent(
             _msgSender(),
@@ -145,9 +147,10 @@ contract NFTManager is Ownable, ERC721, ReentrancyGuard {
         uint256 tokenId
     ) public view override returns (string memory) {
         string memory baseURI = _baseURI();
+        uint256 _type = nftTypeMap[tokenId];
         return
             bytes(baseURI).length > 0
-                ? string(abi.encodePacked(baseURI, tokenId.toString(), ".json"))
+                ? string(abi.encodePacked(baseURI, _type.toString(), ".json"))
                 : "";
     }
 

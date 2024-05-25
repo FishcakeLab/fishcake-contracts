@@ -11,9 +11,12 @@ contract MerchantManger is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     //IERC20 constant public FccTokenAddr = IERC20(0x67AAFdb3aD974A6797D973F00556c603485F7158);
-    IERC20 public FccTokenAddr;
+    IERC20 public immutable FccTokenAddr;
+    IERC20 public immutable UsdtTokenAddr;
     INFTManager public iNFTManager;
     uint256 public immutable totalMineAmt = 300_000_000 * 10 ** 18; // 总挖矿数量
+    //30 days = 2592000 s
+    uint256 private immutable maxDeadLine = 2592000;
     uint256 public minedAmt = 0; // 已挖数量
     uint8 public minePercent = 50; // 挖矿百分比
 
@@ -95,9 +98,12 @@ contract MerchantManger is Ownable, ReentrancyGuard {
     constructor(
         address initialOwner,
         address _fccAddress,
+        address _usdtTokenAddr,
         address _NFTManagerAddr
     ) Ownable(initialOwner) {
         FccTokenAddr = IERC20(_fccAddress);
+        UsdtTokenAddr = IERC20(_usdtTokenAddr);
+
         iNFTManager = INFTManager(_NFTManagerAddr);
     }
 
@@ -134,9 +140,17 @@ contract MerchantManger is Ownable, ReentrancyGuard {
     ) public nonReentrant returns (bool _ret, uint256 _activityId) {
         require(_dropType == 2 || _dropType == 1, "Drop Type Error.");
         require(_totalDropAmts > 0, "Drop Amount Error.");
+        require(
+            block.timestamp < _activityDeadLine && _activityDeadLine< block.timestamp + maxDeadLine,
+            "Activity DeadLine Error."
+        );
 
         require(
             _totalDropAmts == _maxDropAmt * _dropNumber,
+            "Drop Number Not Meet Total Drop Amounts."
+        );
+        require(
+            _tokenContractAddr == address(UsdtTokenAddr) || _tokenContractAddr == address(FccTokenAddr),
             "Drop Number Not Meet Total Drop Amounts."
         );
 
