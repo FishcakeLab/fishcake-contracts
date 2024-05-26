@@ -1,11 +1,50 @@
 [
   {
+    "type": "constructor",
+    "inputs": [
+      {
+        "name": "initialOwner",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "_fccAddress",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "_usdtTokenAddr",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "_NFTManagerAddr",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
     "type": "receive",
     "stateMutability": "payable"
   },
   {
     "type": "function",
     "name": "FccTokenAddr",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "contract IERC20"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "UsdtTokenAddr",
     "inputs": [],
     "outputs": [
       {
@@ -267,25 +306,6 @@
   },
   {
     "type": "function",
-    "name": "addMineAmt",
-    "inputs": [
-      {
-        "name": "_addMineAmt",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "_ret",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "drop",
     "inputs": [
       {
@@ -349,6 +369,19 @@
   },
   {
     "type": "function",
+    "name": "getCurrentMinePercent",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "currentMinePercent",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "iNFTManager",
     "inputs": [],
     "outputs": [
@@ -359,29 +392,6 @@
       }
     ],
     "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "initialize",
-    "inputs": [
-      {
-        "name": "initialOwner",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "_fcc",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "_NFTManagerAddr",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
   },
   {
     "type": "function",
@@ -427,25 +437,6 @@
     "name": "renounceOwnership",
     "inputs": [],
     "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "setMinePercent",
-    "inputs": [
-      {
-        "name": "_minePercent",
-        "type": "uint8",
-        "internalType": "uint8"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "_ret",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
     "stateMutability": "nonpayable"
   },
   {
@@ -665,19 +656,6 @@
   },
   {
     "type": "event",
-    "name": "Initialized",
-    "inputs": [
-      {
-        "name": "version",
-        "type": "uint64",
-        "indexed": false,
-        "internalType": "uint64"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
     "name": "OwnershipTransferred",
     "inputs": [
       {
@@ -827,16 +805,6 @@
         "internalType": "uint256"
       }
     ]
-  },
-  {
-    "type": "error",
-    "name": "InvalidInitialization",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "NotInitializing",
-    "inputs": []
   },
   {
     "type": "error",

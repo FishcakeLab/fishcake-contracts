@@ -1,7 +1,28 @@
 [
   {
     "type": "constructor",
-    "inputs": [],
+    "inputs": [
+      {
+        "name": "initialOwner",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "_fccAddress",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "_usdtAddress",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "_redemptionPoolAddress",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
     "stateMutability": "nonpayable"
   },
   {
@@ -70,6 +91,73 @@
       }
     ],
     "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "basicMineAmt",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "createNFT",
+    "inputs": [
+      {
+        "name": "_businessName",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "_description",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "_imgUrl",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "_businessAddress",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "_webSite",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "_social",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "_type",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "_ret",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "_tokenId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
   },
   {
     "type": "function",
@@ -143,29 +231,6 @@
   },
   {
     "type": "function",
-    "name": "initialize",
-    "inputs": [
-      {
-        "name": "initialOwner",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "_fccAddress",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "_usdtAddress",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "isApprovedForAll",
     "inputs": [
       {
@@ -209,57 +274,16 @@
   },
   {
     "type": "function",
-    "name": "mintNewEvent",
-    "inputs": [
-      {
-        "name": "_businessName",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
-        "name": "_description",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
-        "name": "_imgUrl",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
-        "name": "_businessAddress",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
-        "name": "_webSite",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
-        "name": "_social",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
-        "name": "_type",
-        "type": "uint8",
-        "internalType": "uint8"
-      }
-    ],
+    "name": "minedAmt",
+    "inputs": [],
     "outputs": [
       {
-        "name": "_ret",
-        "type": "bool",
-        "internalType": "bool"
-      },
-      {
-        "name": "_tokenId",
+        "name": "",
         "type": "uint256",
         "internalType": "uint256"
       }
     ],
-    "stateMutability": "nonpayable"
+    "stateMutability": "view"
   },
   {
     "type": "function",
@@ -270,6 +294,25 @@
         "name": "",
         "type": "string",
         "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "nftTypeMap",
+    "inputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "uint8"
       }
     ],
     "stateMutability": "view"
@@ -297,6 +340,32 @@
         "internalType": "uint256"
       }
     ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "proMineAmt",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "redemptionPoolAddress",
+    "inputs": [],
     "outputs": [
       {
         "name": "",
@@ -403,25 +472,6 @@
   },
   {
     "type": "function",
-    "name": "setValidTime",
-    "inputs": [
-      {
-        "name": "_time",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "_ret",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "setValues",
     "inputs": [
       {
@@ -491,6 +541,19 @@
         "name": "",
         "type": "string",
         "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "totalMineAmt",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
       }
     ],
     "stateMutability": "view"
@@ -668,20 +731,7 @@
   },
   {
     "type": "event",
-    "name": "Initialized",
-    "inputs": [
-      {
-        "name": "version",
-        "type": "uint64",
-        "indexed": false,
-        "internalType": "uint64"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "MintNewEvent",
+    "name": "CreateNFT",
     "inputs": [
       {
         "name": "who",
@@ -1062,16 +1112,6 @@
         "internalType": "uint256"
       }
     ]
-  },
-  {
-    "type": "error",
-    "name": "InvalidInitialization",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "NotInitializing",
-    "inputs": []
   },
   {
     "type": "error",
