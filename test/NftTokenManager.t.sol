@@ -11,7 +11,7 @@ contract NftTokenManagerTest is Test {
     NftTokenManager public nftTokenManager;
 
     function setUp() public {
-        //管理员身份先部署以及铸造基本
+        //Deploying and minting the basic functions as an administrator.
         vm.startPrank(admin);
         {
             nftTokenManager = new NftTokenManager(

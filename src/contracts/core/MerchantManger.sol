@@ -14,52 +14,52 @@ contract MerchantManger is Ownable, ReentrancyGuard {
     IERC20 public immutable FccTokenAddr;
     IERC20 public immutable UsdtTokenAddr;
     INFTManager public iNFTManager;
-    uint256 public immutable totalMineAmt = 300_000_000 * 10 ** 18; // 总挖矿数量
+    uint256 public immutable totalMineAmt = 300_000_000 * 10 ** 18; // Total mining quantity
     //30 days = 2592000 s
     uint256 private immutable maxDeadLine = 2592000;
-    uint256 public minedAmt = 0; // 已挖数量
-    uint8 public minePercent = 50; // 挖矿百分比
+    uint256 public minedAmt = 0; // Mined quantity
+    uint8 public minePercent = 50; // Mining percentage
 
     struct ActivityInfo {
-        uint256 activityId; // 活动ID
-        address businessAccount; // 发起人账户（商家0x...）
-        string businessName; // 商家名称
-        string activityContent; // 活动内容
-        string latitudeLongitude; // 经纬度，以_分割经纬度
-        uint256 activityCreateTime; // 活动创建时间
-        uint256 activityDeadLine; // 活动结束时间
-        uint8 dropType; // 奖励规则：1表示平均获得  2表示随机
-        uint256 dropNumber; // 奖励份数
-        uint256 minDropAmt; // 当dropType为1时，填0，为2时，填每份最少领取数量
-        uint256 maxDropAmt; // 当dropType为1时，填每份奖励数量，为2时，填每份最多领取数量，奖励总量根据该字段 * 奖励份数确定
+        uint256 activityId; // Activity ID
+        address businessAccount; // Initiator's account（0x...）
+        string businessName; // Merchant name
+        string activityContent; // Activity content
+        string latitudeLongitude; // Latitude and longitude
+        uint256 activityCreateTime; // Activity creation time
+        uint256 activityDeadLine; // Activity end time
+        uint8 dropType; // Reward rules: 1 represents average acquisition, 2 represents random.
+        uint256 dropNumber; // Number of reward units
+        uint256 minDropAmt; // When dropType is 1, fill in 0; when it is 2, fill in the minimum quantity to be received for each unit.
+        uint256 maxDropAmt; // When dropType is 1, fill in the quantity of each reward; when it is 2, fill in the maximum quantity to be received for each unit. The total reward quantity is determined by multiplying this field by the number of reward units.
         address tokenContractAddr; //Token Contract Address，For example, USDT contract address: 0x55d398326f99059fF775485246999027B3197955
     }
 
-    ActivityInfo[] public activityInfoArrs; // 所有活动数组
+    ActivityInfo[] public activityInfoArrs; // all
 
     struct ActivityInfoExt {
-        uint256 activityId; // 活动ID
-        uint256 alreadyDropAmts; // 总共已奖励数量
-        uint256 alreadyDropNumber; // 总共已奖励份数
-        uint256 businessMinedAmt; // 商家获得的挖矿奖励
-        uint256 businessMinedWithdrawedAmt; // 商家已提取的挖矿奖励
-        uint8 activityStatus; // 活动状态：1表示进行中  2表示已结束
+        uint256 activityId; // Activity ID
+        uint256 alreadyDropAmts; // Total rewarded quantity
+        uint256 alreadyDropNumber; // Total number of rewarded units
+        uint256 businessMinedAmt; // Mining rewards obtained by the merchant
+        uint256 businessMinedWithdrawedAmt; // Mining rewards already withdrawn by the merchant
+        uint8 activityStatus; // Activity status: 1 indicates ongoing, 2 indicates ended
     }
 
-    ActivityInfoExt[] public activityInfoExtArrs; // 所有活动数组
+    ActivityInfoExt[] public activityInfoExtArrs; // Translation: Array of all activities
 
-    uint256[] public activityInfoChangedIdx; // 状态有改变的下标
+    uint256[] public activityInfoChangedIdx; // Translation: Indices of changed statuses
 
     struct DropInfo {
-        uint256 activityId; // 活动ID
-        address userAccount; // 发起人账户（商家0x...）
-        uint256 dropTime; // 获奖时间
-        uint256 dropAmt; // 获奖数量
+        uint256 activityId; // Activity ID
+        address userAccount; // Initiator's account（0x...）
+        uint256 dropTime; // drop Time
+        uint256 dropAmt; // drop amount
     }
 
-    DropInfo[] public dropInfoArrs; // 所有获奖数组
+    DropInfo[] public dropInfoArrs; // drop InfoA rrs
 
-    // 活动ID => 用户 => 是否已获得过奖励
+    // Activity ID => user => Whether the reward has been obtained before
     mapping(uint256 => mapping(address => bool)) public activityDropedToAccount;
 
     event SetMinePercent(uint8 minePercent);
@@ -108,23 +108,24 @@ contract MerchantManger is Ownable, ReentrancyGuard {
     }
 
     /*
-        增加活动，任何人都可以增加
-        参数：
-        _businessName 商家名称
-        _activityContent 活动内容
-        _latitudeLongitude 商家地址经纬度，以_分割经纬度
-        _activityDeadLine 活动结束时间，需传TimeStamp到后端（如：1683685034）
-        _totalDropAmts  总奖励数量，根据_maxDropAmt * _dropNumber得到，不用用户输入 （调用合约时，需将用户输入的数字 * 10的18次方）
-        _dropType     奖励规则：1表示平均获得  2表示随机
-        _dropNumber      奖励份数
-        _minDropAmt     当dropType为1时，填0，为2时，填每份最少领取数量  （调用合约时，需将用户输入的数字 * 10的18次方）
-        _maxDropAmt     当dropType为1时，填每份奖励数量，为2时，填每份最多领取数量，奖励总量根据该字段 * 奖励份数确定  （调用合约时，需将用户输入的数字 * 10的18次方）
+        Add activity, anyone can contribute
+        Parameters：
+        _businessName Merchant name
+        _activityContent Activity content
+        _latitudeLongitude Latitude and longitude
+        _activityDeadLine The end time of the activity, which needs to be passed as a TimeStamp to the backend (e.g. 1683685034)
+        _totalDropAmts  The total reward quantity is determined by _maxDropAmt * _dropNumber and does not require user input (when calling the contract, the user's input number needs to be multiplied by 10 to the power of 18).
+        _dropType     Reward rules: 1 represents average acquisition, 2 represents random.
+        _dropNumber      Number of reward units
+        _minDropAmt     When dropType is 1, fill in 0; when it is 2, fill in the minimum quantity to be received for each unit (when calling the contract, the user's input number needs to be multiplied by 10 to the power of 18).
+        _maxDropAmt     When dropType is 1, fill in the quantity of each reward; when it is 2, fill in the maximum quantity to be received for each unit. The total reward quantity is determined by multiplying this field by the number of reward units (when calling the contract, the user's input number needs to be multiplied by 10 to the power of 18).
         _tokenContractAddr    Token Contract Address，For example, USDT contract address: 0x55d398326f99059fF775485246999027B3197955
-        返回值：
-        _ret   是否成功
-        _activityId  活动ID
-        注：前端调用该方法前，需先调用FCCToken的approve方法，授权本合约地址，访问使用者钱包的FCCToken访问权限。
-        具体授权数字，使用 _maxDropAmt * 10的18次方 * _dropNumber
+        
+        Return value：
+        _ret   Was it successful?
+        _activityId  Activity ID
+        ps: Before calling this method in the front end, it is necessary to first call the "approve" method of FCCToken to authorize this contract address to access and use the user's wallet FCCToken.
+        The specific authorization number is calculated as _maxDropAmt * 10 to the power of 18 * _dropNumber.
     */
     function activityAdd(
         string memory _businessName,
@@ -141,7 +142,8 @@ contract MerchantManger is Ownable, ReentrancyGuard {
         require(_dropType == 2 || _dropType == 1, "Drop Type Error.");
         require(_totalDropAmts > 0, "Drop Amount Error.");
         require(
-            block.timestamp < _activityDeadLine && _activityDeadLine< block.timestamp + maxDeadLine,
+            block.timestamp < _activityDeadLine &&
+                _activityDeadLine < block.timestamp + maxDeadLine,
             "Activity DeadLine Error."
         );
 
@@ -150,11 +152,12 @@ contract MerchantManger is Ownable, ReentrancyGuard {
             "Drop Number Not Meet Total Drop Amounts."
         );
         require(
-            _tokenContractAddr == address(UsdtTokenAddr) || _tokenContractAddr == address(FccTokenAddr),
+            _tokenContractAddr == address(UsdtTokenAddr) ||
+                _tokenContractAddr == address(FccTokenAddr),
             "Drop Number Not Meet Total Drop Amounts."
         );
 
-        // 转币到本合约锁定
+        // Transfer token to this contract for locking.
         IERC20(_tokenContractAddr).safeTransferFrom(
             _msgSender(),
             address(this),
@@ -205,11 +208,11 @@ contract MerchantManger is Ownable, ReentrancyGuard {
     }
 
     /*
-        商家结束活动
-        参数：
-        _activityId  活动ID
-        返回值：
-        _ret  是否成功
+        Merchant ends the activity.
+        Parameters:
+        _activityId activity ID
+        return value：
+        _ret  Was it successful?
     */
     function activityFinish(
         uint256 _activityId
@@ -234,7 +237,7 @@ contract MerchantManger is Ownable, ReentrancyGuard {
             block.timestamp ||
             iNFTManager.getUserNTFDeadline(_msgSender()) > block.timestamp
         ) {
-            //获取当前挖取代币百分比
+            //Get the current percentage of mined tokens
             uint8 currentMinePercent = getCurrentMinePercent();
             if (minePercent != currentMinePercent) {
                 minePercent = currentMinePercent;
@@ -248,7 +251,7 @@ contract MerchantManger is Ownable, ReentrancyGuard {
                         ? minePercent
                         : minePercent / 2
                 );
-                // 对于在平台上托管的每个FCC释放活动，活动发起人可以基于活动消耗的总代币数量的50％，或者参与者总数乘以20的50％，以较低的值为准来挖取代币。
+                // For each FCC release activity hosted on the platform, the activity initiator can mine tokens based on either 50% of the total token quantity consumed by the activity or 50% of the total number of participants multiplied by 20, whichever is lower.
                 uint256 tmpDropedVal = aie.alreadyDropNumber * 20 * 1e18;
                 uint256 tmpBusinessMinedAmt = ((
                     aie.alreadyDropAmts > tmpDropedVal
@@ -274,13 +277,13 @@ contract MerchantManger is Ownable, ReentrancyGuard {
     }
 
     /*
-        奖励发放（商家给会员发放奖励）
-        参数：
-        _activityId  活动ID
-        _userAccount 终端用户地址
-        _dropAmt     奖励数量，如果活动的dropType是随机时，需填写该数量，因为合约随机数生成非常消耗资源，平均获得时，无需填写  ;     // 奖励规则：1表示平均获得  2表示随机
-        返回值：
-        _ret 是否成功
+        Reward distribution (merchant distributing rewards to members).
+        Parameters:
+        _activityId  Aactivity Id
+        _userAccount user address
+        _dropAmt     Reward quantity: If the activity's dropType is random, this quantity needs to be filled in. Generating random numbers in the contract consumes a significant amount of resources; when obtaining rewards on average, this field does not need to be filled in.   // Reward rule: 1 indicates average distribution, 2 indicates random distribution
+        return value：
+        _ret Was it successful?
     */
     function drop(
         uint256 _activityId,

@@ -18,7 +18,7 @@ contract NFTManagerTest is Test {
     UsdtToken public usdt;
 
     function setUp() public {
-        //管理员身份先部署以及铸造基本
+        //Deploying and minting the basic functions as an administrator.
         vm.startPrank(admin);
         {
             fct = new FccToken(admin);

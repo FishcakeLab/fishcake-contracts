@@ -24,7 +24,7 @@ contract MerchantMangerTest is Test {
     UsdtToken public usdt;
 
     function setUp() public {
-        //管理员身份先部署以及铸造基本
+        //Deploying and minting the basic functions as an administrator.
         vm.startPrank(admin);
         fct = new FccToken(admin);
         fct.mint(admin, 10000e18);
@@ -90,7 +90,7 @@ contract MerchantMangerTest is Test {
     }
 
     /**
-     * 模糊测试 设置挖矿百分比
+     * Fuzz testing - Setting mining percentage.
      
     function testFuzz_SetMinePercent(uint8 amount) public {
         vm.assume(amount < 101);
@@ -102,7 +102,7 @@ contract MerchantMangerTest is Test {
     }
 */
     /**
-     * 测试添加给商家进行奖励的奖池
+     * Testing the addition of reward pool for merchants' rewards.
      
     function test_AddMineAmt() public {
         //vm.assume(amount<101);
@@ -121,7 +121,7 @@ contract MerchantMangerTest is Test {
     }
 */
     /**
-     * 模糊测试 添加给商家进行奖励的奖池
+     * fuzz Testing the addition of reward pool for merchants' rewards.
      
     function testFuzz_AddMineAmt(uint256 amount) public {
         vm.assume(amount > 0 && amount < 1e18);
@@ -139,7 +139,7 @@ contract MerchantMangerTest is Test {
     }
 */
     /*
-    奖励规则为1,添加活动详情
+    Activity details added for reward rule 1.
     */
     function set_ActivityAdd() public returns (bool _ret, uint256 _activityId) {
         vm.startPrank(merchant);
@@ -152,15 +152,17 @@ contract MerchantMangerTest is Test {
             string memory _latitudeLongitude = "35.384581,115.664607";
             uint256 _activityDeadLine = 1716550801;
 
-            //奖励规则：1表示平均获得  2表示随机
+
+            //Reward rule: 1 represents equal distribution, 2 represents random distribution.
             uint8 _dropType = 1;
-            //奖励份数
+            //Number of reward shares.
             uint256 _dropNumber = 10;
-            //当dropType为1时，_minDropAmt填0，为2时，填每份最少领取数量
+            //When dropType is 1, _minDropAmt is set to 0. When it is 2, it is set to the minimum quantity to be received per share.
             uint256 _minDropAmt = 0;
-            //当dropType为1时，_maxDropAmt填每份奖励数量，为2时，填每份最多领取数量
+            //When dropType is 1, _maxDropAmt is filled with the quantity of each reward share. When it is 2, it is filled with the maximum quantity to be received per share.
             uint256 _maxDropAmt = 10e18;
-            //根据_maxDropAmt * _dropNumber得到，不用用户输入
+            //It is calculated based on _maxDropAmt * _dropNumber and does not require user input.
+
             uint256 _totalDropAmts = _maxDropAmt * _dropNumber;
             address _tokenContractAddr = address(fct);
             (_ret, _activityId) = merchantManger.activityAdd(
@@ -190,7 +192,7 @@ contract MerchantMangerTest is Test {
     }
 
     /*
-    奖励规则为2,添加活动详情
+    Activity details added for reward rule 2
     */
     function set_ActivityAddWithType2()
         public
@@ -205,15 +207,15 @@ contract MerchantMangerTest is Test {
             string memory _latitudeLongitude = "35.384581,115.664607";
             uint256 _activityDeadLine = 1710592488;
 
-            //奖励规则：1表示平均获得  2表示随机
+            //Reward rule: 1 represents equal distribution, 2 represents random distribution.
             uint8 _dropType = 2;
-            //奖励份数
+            //Number of reward shares.
             uint256 _dropNumber = 100;
-            //当dropType为1时，_minDropAmt填0，为2时，填每份最少领取数量
+            //When dropType is 1, _minDropAmt is set to 0. When it is 2, it is set to the minimum quantity to be received per share.
             uint256 _minDropAmt = 1e18;
-            //当dropType为1时，_maxDropAmt填每份奖励数量，为2时，填每份最多领取数量
+            //When dropType is 1, _maxDropAmt is filled with the quantity of each reward share. When it is 2, it is filled with the maximum quantity to be received per share.
             uint256 _maxDropAmt = 10e18;
-            //根据_maxDropAmt * _dropNumber得到，不用用户输入
+            //It is calculated based on _maxDropAmt * _dropNumber and does not require user input.
             uint256 _totalDropAmts = _maxDropAmt * _dropNumber;
             address _tokenContractAddr = address(fct);
             (_ret, _activityId) = merchantManger.activityAdd(
@@ -243,14 +245,14 @@ contract MerchantMangerTest is Test {
     }
 
     /*
-    奖励规则为1时，领取奖励测试
+    When the reward rule is 1, test the reward claim process
     */
     function test_Drop() public {
         bool _ret;
         uint256 _activityId;
         (_ret, _activityId) = set_ActivityAdd();
         vm.startPrank(merchant);
-        //type为1时，该参数可以忽略
+        //When type is 1, this parameter can be ignored
         uint256 _dropAmt = 0;
         uint256 contractBeforeBalance = fct.balanceOf(address(merchantManger));
         {
@@ -268,16 +270,15 @@ contract MerchantMangerTest is Test {
     }
 
     /*
-    奖励规则为1时，领取奖励测试
-    把奖励份数都领完
+    When the reward rule is 1, test the process of claiming rewards by claiming all the reward shares
     */
     function test_DropWith100Users() public {
         bool _ret;
         uint256 _activityId;
-        //设置了100份奖励
+        //set 100
         (_ret, _activityId) = set_ActivityAdd();
         vm.startPrank(merchant);
-        //type为1时，该参数可以忽略
+        //When type is 1, this parameter can be ignored.
         uint256 _dropAmt = 0;
 
         {
@@ -307,14 +308,14 @@ contract MerchantMangerTest is Test {
     }
 
     /*
-    奖励规则为2时，领取奖励测试
+    When the reward rule is 2, test the process of claiming rewards
     */
     function test_DropWhenType2() public {
         bool _ret;
         uint256 _activityId;
         (_ret, _activityId) = set_ActivityAddWithType2();
         vm.startPrank(merchant);
-        //type为2时，该参数为领取奖励的token数量
+        //When the type is 2, this parameter represents the quantity of tokens to be claimed as rewards.
         uint256 _dropAmt = 1e18;
         uint256 contractBeforeBalance = fct.balanceOf(address(merchantManger));
         {
@@ -332,13 +333,13 @@ contract MerchantMangerTest is Test {
     }
 
     /*
-    奖励规则为2时，领取奖励测试
-    把奖励份数都领完
+    When the reward rule is 2, test the process of receiving rewards:
+    Claim all the reward shares
     */
     function test_DropWhenType2With100Users() public {
         bool _ret;
         uint256 _activityId;
-        //设置了100份奖励
+        //set 100
         (_ret, _activityId) = set_ActivityAddWithType2();
         vm.startPrank(merchant);
         //type为2时，该参数为领取奖励的token数量
@@ -426,9 +427,10 @@ contract MerchantMangerTest is Test {
     }
 
     /*
-    奖励规则为1时，领取奖励测试
-    把奖励份数都领完
-    50中断，结束，看用户和商家是否分别能获得挖矿奖励
+    "When the reward rule is 1, test the process of receiving rewards:
+    1. Claim all the reward shares.
+    2. Interrupt the process at 50 and end it.
+    3. Check if both users and merchants can receive mining rewards separately."
     */
     function test_ActivityFinishWith100Users() public {
         console.log(
@@ -449,10 +451,10 @@ contract MerchantMangerTest is Test {
         );
         bool _ret;
         uint256 _activityId;
-        //设置了100份奖励
+        //set 100
         (_ret, _activityId) = set_ActivityAdd();
         vm.startPrank(merchant);
-        //type为1时，该参数可以忽略
+        //"When type is 1, this parameter can be ignored."
         uint256 _dropAmt = 0;
 
         {
@@ -522,9 +524,9 @@ contract MerchantMangerTest is Test {
     }
 
     /*
-    奖励规则为1时，领取奖励测试
-    把奖励份数都领完
-    ，结束，看用户和商家是否分别能获得挖矿奖励
+    When the reward rule is 1, test the process of receiving rewards:
+    Claim all the reward shares.
+    End the process and check if both users and merchants can receive mining rewards separately
     */
     function test_ActivityFinishWithAllUsers() public {
         console.log(
@@ -545,13 +547,13 @@ contract MerchantMangerTest is Test {
         );
         bool _ret;
         uint256 _activityId;
-        //设置了100份奖励
+        //set 100
         (_ret, _activityId) = set_ActivityAdd();
 
-        //铸造NFT 铸造权限
+        //mint NFT
         test_UserMintWithType1();
         vm.startPrank(merchant);
-        //type为1时，该参数可以忽略
+        //When type is 1, this parameter can be ignored.
         uint256 _dropAmt = 0;
 
         {
