@@ -97,7 +97,7 @@ contract NFTManagerTest is Test {
             string memory _webSite = "https://bing.com";
             string memory _social = "https://bing.com/social";
             uint8 _type = 2;
-            (bool _ret, uint256 _tokenId) = nFTManager.mint(
+            (bool _ret, uint256 _tokenId) = nFTManager.createNFT(
                 _businessName,
                 _description,
                 _imgUrl,
@@ -169,7 +169,7 @@ contract NFTManagerTest is Test {
             string memory _webSite = "https://bing.com";
             string memory _social = "https://bing.com/social";
             uint8 _type = 2;
-            (bool _ret, uint256 _tokenId) = nFTManager.mint(
+            (bool _ret, uint256 _tokenId) = nFTManager.createNFT(
                 _businessName,
                 _description,
                 _imgUrl,
@@ -221,7 +221,7 @@ contract NFTManagerTest is Test {
             string memory _social = "https://bing.com/social";
             uint8 _type = 3;
             vm.expectRevert(bytes("Type Error."));
-            nFTManager.mint(
+            nFTManager.createNFT(
                 _businessName,
                 _description,
                 _imgUrl,
@@ -246,7 +246,7 @@ contract NFTManagerTest is Test {
             string memory _social = "https://bing.com/social";
             uint8 _type = 2;
             vm.expectRevert(bytes("Approve token not enough Error."));
-            nFTManager.mint(
+            nFTManager.createNFT(
                 _businessName,
                 _description,
                 _imgUrl,

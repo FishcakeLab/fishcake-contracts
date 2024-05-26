@@ -163,7 +163,7 @@ contract MerchantMangerTest is Test {
             //根据_maxDropAmt * _dropNumber得到，不用用户输入
             uint256 _totalDropAmts = _maxDropAmt * _dropNumber;
             address _tokenContractAddr = address(fct);
-            (_ret, _activityId) = merchantManger.addActivity(
+            (_ret, _activityId) = merchantManger.activityAdd(
                 _businessName,
                 _activityContent,
                 _latitudeLongitude,
@@ -216,7 +216,7 @@ contract MerchantMangerTest is Test {
             //根据_maxDropAmt * _dropNumber得到，不用用户输入
             uint256 _totalDropAmts = _maxDropAmt * _dropNumber;
             address _tokenContractAddr = address(fct);
-            (_ret, _activityId) = merchantManger.addActivity(
+            (_ret, _activityId) = merchantManger.activityAdd(
                 _businessName,
                 _activityContent,
                 _latitudeLongitude,
@@ -608,7 +608,7 @@ contract MerchantMangerTest is Test {
             string memory _webSite = "https://bing.com";
             string memory _social = "https://bing.com/social";
             uint8 _type = 1;
-            (bool _ret, uint256 _tokenId) = nFTManager.mint(
+            (bool _ret, uint256 _tokenId) = nFTManager.createNFT(
                 _businessName,
                 _description,
                 _imgUrl,

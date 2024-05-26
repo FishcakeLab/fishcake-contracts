@@ -40,7 +40,7 @@ contract NFTManager is Ownable, ERC721, ReentrancyGuard {
         uint256 _merchantValue,
         uint256 _userValue
     );
-    event MintNewEvent(
+    event CreateNFT(
         address indexed who,
         uint256 _tokenId,
         string _businessName,
@@ -77,7 +77,7 @@ contract NFTManager is Ownable, ERC721, ReentrancyGuard {
         redemptionPoolAddress = _redemptionPoolAddress;
     }
 
-    function mint(
+    function createNFT(
         string memory _businessName,
         string memory _description,
         string memory _imgUrl,
@@ -124,7 +124,7 @@ contract NFTManager is Ownable, ERC721, ReentrancyGuard {
         _safeMint(_msgSender(), tokenId);
         nftTypeMap[tokenId] = _type;
 
-        emit MintNewEvent(
+        emit CreateNFT(
             _msgSender(),
             tokenId,
             _businessName,
