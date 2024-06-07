@@ -78,7 +78,12 @@ contract MerchantManger is Ownable, ReentrancyGuard {
         uint256 _maxDropAmt,
         address _tokenContractAddr
     );
-    event ActivityFinish(uint256 indexed _activityId);
+    event ActivityFinish(
+        uint256 indexed _activityId,
+        address _tokenContractAddr,
+        uint256 _retrunAmount,
+        uint256 _minedAmount
+    );
     event Drop(
         address indexed who,
         uint256 indexed _activityId,
@@ -225,11 +230,14 @@ contract MerchantManger is Ownable, ReentrancyGuard {
         require(aie.activityStatus == 1, "Activity Status Error.");
 
         aie.activityStatus = 2;
-
+        uint256 retrunAmount = ai.maxDropAmt *
+            ai.dropNumber -
+            aie.alreadyDropAmts;
+        uint256 minedAmount = 0;
         if (ai.maxDropAmt * ai.dropNumber > aie.alreadyDropAmts) {
             IERC20(ai.tokenContractAddr).safeTransfer(
                 _msgSender(),
-                ai.maxDropAmt * ai.dropNumber - aie.alreadyDropAmts
+                retrunAmount
             );
         }
         if (
@@ -265,13 +273,19 @@ contract MerchantManger is Ownable, ReentrancyGuard {
                         _msgSender(),
                         tmpBusinessMinedAmt
                     );
+                    minedAmount = tmpBusinessMinedAmt;
                 }
             }
         }
 
         activityInfoChangedIdx.push(_activityId - 1);
 
-        emit ActivityFinish(_activityId);
+        emit ActivityFinish(
+            _activityId,
+            ai.tokenContractAddr,
+            retrunAmount,
+            minedAmount
+        );
 
         _ret = true;
     }
