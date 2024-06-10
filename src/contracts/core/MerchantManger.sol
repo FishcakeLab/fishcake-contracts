@@ -81,7 +81,7 @@ contract MerchantManger is Ownable, ReentrancyGuard {
     event ActivityFinish(
         uint256 indexed _activityId,
         address _tokenContractAddr,
-        uint256 _retrunAmount,
+        uint256 _returnAmount,
         uint256 _minedAmount
     );
     event Drop(
@@ -230,14 +230,14 @@ contract MerchantManger is Ownable, ReentrancyGuard {
         require(aie.activityStatus == 1, "Activity Status Error.");
 
         aie.activityStatus = 2;
-        uint256 retrunAmount = ai.maxDropAmt *
+        uint256 returnAmount = ai.maxDropAmt *
             ai.dropNumber -
             aie.alreadyDropAmts;
         uint256 minedAmount = 0;
         if (ai.maxDropAmt * ai.dropNumber > aie.alreadyDropAmts) {
             IERC20(ai.tokenContractAddr).safeTransfer(
                 _msgSender(),
-                retrunAmount
+                returnAmount
             );
         }
         if (
@@ -283,7 +283,7 @@ contract MerchantManger is Ownable, ReentrancyGuard {
         emit ActivityFinish(
             _activityId,
             ai.tokenContractAddr,
-            retrunAmount,
+            returnAmount,
             minedAmount
         );
 
