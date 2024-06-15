@@ -159,7 +159,7 @@ contract MerchantManger is Ownable, ReentrancyGuard {
         require(
             _tokenContractAddr == address(UsdtTokenAddr) ||
                 _tokenContractAddr == address(FccTokenAddr),
-            "Drop Number Not Meet Total Drop Amounts."
+            "Token contract address error"
         );
 
         // Transfer token to this contract for locking.
