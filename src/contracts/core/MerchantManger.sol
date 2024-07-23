@@ -119,18 +119,18 @@ contract MerchantManger is Ownable, ReentrancyGuard {
         _activityContent Activity content
         _latitudeLongitude Latitude and longitude
         _activityDeadLine The end time of the activity, which needs to be passed as a TimeStamp to the backend (e.g. 1683685034)
-        _totalDropAmts  The total reward quantity is determined by _maxDropAmt * _dropNumber and does not require user input (when calling the contract, the user's input number needs to be multiplied by 10 to the power of 18).
+        _totalDropAmts  The total reward quantity is determined by _maxDropAmt * _dropNumber and does not require user input (when calling the contract, the user's input number needs to be multiplied by 10 to the power of 6).
         _dropType     Reward rules: 1 represents average acquisition, 2 represents random.
         _dropNumber      Number of reward units
-        _minDropAmt     When dropType is 1, fill in 0; when it is 2, fill in the minimum quantity to be received for each unit (when calling the contract, the user's input number needs to be multiplied by 10 to the power of 18).
-        _maxDropAmt     When dropType is 1, fill in the quantity of each reward; when it is 2, fill in the maximum quantity to be received for each unit. The total reward quantity is determined by multiplying this field by the number of reward units (when calling the contract, the user's input number needs to be multiplied by 10 to the power of 18).
+        _minDropAmt     When dropType is 1, fill in 0; when it is 2, fill in the minimum quantity to be received for each unit (when calling the contract, the user's input number needs to be multiplied by 10 to the power of 6).
+        _maxDropAmt     When dropType is 1, fill in the quantity of each reward; when it is 2, fill in the maximum quantity to be received for each unit. The total reward quantity is determined by multiplying this field by the number of reward units (when calling the contract, the user's input number needs to be multiplied by 10 to the power of 6).
         _tokenContractAddr    Token Contract Address，For example, USDT contract address: 0x55d398326f99059fF775485246999027B3197955
         
         Return value：
         _ret   Was it successful?
         _activityId  Activity ID
         ps: Before calling this method in the front end, it is necessary to first call the "approve" method of FCCToken to authorize this contract address to access and use the user's wallet FCCToken.
-        The specific authorization number is calculated as _maxDropAmt * 10 to the power of 18 * _dropNumber.
+        The specific authorization number is calculated as _maxDropAmt * 10 to the power of 6 * _dropNumber.
     */
     function activityAdd(
         string memory _businessName,
@@ -263,12 +263,12 @@ contract MerchantManger is Ownable, ReentrancyGuard {
                         : minePercent / 2
                 );
                 // For each FCC release activity hosted on the platform, the activity initiator can mine tokens based on either 50% of the total token quantity consumed by the activity or 50% of the total number of participants multiplied by 20, whichever is lower.
-                uint256 tmpDropedVal = aie.alreadyDropNumber * 20 * 1e18;
+                uint256 tmpDropedVal = aie.alreadyDropNumber * 20 * 1e6;
                 uint256 tmpBusinessMinedAmt = ((
                     aie.alreadyDropAmts > tmpDropedVal
                         ? tmpDropedVal
                         : aie.alreadyDropAmts
-                ) * percent) / 100;
+                ) * percent) / 100;                
                 if (totalMineAmt >= minedAmt + tmpBusinessMinedAmt) {
                     aie.businessMinedAmt = tmpBusinessMinedAmt;
                     minedAmt += tmpBusinessMinedAmt;
