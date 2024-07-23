@@ -317,6 +317,7 @@ contract MerchantManger is Ownable, ReentrancyGuard {
 
         require(aie.activityStatus == 1, "Activity Status Error.");
         require(ai.businessAccount == _msgSender(), "Not The Owner.");
+        require(ai.activityDeadLine>= block.timestamp, "Activity Has Expired.");
 
         if (ai.dropType == 2) {
             require(
