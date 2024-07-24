@@ -19,12 +19,12 @@ contract RedemptionPool is ReentrancyGuard {
 
     FishcakeCoin public fishcakeCoin;
 
-    IERC20 public immutable USDT =
-        IERC20(0xc2132D05D31c914a87C6611C10748AEb04B58e8F);
+   //IERC20 public immutable USDT =IERC20(0xc2132D05D31c914a87C6611C10748AEb04B58e8F);
+    IERC20 public immutable USDT;
 
     uint public immutable TwoYears = 730 days;
-    uint256 public immutable OneUSDT = 10 ** 6;
-    uint256 public immutable OneFCC = 10 ** 18;
+    //uint256 public immutable OneUSDT = 10 ** 6;
+    //uint256 public immutable OneFCC = 10 ** 6;
     uint256 public UnlockTime;
 
     modifier IsUnlock() {
@@ -32,9 +32,10 @@ contract RedemptionPool is ReentrancyGuard {
         _;
     }
 
-    constructor(address _fishcakeCoin) {
+    constructor(address _fishcakeCoin,address _USDT) {
         fishcakeCoin = FishcakeCoin(_fishcakeCoin);
         UnlockTime = block.timestamp + TwoYears;
+        USDT = IERC20(_USDT);
     }
 
     function claim(uint256 _amount) public IsUnlock nonReentrant {
@@ -58,8 +59,8 @@ contract RedemptionPool is ReentrancyGuard {
     function calculateUSDT(uint256 _amount) public view returns (uint256) {
         // USDT balance / fishcakeCoin total supply
         return
-            (balance() * _amount * OneUSDT) /
-            (OneFCC *
+            (balance() * _amount ) /
+            (
                 (fishcakeCoin.totalSupply() - fishcakeCoin._burnedTokens()));
     }
 }

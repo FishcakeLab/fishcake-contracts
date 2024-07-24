@@ -29,18 +29,20 @@ contract InvestorSalePool is Ownable, ReentrancyGuard {
     IERC20 public fishcakeCoin;
     RedemptionPool public redemptionPool;
     address public valut;
-    IERC20 public immutable USDT =
-        IERC20(0xc2132D05D31c914a87C6611C10748AEb04B58e8F);
+    //IERC20 public immutable USDT =IERC20(0xc2132D05D31c914a87C6611C10748AEb04B58e8F);
+    IERC20 public immutable USDT;
 
     uint256 public immutable OneUSDT = 10 ** 6;
-    uint256 public immutable OneFCC = 10 ** 18;
+    uint256 public immutable OneFCC = 10 ** 6;
 
     constructor(
         address _fishcakeCoin,
-        address _redemptionPool
+        address _redemptionPool,
+        address _USDT
     ) Ownable(msg.sender) {
         fishcakeCoin = FishcakeCoin(_fishcakeCoin);
         redemptionPool = RedemptionPool(_redemptionPool);
+        USDT = IERC20(_USDT);
     }
 
     function Buy(uint256 _amount) public nonReentrant {

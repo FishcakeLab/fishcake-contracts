@@ -19,9 +19,9 @@ contract NFTManager is Ownable, ERC721, ERC721URIStorage, ReentrancyGuard {
     uint256 private userValue;
     //30 days = 2592000 s
     uint256 private immutable validTime = 2592000;
-    uint256 public immutable totalMineAmt = 200_000_000 * 10 ** 18;
-    uint256 public immutable proMineAmt = 1000 * 10 ** 18;
-    uint256 public immutable basicMineAmt = 100 * 10 ** 18;
+    uint256 public immutable totalMineAmt = 200_000_000 * 10 ** 6;
+    uint256 public immutable proMineAmt = 1000 * 10 ** 6;
+    uint256 public immutable basicMineAmt = 100 * 10 ** 6;
     address public redemptionPoolAddress;
 
     uint256 public minedAmt = 0;

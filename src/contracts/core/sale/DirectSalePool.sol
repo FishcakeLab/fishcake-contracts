@@ -13,8 +13,8 @@ contract DirectSalePool is ReentrancyGuard {
 
     IERC20 public fishcakeCoin;
     RedemptionPool public redemptionPool;
-    IERC20 public immutable USDT =
-        IERC20(0xc2132D05D31c914a87C6611C10748AEb04B58e8F);
+    //IERC20 public immutable USDT =IERC20(0xc2132D05D31c914a87C6611C10748AEb04B58e8F);
+    IERC20 public immutable USDT;
 
     event BuyFishcakeCoinSuccess(
         address indexed buyer,
@@ -22,13 +22,14 @@ contract DirectSalePool is ReentrancyGuard {
         uint256 fishcakeCoinAmount
     );
 
-    constructor(address _fishcakeCoin, address _redemptionPool) {
+    constructor(address _fishcakeCoin, address _redemptionPool,address _USDT) {
         fishcakeCoin = FishcakeCoin(_fishcakeCoin);
         redemptionPool = RedemptionPool(_redemptionPool);
+        USDT = IERC20(_USDT);
     }
 
     function Buy(uint _amount) public nonReentrant {
-        uint USDTAmount = (_amount * (10 ** 12)) / 10; // 1FCC = 0.1 USDT
+        uint USDTAmount = _amount  / 10; // 1FCC = 0.1 USDT
         if (_amount > fishcakeCoin.balanceOf(address(this))) {
             revert NotEnoughFishcakeCoin();
         }
@@ -41,7 +42,7 @@ contract DirectSalePool is ReentrancyGuard {
     }
 
     function BuyWithUSDT(uint _amount) public nonReentrant {
-        uint fishcakeCoinAmount = _amount * 10 * 10 ** 12; // 1 USDT = 10 FCC
+        uint fishcakeCoinAmount = _amount * 10; // 1 USDT = 10 FCC
         if (fishcakeCoinAmount > fishcakeCoin.balanceOf(address(this))) {
             revert NotEnoughFishcakeCoin();
         }

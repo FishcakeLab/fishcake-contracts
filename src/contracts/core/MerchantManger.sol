@@ -14,7 +14,7 @@ contract MerchantManger is Ownable, ReentrancyGuard {
     IERC20 public immutable FccTokenAddr;
     IERC20 public immutable UsdtTokenAddr;
     INFTManager public iNFTManager;
-    uint256 public immutable totalMineAmt = 300_000_000 * 10 ** 18; // Total mining quantity
+    uint256 public immutable totalMineAmt = 300_000_000 * 10 ** 6; // Total mining quantity
     //30 days = 2592000 s
     uint256 private immutable maxDeadLine = 2592000;
     uint256 public minedAmt = 0; // Mined quantity
@@ -394,13 +394,13 @@ contract MerchantManger is Ownable, ReentrancyGuard {
         view
         returns (uint8 currentMinePercent)
     {
-        if (minedAmt < 30_000_000 * 1e18) {
+        if (minedAmt < 30_000_000 * 1e6) {
             currentMinePercent = 50;
-        } else if (minedAmt < 100_000_000 * 1e18) {
+        } else if (minedAmt < 100_000_000 * 1e6) {
             currentMinePercent = 40;
-        } else if (minedAmt < 200_000_000 * 1e18) {
+        } else if (minedAmt < 200_000_000 * 1e6) {
             currentMinePercent = 20;
-        } else if (minedAmt < 300_000_000 * 1e18) {
+        } else if (minedAmt < 300_000_000 * 1e6) {
             currentMinePercent = 10;
         } else {
             currentMinePercent = 0;

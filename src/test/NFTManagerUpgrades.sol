@@ -72,8 +72,8 @@ contract NFTManagerUpgrades is
         __Ownable_init(initialOwner);
         FccTokenAddr = IERC20(_fccAddress);
         UsdtTokenAddr = IERC20(_usdtAddress);
-        merchantValue = 80e18;
-        userValue = 8e18;
+        merchantValue = 80e6;
+        userValue = 8e6;
         validTime = 2592000;
     }
 
