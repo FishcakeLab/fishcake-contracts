@@ -49,11 +49,11 @@ contract InvestorSalePool is Ownable, ReentrancyGuard {
         InvestorLevel level = QueryLevelWithFCC(_amount);
         uint256 USDTAmount = calculateUSDT(level, _amount);
         USDT.safeTransferFrom(msg.sender, address(this), USDTAmount);
-        USDT.transfer(address(redemptionPool), USDTAmount / 2);
+        USDT.safeTransfer(address(redemptionPool), USDTAmount / 2);
         if (_amount > fishcakeCoin.balanceOf(address(this))) {
             revert NotEnoughFishcakeCoin();
         }
-        fishcakeCoin.transfer(msg.sender, _amount);
+        fishcakeCoin.safeTransfer(msg.sender, _amount);
         emit BuyFishcakeCoinSuccess(msg.sender, level, USDTAmount, _amount);
     }
 

@@ -34,9 +34,9 @@ contract DirectSalePool is ReentrancyGuard {
             revert NotEnoughFishcakeCoin();
         }
         USDT.safeTransferFrom(msg.sender, address(this), USDTAmount);
-        USDT.transfer(address(redemptionPool), USDTAmount);
+        USDT.safeTransfer(address(redemptionPool), USDTAmount);
 
-        fishcakeCoin.transfer(msg.sender, _amount);
+        fishcakeCoin.safeTransfer(msg.sender, _amount);
 
         emit BuyFishcakeCoinSuccess(msg.sender, USDTAmount, _amount);
     }
@@ -47,9 +47,9 @@ contract DirectSalePool is ReentrancyGuard {
             revert NotEnoughFishcakeCoin();
         }
         USDT.safeTransferFrom(msg.sender, address(this), _amount);
-        USDT.transfer(address(redemptionPool), _amount);
+        USDT.safeTransfer(address(redemptionPool), _amount);
 
-        fishcakeCoin.transfer(msg.sender, fishcakeCoinAmount);
+        fishcakeCoin.safeTransfer(msg.sender, fishcakeCoinAmount);
 
         emit BuyFishcakeCoinSuccess(msg.sender, _amount, fishcakeCoinAmount);
     }
