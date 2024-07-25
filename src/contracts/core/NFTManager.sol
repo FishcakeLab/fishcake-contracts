@@ -227,10 +227,6 @@ contract NFTManager is Ownable, ERC721, ERC721URIStorage, ReentrancyGuard {
         return UsdtTokenAddr.balanceOf(address(this));
     }
 
-    function safeMint(address to) private nonReentrant {
-        uint256 tokenId = _nextTokenId++;
-        _safeMint(to, tokenId);
-    }
 
     function supportsInterface(
         bytes4 interfaceId
