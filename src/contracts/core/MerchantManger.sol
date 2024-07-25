@@ -97,7 +97,7 @@ contract MerchantManger is Ownable, ReentrancyGuard {
     );
     event SetValidTime(address indexed who, uint256 _time);
 
-    event Wthdraw(address indexed who, uint256 _amount);
+    event Withdraw(address indexed who, uint256 _amount);
     event Received(address indexed who, uint _value);
 
     constructor(
@@ -293,7 +293,7 @@ contract MerchantManger is Ownable, ReentrancyGuard {
     /*
         Reward distribution (merchant distributing rewards to members).
         Parameters:
-        _activityId  Aactivity Id
+        _activityId  Activity Id
         _userAccount user address
         _dropAmt     Reward quantity: If the activity's dropType is random, this quantity needs to be filled in. Generating random numbers in the contract consumes a significant amount of resources; when obtaining rewards on average, this field does not need to be filled in.   // Reward rule: 1 indicates average distribution, 2 indicates random distribution
         return value：
@@ -376,7 +376,7 @@ contract MerchantManger is Ownable, ReentrancyGuard {
         require(_recipient != address(0x0), "recipient address error.");
         require(_amount <= address(this).balance, "Balance not enough.");
         (_ret, ) = _recipient.call{value: _amount}("");
-        emit Wthdraw(_recipient, _amount);
+        emit Withdraw(_recipient, _amount);
     }
 
     receive() external payable {
