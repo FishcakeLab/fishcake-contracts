@@ -62,7 +62,7 @@ contract NFTManager is Ownable, ERC721, ERC721URIStorage, ReentrancyGuard {
     );
     event SetValidTime(address indexed who, uint256 _time);
 
-    event Wthdraw(address indexed who, uint256 _amount);
+    event Withdraw(address indexed who, uint256 _amount);
     event Received(address indexed who, uint _value);
 
     constructor(
@@ -208,7 +208,7 @@ contract NFTManager is Ownable, ERC721, ERC721URIStorage, ReentrancyGuard {
         require(_recipient != address(0x0), "recipient address error.");
         require(_amount <= address(this).balance, "Balance not enough.");
         (_ret, ) = _recipient.call{value: _amount}("");
-        emit Wthdraw(_recipient, _amount);
+        emit Withdraw(_recipient, _amount);
     }
 
     function getMerchantNTFDeadline(
