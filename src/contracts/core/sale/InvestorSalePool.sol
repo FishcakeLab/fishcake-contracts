@@ -24,6 +24,8 @@ contract InvestorSalePool is Ownable, ReentrancyGuard {
         uint256 USDTAmount,
         uint256 fishcakeCoinAmount
     );
+    event SetValut(address _vault);
+    event WithdrawUSDT(address indexed who, uint256 _amount);
     using SafeERC20 for IERC20;
 
     IERC20 public fishcakeCoin;
@@ -144,9 +146,11 @@ contract InvestorSalePool is Ownable, ReentrancyGuard {
 
     function setValut(address _vault) public onlyOwner {
         vault = _vault;
+        emit SetValut(_vault);
     }
 
     function withdrawUSDT(uint256 _amount) public onlyOwner {
         USDT.safeTransfer(vault, _amount);
+        emit WithdrawUSDT(vault, _amount);
     }
 }
