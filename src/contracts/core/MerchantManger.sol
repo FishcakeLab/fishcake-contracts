@@ -161,6 +161,9 @@ contract MerchantManger is Ownable, ReentrancyGuard {
                 _tokenContractAddr == address(FccTokenAddr),
             "Token contract address error"
         );
+        if(_dropType==1){
+            _minDropAmt=0;
+        }
 
         // Transfer token to this contract for locking.
         IERC20(_tokenContractAddr).safeTransferFrom(
