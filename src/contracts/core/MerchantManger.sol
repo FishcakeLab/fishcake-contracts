@@ -19,6 +19,7 @@ contract MerchantManger is Ownable, ReentrancyGuard {
     uint256 private immutable maxDeadLine = 2592000;
     uint256 public minedAmt = 0; // Mined quantity
     uint8 public minePercent = 50; // Mining percentage
+    bool public isMint = true; // Whether to mint
 
     struct ActivityInfo {
         uint256 activityId; // Activity ID
@@ -243,7 +244,7 @@ contract MerchantManger is Ownable, ReentrancyGuard {
                 returnAmount
             );
         }
-        if (
+        if (isMint &&
             iNFTManager.getMerchantNTFDeadline(_msgSender()) >
             block.timestamp ||
             iNFTManager.getUserNTFDeadline(_msgSender()) > block.timestamp
@@ -268,15 +269,27 @@ contract MerchantManger is Ownable, ReentrancyGuard {
                     aie.alreadyDropAmts > tmpDropedVal
                         ? tmpDropedVal
                         : aie.alreadyDropAmts
-                ) * percent) / 100;                
-                if (totalMineAmt >= minedAmt + tmpBusinessMinedAmt) {
-                    aie.businessMinedAmt = tmpBusinessMinedAmt;
-                    minedAmt += tmpBusinessMinedAmt;
-                    FccTokenAddr.safeTransfer(
-                        _msgSender(),
-                        tmpBusinessMinedAmt
-                    );
-                    minedAmount = tmpBusinessMinedAmt;
+                ) * percent) / 100;  
+                if(totalMineAmt>minedAmt){              
+                    if (totalMineAmt > minedAmt + tmpBusinessMinedAmt) {
+                        aie.businessMinedAmt = tmpBusinessMinedAmt;
+                        minedAmt += tmpBusinessMinedAmt;
+                        FccTokenAddr.safeTransfer(
+                            _msgSender(),
+                            tmpBusinessMinedAmt
+                        );
+                        minedAmount = tmpBusinessMinedAmt;
+                    }else{
+                        aie.businessMinedAmt = totalMineAmt - minedAmt;
+                        minedAmt += aie.businessMinedAmt;
+                        FccTokenAddr.safeTransfer(
+                            _msgSender(),
+                            aie.businessMinedAmt
+                        );
+                        minedAmount = aie.businessMinedAmt;
+                        isMint=false;
+                    }
+                    
                 }
             }
         }
