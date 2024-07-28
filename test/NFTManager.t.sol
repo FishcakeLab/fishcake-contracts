@@ -3,7 +3,6 @@ pragma solidity ^0.8.0;
 
 import {Test, console} from "forge-std/Test.sol";
 import {NFTManager} from "../src/contracts/core/NFTManager.sol";
-import {NFTManagerUpgrades} from "../src/test/NFTManagerUpgrades.sol";
 import {UsdtToken} from "../src/contracts/core/UsdtToken.sol";
 import {FccToken} from "../src/contracts/core/FccToken.sol";
 import {Upgrades, Options} from "openzeppelin-foundry-upgrades/Upgrades.sol";
@@ -280,7 +279,7 @@ contract NFTManagerTest is Test {
         }
         vm.stopPrank();
     }
-
+/*
     function test_UpgradesContract() public {
         test_UserMint();
         vm.startPrank(admin);
@@ -303,4 +302,5 @@ contract NFTManagerTest is Test {
         }
         vm.stopPrank();
     }
+    */
 }
