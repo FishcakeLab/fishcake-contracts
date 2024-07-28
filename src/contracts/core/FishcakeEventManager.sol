@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {INFTManager} from "../interfaces/INFTManager.sol";
 
-contract MerchantManger is Ownable, ReentrancyGuard {
+contract FishcakeEventManager is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     //IERC20 constant public FccTokenAddr = IERC20(0x67AAFdb3aD974A6797D973F00556c603485F7158);

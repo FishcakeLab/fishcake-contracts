@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {Test, console, StdAssertions} from "forge-std/Test.sol";
-import {MerchantManger} from "../src/contracts/core/MerchantManger.sol";
+import {FishcakeEventManager} from "../src/contracts/core/FishcakeEventManager.sol";
 import {FccToken} from "../src/contracts/core/FccToken.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
@@ -11,14 +11,14 @@ import {UsdtToken} from "../src/contracts/core/UsdtToken.sol";
 import {NFTManager} from "../src/contracts/core/NFTManager.sol";
 import {Upgrades, Options} from "openzeppelin-foundry-upgrades/Upgrades.sol";
 
-contract MerchantMangerTest is Test {
+contract FishcakeEventManagerTest is Test {
     using Strings for uint256;
     address admin = makeAddr("admin");
     address merchant = makeAddr("merchant");
     address user = makeAddr("user");
     address redemptionPool = makeAddr("redemptionPool");
 
-    MerchantManger public merchantManger;
+    FishcakeEventManager public merchantManger;
     NFTManager public nFTManager;
     FccToken public fct;
     UsdtToken public usdt;
@@ -77,7 +77,7 @@ contract MerchantMangerTest is Test {
         console.log("merManagerProxy proxy~:", merManagerProxy);
         merchantManger = MerchantManger(payable(merManagerProxy));
         */
-        merchantManger = new MerchantManger(
+        merchantManger = new FishcakeEventManager(
             address(admin),
             address(fct),
             address(usdt),
