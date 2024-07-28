@@ -12,7 +12,7 @@ contract FishcakeCoin is ERC20, Ownable {
     address public DirectSalePool;
     address public InvestorSalePool;
     address public NFTSalesRewardsPool;
-    address public EarlyStageAirdropsPool;
+    address public EcosystemPool;
     address public FoundationPool;
     address public RedemptionPool;
 
@@ -34,14 +34,14 @@ contract FishcakeCoin is ERC20, Ownable {
         address _DirectSalePool,
         address _InvestorSalePool,
         address _NFTSalesRewardsPool,
-        address _EarlyStageAirdropsPool,
+        address _EcosystemPool,
         address _FoundationPool
     ) public onlyOwner {
         MiningPool = _MiningPool;
         DirectSalePool = _DirectSalePool;
         InvestorSalePool = _InvestorSalePool;
         NFTSalesRewardsPool = _NFTSalesRewardsPool;
-        EarlyStageAirdropsPool = _EarlyStageAirdropsPool;
+        EcosystemPool = _EcosystemPool;
         FoundationPool = _FoundationPool;
     }
 
@@ -68,8 +68,8 @@ contract FishcakeCoin is ERC20, Ownable {
             "Missing allocate NFTSalesRewardsPool address"
         );
         require(
-            EarlyStageAirdropsPool != address(0),
-            "Missing allocate EarlyStageAirdropsPool address"
+            EcosystemPool != address(0),
+            "Missing allocate EcosystemPool address"
         );
         require(
             FoundationPool != address(0),
@@ -79,7 +79,7 @@ contract FishcakeCoin is ERC20, Ownable {
         _mint(DirectSalePool, (MaxTotalSupply * 2) / 10); // 20% of total supply
         _mint(InvestorSalePool, MaxTotalSupply / 10); // 10% of total supply
         _mint(NFTSalesRewardsPool, (MaxTotalSupply * 2) / 10); // 20% of total supply
-        _mint(EarlyStageAirdropsPool, MaxTotalSupply / 10); // 10% of total supply
+        _mint(EcosystemPool, MaxTotalSupply / 10); // 10% of total supply
         _mint(FoundationPool, MaxTotalSupply / 10); // 10% of total supply
         MintingFinished = true;
     }
