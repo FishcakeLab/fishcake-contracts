@@ -90,16 +90,8 @@ contract FishcakeEventManager is Ownable, ReentrancyGuard {
         uint256 indexed _activityId,
         uint256 _dropAmt
     );
-    event WithdrawUToken(
-        address indexed who,
-        address indexed _tokenAddr,
-        address indexed _account,
-        uint256 _value
-    );
+   
     event SetValidTime(address indexed who, uint256 _time);
-
-    event Withdraw(address indexed who, uint256 _amount);
-    event Received(address indexed who, uint _value);
 
     constructor(
         address initialOwner,
@@ -370,35 +362,7 @@ contract FishcakeEventManager is Ownable, ReentrancyGuard {
         _ret = true;
     }
 
-    function withdrawUToken(
-        address _tokenAddr,
-        address _account,
-        uint256 _value
-    ) public onlyOwner nonReentrant returns (bool _ret) {
-        require(_tokenAddr != address(0x0), "token address error.");
-        require(
-            IERC20(_tokenAddr).balanceOf(address(this)) >= _value,
-            "Balance not enough."
-        );
 
-        IERC20(_tokenAddr).safeTransfer(_account, _value);
-        _ret = true;
-        emit WithdrawUToken(_msgSender(), _tokenAddr, _account, _value);
-    }
-
-    function withdraw(
-        address payable _recipient,
-        uint256 _amount
-    ) public onlyOwner nonReentrant returns (bool _ret) {
-        require(_recipient != address(0x0), "recipient address error.");
-        require(_amount <= address(this).balance, "Balance not enough.");
-        (_ret, ) = _recipient.call{value: _amount}("");
-        emit Withdraw(_recipient, _amount);
-    }
-
-    receive() external payable {
-        emit Received(msg.sender, msg.value);
-    }
 
     /*
     Mined_FCC≤30M  -- Pro.currentMiningPercentage = 50%
