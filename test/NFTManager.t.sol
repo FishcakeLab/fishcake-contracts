@@ -21,8 +21,8 @@ contract NFTManagerTest is Test {
         vm.startPrank(admin);
         {
             fct = new FccToken(admin);
-            fct.mint(admin, 10000e18);
-            fct.mint(merchant, 10000e18);
+            fct.mint(admin, 10000e6);
+            fct.mint(merchant, 10000e6);
 
             usdt = new UsdtToken(admin);
             usdt.mint(admin, 66666666e6);
@@ -55,7 +55,7 @@ contract NFTManagerTest is Test {
                 address(usdt),
                 redemptionPool
             );
-            fct.mint(address(nFTManager), 100000000e18);
+            fct.mint(address(nFTManager), 100000000e6);
         }
         vm.stopPrank();
     }

@@ -27,8 +27,8 @@ contract FishcakeEventManagerTest is Test {
         //Deploying and minting the basic functions as an administrator.
         vm.startPrank(admin);
         fct = new FccToken(admin);
-        fct.mint(admin, 10000e18);
-        fct.mint(merchant, 10000e18);
+        fct.mint(admin, 100000e6);
+        fct.mint(merchant, 100000e6);
 
         usdt = new UsdtToken(admin);
         usdt.mint(admin, 1000000000e6);
@@ -83,9 +83,12 @@ contract FishcakeEventManagerTest is Test {
             address(usdt),
             address(nFTManager)
         );
+        fct.mint(address(merchantManger), 300_000_000 * 10 ** 6);
+        fct.mint(address(nFTManager), 200_000_000 * 10 ** 6);
+
 
         fct.approve(address(merchantManger), UINT256_MAX);
-        //merchantManger.addMineAmt(1000e18);
+        //merchantManger.addMineAmt(1000e6);
         vm.stopPrank();
     }
 
@@ -107,15 +110,15 @@ contract FishcakeEventManagerTest is Test {
     function test_AddMineAmt() public {
         //vm.assume(amount<101);
         vm.startPrank(admin);
-        //fct.mint(admin, 1e18);
+        //fct.mint(admin, 1e6);
         console.log("admin balance=", fct.balanceOf(address(admin)));
         fct.approve(address(merchantManger), UINT256_MAX);
         uint256 oldData = merchantManger.totalMineAmt();
 
         {
-            merchantManger.addMineAmt(1000e18);
+            merchantManger.addMineAmt(1000e6);
             console.log("aaa");
-            assertEq(merchantManger.totalMineAmt(), oldData + 1000e18);
+            assertEq(merchantManger.totalMineAmt(), oldData + 1000e6);
         }
         vm.stopPrank();
     }
@@ -124,7 +127,7 @@ contract FishcakeEventManagerTest is Test {
      * fuzz Testing the addition of reward pool for merchants' rewards.
      
     function testFuzz_AddMineAmt(uint256 amount) public {
-        vm.assume(amount > 0 && amount < 1e18);
+        vm.assume(amount > 0 && amount < 1e6);
         vm.startPrank(admin);
 
         {
@@ -156,11 +159,11 @@ contract FishcakeEventManagerTest is Test {
             //Reward rule: 1 represents equal distribution, 2 represents random distribution.
             uint8 _dropType = 1;
             //Number of reward shares.
-            uint256 _dropNumber = 10;
+            uint256 _dropNumber = 30;
             //When dropType is 1, _minDropAmt is set to 0. When it is 2, it is set to the minimum quantity to be received per share.
             uint256 _minDropAmt = 0;
             //When dropType is 1, _maxDropAmt is filled with the quantity of each reward share. When it is 2, it is filled with the maximum quantity to be received per share.
-            uint256 _maxDropAmt = 10e18;
+            uint256 _maxDropAmt = 200e6;
             //It is calculated based on _maxDropAmt * _dropNumber and does not require user input.
 
             uint256 _totalDropAmts = _maxDropAmt * _dropNumber;
@@ -203,18 +206,18 @@ contract FishcakeEventManagerTest is Test {
             fct.approve(address(merchantManger), UINT256_MAX);
             string memory _businessName = "Fishcake Store Grand open";
             string
-                memory _activityContent = "2000 FCC even drop to 100 people whovisit store on grand open day";
+                memory _activityContent = "1000 FCC even drop to 100 people whovisit store on grand open day";
             string memory _latitudeLongitude = "35.384581,115.664607";
             uint256 _activityDeadLine = 1710592488;
 
             //Reward rule: 1 represents equal distribution, 2 represents random distribution.
             uint8 _dropType = 2;
             //Number of reward shares.
-            uint256 _dropNumber = 100;
+            uint256 _dropNumber = 101;
             //When dropType is 1, _minDropAmt is set to 0. When it is 2, it is set to the minimum quantity to be received per share.
-            uint256 _minDropAmt = 1e18;
+            uint256 _minDropAmt = 1e6;
             //When dropType is 1, _maxDropAmt is filled with the quantity of each reward share. When it is 2, it is filled with the maximum quantity to be received per share.
-            uint256 _maxDropAmt = 10e18;
+            uint256 _maxDropAmt = 10e6;
             //It is calculated based on _maxDropAmt * _dropNumber and does not require user input.
             uint256 _totalDropAmts = _maxDropAmt * _dropNumber;
             address _tokenContractAddr = address(fct);
@@ -235,13 +238,114 @@ contract FishcakeEventManagerTest is Test {
 
         vm.stopPrank();
     }
+        /*
+    Activity details added for too little totalDropAmts
+    */
+    function set_ActivityAddTooLittleTotalDropAmts() public returns (bool _ret, uint256 _activityId) {
+        vm.startPrank(merchant);
+        vm.warp(1716520877);
+        {
+            fct.approve(address(merchantManger), UINT256_MAX);
+            string memory _businessName = "Fishcake Store Grand open";
+            string
+                memory _activityContent = "10 FCC even drop to 100 people whovisit store on grand open day";
+            string memory _latitudeLongitude = "35.384581,115.664607";
+            uint256 _activityDeadLine = 1716550801;
 
-    function test_ActivityAdda() public {
+
+            //Reward rule: 1 represents equal distribution, 2 represents random distribution.
+            uint8 _dropType = 2;
+            //Number of reward shares.
+            uint256 _dropNumber = 10;
+            //When dropType is 1, _minDropAmt is set to 0. When it is 2, it is set to the minimum quantity to be received per share.
+            uint256 _minDropAmt = 1;
+            //When dropType is 1, _maxDropAmt is filled with the quantity of each reward share. When it is 2, it is filled with the maximum quantity to be received per share.
+            uint256 _maxDropAmt = 11e6;
+            //It is calculated based on _maxDropAmt * _dropNumber and does not require user input.
+
+            uint256 _totalDropAmts = _maxDropAmt * _dropNumber;
+            address _tokenContractAddr = address(fct);
+            //vm.expectRevert(bytes("Total Drop Amounts Too Little , Minimum of100."));
+            (_ret, _activityId) = merchantManger.activityAdd(
+                _businessName,
+                _activityContent,
+                _latitudeLongitude,
+                _activityDeadLine,
+                _totalDropAmts,
+                _dropType,
+                _dropNumber,
+                _minDropAmt,
+                _maxDropAmt,
+                _tokenContractAddr
+            );
+
+        }
+
+        vm.stopPrank();
+    }
+
+     /*
+    Activity details added for too More DropNumber 
+    */
+    function set_ActivityAddTooMoreDropNumber() public returns (bool _ret, uint256 _activityId) {
+        vm.startPrank(merchant);
+        vm.warp(1716520877);
+        {
+            fct.approve(address(merchantManger), UINT256_MAX);
+            string memory _businessName = "Fishcake Store Grand open";
+            string
+                memory _activityContent = "2000 FCC even drop to 100 people whovisit store on grand open day";
+            string memory _latitudeLongitude = "35.384581,115.664607";
+            uint256 _activityDeadLine = 1716550801;
+
+
+            //Reward rule: 1 represents equal distribution, 2 represents random distribution.
+            uint8 _dropType = 1;
+            //Number of reward shares.
+            uint256 _dropNumber = 101;
+            //When dropType is 1, _minDropAmt is set to 0. When it is 2, it is set to the minimum quantity to be received per share.
+            uint256 _minDropAmt = 0;
+            //When dropType is 1, _maxDropAmt is filled with the quantity of each reward share. When it is 2, it is filled with the maximum quantity to be received per share.
+            uint256 _maxDropAmt = 10e6;
+            //It is calculated based on _maxDropAmt * _dropNumber and does not require user input.
+
+            uint256 _totalDropAmts = _maxDropAmt * _dropNumber;
+            address _tokenContractAddr = address(fct);
+            vm.expectRevert(bytes("Drop Number Too Large ,Limt 100 or TotalDropAmts/10."));
+            (_ret, _activityId) = merchantManger.activityAdd(
+                _businessName,
+                _activityContent,
+                _latitudeLongitude,
+                _activityDeadLine,
+                _totalDropAmts,
+                _dropType,
+                _dropNumber,
+                _minDropAmt,
+                _maxDropAmt,
+                _tokenContractAddr
+            );
+
+        }
+
+        vm.stopPrank();
+    }
+
+    function test_ActivityAdda() public {      
         set_ActivityAdd();
+        
     }
 
     function test_ActivityAddWhenType2() public {
         set_ActivityAddWithType2();
+    }
+
+    function test_ActivityAddTooLittle() public {      
+        set_ActivityAddTooLittleTotalDropAmts();
+        
+    }
+    function test_ActivityAddTooMore() public {      
+        set_ActivityAddTooMoreDropNumber();
+        
     }
 
     /*
@@ -316,7 +420,7 @@ contract FishcakeEventManagerTest is Test {
         (_ret, _activityId) = set_ActivityAddWithType2();
         vm.startPrank(merchant);
         //When the type is 2, this parameter represents the quantity of tokens to be claimed as rewards.
-        uint256 _dropAmt = 1e18;
+        uint256 _dropAmt = 1e6;
         uint256 contractBeforeBalance = fct.balanceOf(address(merchantManger));
         {
             //console.log("contract before balance=",fct.balanceOf(address(merchantManger)));
@@ -343,7 +447,7 @@ contract FishcakeEventManagerTest is Test {
         (_ret, _activityId) = set_ActivityAddWithType2();
         vm.startPrank(merchant);
         //type为2时，该参数为领取奖励的token数量
-        uint256 _dropAmt = 1e18;
+        uint256 _dropAmt = 1e6;
 
         {
             //console.log("contract before balance=",fct.balanceOf(address(merchantManger)));
@@ -435,19 +539,19 @@ contract FishcakeEventManagerTest is Test {
     function test_ActivityFinishWith100Users() public {
         console.log(
             "contract begin balance=",
-            fct.balanceOf(address(merchantManger)) / 1 ether
+            fct.balanceOf(address(merchantManger)) / 1e6
         );
         console.log(
             "userMerchant begin balance=",
-            fct.balanceOf(address(merchant)) / 1 ether
+            fct.balanceOf(address(merchant)) / 1e6
         );
         console.log(
             "contract begin balance=",
-            fct.balanceOf(address(merchantManger)) / 1 ether
+            fct.balanceOf(address(merchantManger)) / 1e6
         );
         console.log(
             "userMerchant begin balance=",
-            fct.balanceOf(address(merchant)) / 1 ether
+            fct.balanceOf(address(merchant)) / 1e6
         );
         bool _ret;
         uint256 _activityId;
@@ -467,11 +571,11 @@ contract FishcakeEventManagerTest is Test {
                     merchantManger.activityFinish(_activityId);
                     console.log(
                         "contract after balance=",
-                        fct.balanceOf(address(merchantManger)) / 1 ether
+                        fct.balanceOf(address(merchantManger)) / 1e6
                     );
                     console.log(
                         "userMerchant after balance=",
-                        fct.balanceOf(address(merchant)) / 1 ether
+                        fct.balanceOf(address(merchant)) / 1e6
                     );
                     /**
                      *  (
@@ -531,23 +635,16 @@ contract FishcakeEventManagerTest is Test {
     function test_ActivityFinishWithAllUsers() public {
         console.log(
             "contract begin balance=",
-            fct.balanceOf(address(merchantManger)) / 1 ether
+            fct.balanceOf(address(merchantManger)) / 1e6
         );
         console.log(
             "userMerchant begin balance=",
-            fct.balanceOf(address(merchant)) / 1 ether
+            fct.balanceOf(address(merchant)) / 1e6
         );
-        console.log(
-            "contract begin balance=",
-            fct.balanceOf(address(merchantManger)) / 1 ether
-        );
-        console.log(
-            "userMerchant begin balance=",
-            fct.balanceOf(address(merchant)) / 1 ether
-        );
+        
         bool _ret;
         uint256 _activityId;
-        //set 100
+        //set 10user 
         (_ret, _activityId) = set_ActivityAdd();
 
         //mint NFT
@@ -558,14 +655,14 @@ contract FishcakeEventManagerTest is Test {
 
         {
             console.log(
-                "merchantManger contract befor balance=",
-                fct.balanceOf(address(merchantManger)) / 1 ether
+                "merchantManger contract after set_ActivityAdd balance=",
+                fct.balanceOf(address(merchantManger)) / 1e6
             );
             console.log(
-                "merchant user befor balance=",
-                fct.balanceOf(address(merchant)) / 1 ether
+                "merchant user after set_ActivityAdd balance=",
+                fct.balanceOf(address(merchant)) / 1e6
             );
-            for (uint256 i = 0; i < 10; i++) {
+            for (uint256 i = 0; i < 30; i++) {
                 uint256 contractBeforeBalance = fct.balanceOf(
                     address(merchantManger)
                 );
@@ -580,6 +677,7 @@ contract FishcakeEventManagerTest is Test {
                     userBalance,
                     contractBeforeBalance - contractAfterBalance
                 );*/
+                //console.log("userBalance after drop balance=",userBalance / 1e6);
                 require(
                     userBalance == contractBeforeBalance - contractAfterBalance,
                     "drop error"
@@ -587,12 +685,12 @@ contract FishcakeEventManagerTest is Test {
             }
             merchantManger.activityFinish(_activityId);
             console.log(
-                "merchantManger contract after balance=",
-                fct.balanceOf(address(merchantManger)) / 1 ether
+                "merchantManger contract after activityFinish balance=",
+                fct.balanceOf(address(merchantManger)) / 1e6
             );
             console.log(
-                "merchant user after balance=",
-                fct.balanceOf(address(merchant)) / 1 ether
+                "merchant user after activityFinish balance=",
+                fct.balanceOf(address(merchant)) / 1e6
             );
         }
         vm.stopPrank();
@@ -609,7 +707,7 @@ contract FishcakeEventManagerTest is Test {
             string memory _businessAddress = "budao street";
             string memory _webSite = "https://bing.com";
             string memory _social = "https://bing.com/social";
-            uint8 _type = 1;
+            uint8 _type = 2;
             (bool _ret, uint256 _tokenId) = nFTManager.createNFT(
                 _businessName,
                 _description,
