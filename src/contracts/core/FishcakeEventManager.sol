@@ -22,7 +22,7 @@ contract FishcakeEventManager is Ownable2Step, ReentrancyGuard {
     bool public isMint = true; // Whether to mint
     uint256 private immutable oneDay = 86400; //one day 86400 s
     uint256 public immutable merchantOnceMaxMineAmt = 240 * 10 ** 6; // pro nft once max mining quantity
-    uint256 public immutable userOnceMaxMineAmt = 240 * 10 ** 6; // basic nft once max mining quantity
+    uint256 public immutable userOnceMaxMineAmt = 24 * 10 ** 6; // basic nft once max mining quantity
     mapping(address => uint256) public NTFLastMineTime; // nft last mining time
 
 
@@ -145,6 +145,7 @@ contract FishcakeEventManager is Ownable2Step, ReentrancyGuard {
         address _tokenContractAddr
     ) public nonReentrant returns (bool _ret, uint256 _activityId) {
         require(_dropType == 2 || _dropType == 1, "Drop Type Error.");
+        require(_maxDropAmt >= _minDropAmt, "MaxDropAmt Setup Error.");
         require(_totalDropAmts > 0, "Drop Amount Error.");
         require(
             block.timestamp < _activityDeadLine &&
@@ -156,6 +157,15 @@ contract FishcakeEventManager is Ownable2Step, ReentrancyGuard {
             _totalDropAmts == _maxDropAmt * _dropNumber,
             "Drop Number Not Meet Total Drop Amounts."
         );
+        require(
+            _totalDropAmts >=100e6,
+            "Total Drop Amounts Too Little , Minimum of100."
+        );
+         require(
+            _dropNumber < 101 || _dropNumber < _totalDropAmts/10e6,
+            "Drop Number Too Large ,Limt 100 or TotalDropAmts/10."
+        );
+        
         require(
             _tokenContractAddr == address(UsdtTokenAddr) ||
                 _tokenContractAddr == address(FccTokenAddr),
@@ -243,7 +253,8 @@ contract FishcakeEventManager is Ownable2Step, ReentrancyGuard {
                 returnAmount
             );
         }
-        if (isMint &&
+        //ifReward There is only one reward in 24 hours
+        if (isMint && ifReward() &&
             iNFTManager.getMerchantNTFDeadline(_msgSender()) >
             block.timestamp ||
             iNFTManager.getUserNTFDeadline(_msgSender()) > block.timestamp
@@ -402,5 +413,23 @@ contract FishcakeEventManager is Ownable2Step, ReentrancyGuard {
         } else {
             currentMinePercent = 0;
         }
+    }
+
+/*
+There is only one reward in 24 hours
+*/
+    function ifReward()
+        public
+        view
+        returns (bool _ret)
+    {
+        if (NTFLastMineTime[_msgSender()] == 0) {
+            _ret=true;
+        } else if (NTFLastMineTime[_msgSender()]-oneDay>= 0) {
+           _ret=true;
+        } else {
+           _ret=false;
+        }
+        
     }
 }
