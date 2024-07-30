@@ -29,7 +29,7 @@ contract NFTManager is Ownable2Step, ERC721, ERC721URIStorage, ReentrancyGuard {
     IERC20 public immutable UsdtTokenAddr;
     mapping(address => uint256) public merchantNTFDeadline;
     mapping(address => uint256) public userNTFDeadline;
-    //nftTokenID => 1 merchant,2 user
+    //nftTokenID => 1 merchant,2 user ==》 1 pro,2 basic
     mapping(uint256 => uint8) public nftTypeMap;
 
     //tokenId => deadline timestamp

@@ -20,6 +20,13 @@ contract FishcakeEventManager is Ownable2Step, ReentrancyGuard {
     uint256 public minedAmt = 0; // Mined quantity
     uint8 public minePercent = 50; // Mining percentage
     bool public isMint = true; // Whether to mint
+    uint256 private immutable oneDay = 86400; //one day 86400 s
+    uint256 public immutable merchantOnceMaxMineAmt = 240 * 10 ** 6; // pro nft once max mining quantity
+    uint256 public immutable userOnceMaxMineAmt = 240 * 10 ** 6; // basic nft once max mining quantity
+    mapping(address => uint256) public NTFLastMineTime; // nft last mining time
+
+
+    
 
     struct ActivityInfo {
         uint256 activityId; // Activity ID
@@ -230,7 +237,7 @@ contract FishcakeEventManager is Ownable2Step, ReentrancyGuard {
             ai.dropNumber -
             aie.alreadyDropAmts;
         uint256 minedAmount = 0;
-        if (ai.maxDropAmt * ai.dropNumber > aie.alreadyDropAmts) {
+        if (returnAmount>0) {
             IERC20(ai.tokenContractAddr).safeTransfer(
                 _msgSender(),
                 returnAmount
@@ -255,13 +262,22 @@ contract FishcakeEventManager is Ownable2Step, ReentrancyGuard {
                         ? minePercent
                         : minePercent / 2
                 );
+                uint256 maxMineAmtLimt = (
+                    iNFTManager.getMerchantNTFDeadline(_msgSender()) >
+                        block.timestamp
+                        ? merchantOnceMaxMineAmt
+                        : userOnceMaxMineAmt
+                );
                 // For each FCC release activity hosted on the platform, the activity initiator can mine tokens based on either 50% of the total token quantity consumed by the activity or 50% of the total number of participants multiplied by 20, whichever is lower.
                 uint256 tmpDropedVal = aie.alreadyDropNumber * 20 * 1e6;
                 uint256 tmpBusinessMinedAmt = ((
                     aie.alreadyDropAmts > tmpDropedVal
                         ? tmpDropedVal
                         : aie.alreadyDropAmts
-                ) * percent) / 100;  
+                ) * percent) / 100; 
+                if (tmpBusinessMinedAmt > maxMineAmtLimt) {
+                    tmpBusinessMinedAmt = maxMineAmtLimt;
+                }
                 if(totalMineAmt>minedAmt){              
                     if (totalMineAmt > minedAmt + tmpBusinessMinedAmt) {
                         aie.businessMinedAmt = tmpBusinessMinedAmt;
@@ -281,7 +297,7 @@ contract FishcakeEventManager is Ownable2Step, ReentrancyGuard {
                         minedAmount = aie.businessMinedAmt;
                         isMint=false;
                     }
-                    
+                    NTFLastMineTime[_msgSender()] =block.timestamp;                    
                 }
             }
         }
