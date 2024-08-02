@@ -15,7 +15,10 @@ contract FishcakeCoin is ERC20, Ownable {
     address public EcosystemPool;
     address public FoundationPool;
     address public RedemptionPool;
-
+    event Burn(
+        uint256 _burnAmount,
+        uint256 _totalSupply
+    );
     constructor() ERC20("Fishcake Coin", "FCC") Ownable(msg.sender) {}
 
     modifier onlyRedemptionPool() {
@@ -87,5 +90,6 @@ contract FishcakeCoin is ERC20, Ownable {
     function burn(address user, uint256 _amount) public onlyRedemptionPool {
         _burn(user, _amount);
         _burnedTokens+=_amount;
+        emit Burn(_amount,totalSupply());
     }
 }
