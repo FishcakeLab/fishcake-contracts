@@ -82,8 +82,8 @@ contract RedemptionPoolTest is Test {
             }
             console.log("approve==",usdt.allowance(merchant,address(investorSalePool))/1e6);
 
-            console.log("befor BuyWithUSD investorSalePool usdt balance ",usdt.balanceOf(address(investorSalePool))/ 1e6);
-            console.log("befor BuyWithUSD redemptionPool usdt balance ",usdt.balanceOf(address(redemptionPool))/ 1e6);
+            console.log("before BuyWithUSD investorSalePool usdt balance ",usdt.balanceOf(address(investorSalePool))/ 1e6);
+            console.log("before BuyWithUSD redemptionPool usdt balance ",usdt.balanceOf(address(redemptionPool))/ 1e6);
             
             investorSalePool.BuyWithUSDT(10_000e6);
             console.log("after BuyWithUSD investorSalePool fct balance ",fct.balanceOf(address(investorSalePool))/ 1e6);
@@ -97,9 +97,9 @@ contract RedemptionPoolTest is Test {
            
 
 
-            console.log("befor claim merchant fct balance ",fct.balanceOf(address(merchant)));
-            console.log("befor claim merchant usdt balance ",usdt.balanceOf(address(merchant)));
-            console.log("befor claim redemptionPool usdt balance ",usdt.balanceOf(address(redemptionPool)));
+            console.log("before claim merchant fct balance ",fct.balanceOf(address(merchant)));
+            console.log("before claim merchant usdt balance ",usdt.balanceOf(address(merchant)));
+            console.log("before claim redemptionPool usdt balance ",usdt.balanceOf(address(redemptionPool)));
 
             vm.warp(block.timestamp+731 days);
             //vm.expectRevert(bytes("Redemption is locked"));

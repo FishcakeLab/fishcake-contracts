@@ -74,10 +74,10 @@ contract DirectSalePoolTest is Test {
         {
             usdt.approve(address(directSalePool), 10_000e6);
             console.log("approve==",usdt.allowance(merchant,address(directSalePool))/1e6);
-            console.log("befor Buy merchant usdt balance ",usdt.balanceOf(address(merchant))/ 1e6); 
-            console.log("befor Buy directSalePool fct balance ",fct.balanceOf(address(directSalePool))/ 1e6);
-            console.log("befor Buy directSalePool usdt balance ",usdt.balanceOf(address(directSalePool))/ 1e6);
-            console.log("befor Buy redemptionPool usdt balance ",usdt.balanceOf(address(redemptionPool))/ 1e6);            
+            console.log("before Buy merchant usdt balance ",usdt.balanceOf(address(merchant))/ 1e6); 
+            console.log("before Buy directSalePool fct balance ",fct.balanceOf(address(directSalePool))/ 1e6);
+            console.log("before Buy directSalePool usdt balance ",usdt.balanceOf(address(directSalePool))/ 1e6);
+            console.log("before Buy redemptionPool usdt balance ",usdt.balanceOf(address(redemptionPool))/ 1e6);            
             directSalePool.Buy(10_000e6);
             assertEq(1_000e6, usdt.balanceOf(address(redemptionPool)));
             assertEq(10_000e6, fct.balanceOf(address(merchant)));
@@ -97,10 +97,10 @@ contract DirectSalePoolTest is Test {
         {
             usdt.approve(address(directSalePool), 10_000e6);
             console.log("approve==",usdt.allowance(merchant,address(directSalePool))/1e6);
-            console.log("befor BuyWithUSDT merchant usdt balance ",usdt.balanceOf(address(merchant))/ 1e6); 
-            console.log("befor BuyWithUSDT directSalePool fct balance ",fct.balanceOf(address(directSalePool))/ 1e6);
-            console.log("befor BuyWithUSDT directSalePool usdt balance ",usdt.balanceOf(address(directSalePool))/ 1e6);
-            console.log("befor BuyWithUSDT redemptionPool usdt balance ",usdt.balanceOf(address(redemptionPool))/ 1e6);            
+            console.log("before BuyWithUSDT merchant usdt balance ",usdt.balanceOf(address(merchant))/ 1e6); 
+            console.log("before BuyWithUSDT directSalePool fct balance ",fct.balanceOf(address(directSalePool))/ 1e6);
+            console.log("before BuyWithUSDT directSalePool usdt balance ",usdt.balanceOf(address(directSalePool))/ 1e6);
+            console.log("before BuyWithUSDT redemptionPool usdt balance ",usdt.balanceOf(address(redemptionPool))/ 1e6);            
             directSalePool.BuyWithUSDT(10_000e6);
             assertEq(10_000e6, usdt.balanceOf(address(redemptionPool)));
             console.log("after BuyWithUSDT directSalePool fct balance ",fct.balanceOf(address(directSalePool))/ 1e6);

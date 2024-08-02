@@ -109,8 +109,8 @@ contract InvestorSalePoolTest is Test {
             }
             console.log("approve==",usdt.allowance(merchant,address(investorSalePool))/1e6);
 
-            console.log("befor BuyWithUSD investorSalePool usdt balance ",usdt.balanceOf(address(investorSalePool))/ 1e6);
-            console.log("befor BuyWithUSD redemptionPool usdt balance ",usdt.balanceOf(address(investorSalePool))/ 1e6);
+            console.log("before BuyWithUSD investorSalePool usdt balance ",usdt.balanceOf(address(investorSalePool))/ 1e6);
+            console.log("before BuyWithUSD redemptionPool usdt balance ",usdt.balanceOf(address(investorSalePool))/ 1e6);
 
             investorSalePool.BuyWithUSDT(10_000e6);
             console.log("after BuyWithUSD investorSalePool fct balance ",fct.balanceOf(address(investorSalePool))/ 1e6);
@@ -133,9 +133,9 @@ contract InvestorSalePoolTest is Test {
             }
             console.log("approve==",usdt.allowance(merchant,address(investorSalePool))/1e6);
 
-            console.log("befor BuyWithUSD merchant usdt balance ",usdt.balanceOf(address(merchant))/ 1e6);
-            console.log("befor BuyWithUSD investorSalePool usdt balance ",usdt.balanceOf(address(investorSalePool))/ 1e6);
-            console.log("befor BuyWithUSD redemptionPool usdt balance ",usdt.balanceOf(address(redemptionPool))/ 1e6);
+            console.log("before BuyWithUSD merchant usdt balance ",usdt.balanceOf(address(merchant))/ 1e6);
+            console.log("before BuyWithUSD investorSalePool usdt balance ",usdt.balanceOf(address(investorSalePool))/ 1e6);
+            console.log("before BuyWithUSD redemptionPool usdt balance ",usdt.balanceOf(address(redemptionPool))/ 1e6);
 
             //10_000 fcc ==>AmountLessThanMinimum,At least 16666 are required
             //vm.expectRevert(AmountLessThanMinimum.selector);
@@ -166,8 +166,8 @@ contract InvestorSalePoolTest is Test {
             }
             console.log("approve==",usdt.allowance(merchant,address(investorSalePool))/1e6);
 
-            console.log("befor BuyWithUSD investorSalePool usdt balance ",usdt.balanceOf(address(investorSalePool))/ 1e6);
-            console.log("befor BuyWithUSD redemptionPool usdt balance ",usdt.balanceOf(address(redemptionPool))/ 1e6);
+            console.log("before BuyWithUSD investorSalePool usdt balance ",usdt.balanceOf(address(investorSalePool))/ 1e6);
+            console.log("before BuyWithUSD redemptionPool usdt balance ",usdt.balanceOf(address(redemptionPool))/ 1e6);
 
             investorSalePool.BuyWithUSDT(10_000e6);
             console.log("after BuyWithUSD investorSalePool fct balance ",fct.balanceOf(address(investorSalePool))/ 1e6);
@@ -181,7 +181,7 @@ contract InvestorSalePoolTest is Test {
         }
         
         vm.startPrank(admin);{
-            console.log("befor withdrawUSDT admin usdt balance ",usdt.balanceOf(address(admin))/ 1e6);
+            console.log("before withdrawUSDT admin usdt balance ",usdt.balanceOf(address(admin))/ 1e6);
             investorSalePool.withdrawUSDT(5_000e6);
             console.log("after withdrawUSDT admin usdt balance ",usdt.balanceOf(address(admin))/ 1e6);
         }
