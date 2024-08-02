@@ -58,9 +58,8 @@ contract RedemptionPool is ReentrancyGuard {
 
     function calculateUSDT(uint256 _amount) public view returns (uint256) {
         // USDT balance / fishcakeCoin total supply
-        return
-            (balance() * _amount ) /
-            (
-                (fishcakeCoin.totalSupply() - fishcakeCoin._burnedTokens()));
+        return balance() * _amount  / fishcakeCoin.totalSupply();
+
+            
     }
 }
