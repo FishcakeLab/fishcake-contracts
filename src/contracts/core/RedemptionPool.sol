@@ -38,9 +38,9 @@ contract RedemptionPool is ReentrancyGuard {
         USDT = IERC20(_USDT);
     }
 
-    function claim(uint256 _amount) public IsUnlock nonReentrant {
-        fishcakeCoin.burn(msg.sender, _amount);
+    function claim(uint256 _amount) public IsUnlock nonReentrant {        
         uint USDTAmount = calculateUSDT(_amount);
+        fishcakeCoin.burn(msg.sender, _amount);
         if (USDTAmount == 0) {
             revert USDTAmountIsZero();
         }
