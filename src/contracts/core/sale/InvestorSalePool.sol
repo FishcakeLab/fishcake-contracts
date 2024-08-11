@@ -115,13 +115,13 @@ contract InvestorSalePool is Ownable2Step, ReentrancyGuard {
         uint256 _amount
     ) public pure returns (uint256) {
         if (level == InvestorLevel.One) {
-            return (_amount * 50 * OneFCC) / OneUSDT; // 1 USDT = 50 FCC
+            return (_amount * 100 * OneFCC) / (6 * OneUSDT); // 1 USDT = 16.66...  FCC
         } else if (level == InvestorLevel.Two) {
-            return (_amount * 25 * OneFCC) / OneUSDT; // 1 USDT = 25 FCC
+            return (_amount * 100 * OneFCC) / (7 * OneUSDT); // 1 USDT = 14.28... FCC
         } else if (level == InvestorLevel.Three) {
-            return (_amount * 20 * OneFCC) / OneUSDT; // 1 USDT = 20 FCC
+            return (_amount * 100 * OneFCC) / (8 * OneUSDT); // 1 USDT = 12.50 FCC
         } else if (level == InvestorLevel.Four) {
-            return (_amount * 100 * OneFCC) / (6 * OneUSDT); // 1 USDT = 16.66... FCC
+            return (_amount * 100 * OneFCC) / (9 * OneUSDT); // 1 USDT = 11.11... FCC
         } else {
             revert InvestorLevelError();
         }
@@ -132,13 +132,13 @@ contract InvestorSalePool is Ownable2Step, ReentrancyGuard {
         uint256 _amount
     ) public pure returns (uint256) {
         if (level == InvestorLevel.One) {
-            return (_amount * OneUSDT) / (OneFCC * 50); // 1 FCC = 0.02 USDT
-        } else if (level == InvestorLevel.Two) {
-            return (_amount * OneUSDT) / (OneFCC * 25); // 1 FCC = 0.04 USDT
-        } else if (level == InvestorLevel.Three) {
-            return (_amount * OneUSDT) / (OneFCC * 20); // 1 FCC = 0.05 USDT
-        } else if (level == InvestorLevel.Four) {
             return (_amount * OneUSDT * 6) / (OneFCC * 100); // 1 FCC = 0.06 USDT
+        } else if (level == InvestorLevel.Two) {
+            return (_amount * OneUSDT * 7) / (OneFCC * 100); // 1 FCC = 0.07 USDT
+        } else if (level == InvestorLevel.Three) {
+            return (_amount * OneUSDT * 8) / (OneFCC * 100); // 1 FCC = 0.08 USDT
+        } else if (level == InvestorLevel.Four) {
+            return (_amount * OneUSDT * 9) / (OneFCC * 100); // 1 FCC = 0.09 USDT
         } else {
             revert InvestorLevelError();
         }
