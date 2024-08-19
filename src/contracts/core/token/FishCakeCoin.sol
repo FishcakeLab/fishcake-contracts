@@ -30,6 +30,7 @@ contract FishCakeCoin is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeab
         __Ownable_init(_owner);
         RedemptionPool = _RedemptionPool;
         _transferOwnership(_owner);
+        isAllocation = false;
     }
 
     function decimals() public view virtual override returns (uint8) {
@@ -56,6 +57,7 @@ contract FishCakeCoin is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeab
         _mint(fcPool.nftSalesRewardsPool, (MaxTotalSupply * 2) / 10); // 20% of total supply
         _mint(fcPool.ecosystemPool, MaxTotalSupply / 10);  // 10% of total supply
         _mint(fcPool.foundationPool, MaxTotalSupply / 10); // 10% of total supply
+        isAllocation = true;
     }
 
     function burn(address user, uint256 _amount) external onlyRedemptionPool {
@@ -70,6 +72,7 @@ contract FishCakeCoin is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeab
 
     // ==================== internal function =============================
     function _beforeAllocation(fishCakePool memory _pool) internal virtual {
+        require(!isAllocation,  "FishCakeCoin _beforeAllocation:Fishcake is already allocate");
         require(_pool.miningPool != address(0),  "FishCakeCoin _beforeAllocation:Missing allocate MiningPool address");
         require(_pool.directSalePool != address(0), "FishCakeCoin _beforeAllocation:Missing allocate DirectSalePool address");
         require(_pool.investorSalePool != address(0), "FishCakeCoin _beforeAllocation:Missing allocate InvestorSalePool address");
