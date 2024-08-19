@@ -3,8 +3,8 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import "../interface/IFishcakeEventManager.sol";
-import "../interface/INftManager.sol";
+import "../interfaces/IFishcakeEventManager.sol";
+import "../interfaces/INftManager.sol";
 
 abstract contract FishcakeEventManagerStorage is IFishcakeEventManager {
     using SafeERC20 for IERC20;

@@ -8,7 +8,7 @@ import "@openzeppelin-upgrades/contracts/access/OwnableUpgradeable.sol";
 import "@openzeppelin-upgrades/contracts/utils/ReentrancyGuardUpgradeable.sol";
 
 
-import "../../interface/IInvestorSalePool.sol";
+import "../../interfaces/IInvestorSalePool.sol";
 import  "./InvestorSalePoolStorage.sol";
 
 
