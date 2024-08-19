@@ -1,156 +1,114 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
-import "../token/FishcakeCoin.sol";
-import "../RedemptionPool.sol";
+import "@openzeppelin-upgrades/contracts/token/ERC20/ERC20Upgradeable.sol";
+import "@openzeppelin-upgrades/contracts/token/ERC20/extensions/ERC20BurnableUpgradeable.sol";
+import "@openzeppelin-upgrades/contracts/proxy/utils/Initializable.sol";
+import "@openzeppelin-upgrades/contracts/access/OwnableUpgradeable.sol";
+import "@openzeppelin-upgrades/contracts/utils/ReentrancyGuardUpgradeable.sol";
 
-contract InvestorSalePool is Ownable2Step, ReentrancyGuard {
-    enum InvestorLevel {
-        One,
-        Two,
-        Three,
-        Four
-    }
-    error NotEnoughFishcakeCoin();
-    error AmountLessThanMinimum();
-    error InvestorLevelError();
-    event BuyFishcakeCoinSuccess(
-        address indexed buyer,
-        InvestorLevel level,
-        uint256 USDTAmount,
-        uint256 fishcakeCoinAmount
-    );
-    event SetValut(address _vault);
-    event WithdrawUSDT(address indexed who, uint256 _amount);
-    using SafeERC20 for IERC20;
 
-    IERC20 public fishcakeCoin;
-    RedemptionPool public redemptionPool;
-    address public vault;
-    //IERC20 public immutable USDT =IERC20(0xc2132D05D31c914a87C6611C10748AEb04B58e8F);
-    IERC20 public immutable USDT;
+import "../../interface/IInvestorSalePool.sol";
+import  "./InvestorSalePoolStorage.sol";
 
-    uint256 public immutable OneUSDT = 10 ** 6;
-    uint256 public immutable OneFCC = 10 ** 6;
 
-    constructor(
-        address _fishcakeCoin,
-        address _redemptionPool,
-        address _USDT
-    ) Ownable(msg.sender) {
-        fishcakeCoin = FishcakeCoin(_fishcakeCoin);
-        redemptionPool = RedemptionPool(_redemptionPool);
-        USDT = IERC20(_USDT);
+contract InvestorSalePool is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable, InvestorSalePoolStorage {
+    error NotSupportFccAmount();
+    error NotSupportUsdtAmount();
+
+    error TokenUsdtAmountNotEnough();
+    error FccTokenAmountNotEnough();
+
+    event SetValutAddress(address _vaultAddress);
+    event WithdrawUsdt(address indexed withdrawAddress, uint256 _amount);
+    event BuyFishcakeCoin(address indexed buyer, uint256 USDTAmount, uint256 fishcakeCoinAmount);
+
+    constructor(address _fishCakeCoin, address _redemptionPool, address _tokenUsdtAddress) InvestorSalePoolStorage(_fishCakeCoin, _redemptionPool, _tokenUsdtAddress) {
+        _disableInitializers();
     }
 
-    function Buy(uint256 _amount) public nonReentrant {
-        InvestorLevel level = QueryLevelWithFCC(_amount);
-        uint256 USDTAmount = calculateUSDT(level, _amount);
-        USDT.safeTransferFrom(msg.sender, address(this), USDTAmount);
-        USDT.safeTransfer(address(redemptionPool), USDTAmount / 2);
-        if (_amount > fishcakeCoin.balanceOf(address(this))) {
-            revert NotEnoughFishcakeCoin();
+    function initialize(address _initialOwner) public initializer {
+        require(_initialOwner != address(0), "InvestorSalePool initialize: _initialOwner can't be zero address");
+        __Ownable_init(_initialOwner);
+        _transferOwnership(_initialOwner);
+    }
+
+    function buyFccAmount(uint256 fccAmount) external {
+        if (fccAmount > fishCakeCoin.balanceOf(address(this))) {
+            revert FccTokenAmountNotEnough();
         }
-        fishcakeCoin.safeTransfer(msg.sender, _amount);
-        emit BuyFishcakeCoinSuccess(msg.sender, level, USDTAmount, _amount);
-    }
-
-    function BuyWithUSDT(uint256 _amount) public nonReentrant {
-        InvestorLevel level = QueryLevelWithUSDT(_amount);
-        uint256 fishcakeCoinAmount = calculateFCC(level, _amount);
-        if (fishcakeCoinAmount > fishcakeCoin.balanceOf(address(this))) {
-            revert NotEnoughFishcakeCoin();
+        uint256 tokenUsdtAmount = calculateUsdtByFcc(fccAmount);
+        if (tokenUsdtAddress.balanceOf(msg.sender) < tokenUsdtAmount) {
+            revert TokenUsdtAmountNotEnough();
         }
-        USDT.safeTransferFrom(msg.sender, address(this), _amount);
-        USDT.safeTransfer(address(redemptionPool), _amount / 2);
-        fishcakeCoin.safeTransfer(msg.sender, fishcakeCoinAmount);
-        emit BuyFishcakeCoinSuccess(
-            msg.sender,
-            level,
-            _amount,
-            fishcakeCoinAmount
-        );
+        totalSellFccAmount += fccAmount;
+        totalReceiveUsdtAmount += tokenUsdtAmount;
+
+        tokenUsdtAddress.transferFrom(msg.sender, address(this), tokenUsdtAmount / 2);
+        tokenUsdtAddress.transferFrom(msg.sender, address(redemptionPool), tokenUsdtAmount / 2);
+
+        fishCakeCoin.transfer(msg.sender, fccAmount);
+
+        emit BuyFishcakeCoin(msg.sender, tokenUsdtAmount, fccAmount);
+
     }
 
-    function QueryLevelWithUSDT(
-        uint256 _amount
-    ) public pure returns (InvestorLevel) {
-        if (_amount >= 100_000 * OneUSDT) {
-            return InvestorLevel.One;
-        } else if (_amount < 100_000 * OneUSDT && _amount >= 10_000 * OneUSDT) {
-            return InvestorLevel.Two;
-        } else if (_amount < 10_000 * OneUSDT && _amount >= 5_000 * OneUSDT) {
-            return InvestorLevel.Three;
-        } else if (_amount < 5_000 * OneUSDT && _amount >= 1_000 * OneUSDT) {
-            return InvestorLevel.Four;
+    function buyFccByUsdtAmount(uint256 tokenUsdtAmount) external {
+        if (tokenUsdtAddress.balanceOf(msg.sender) < tokenUsdtAmount) {
+            revert TokenUsdtAmountNotEnough();
+        }
+        uint256 fccAmount = calculateFccByUsdt(tokenUsdtAmount);
+        if (fccAmount > fishCakeCoin.balanceOf(address(this))) {
+            revert FccTokenAmountNotEnough();
+        }
+
+        totalSellFccAmount += fccAmount;
+        totalReceiveUsdtAmount += tokenUsdtAmount;
+
+        tokenUsdtAddress.transferFrom(msg.sender, address(this), tokenUsdtAmount / 2);
+        tokenUsdtAddress.transferFrom(msg.sender, address(redemptionPool), tokenUsdtAmount / 2);
+
+        fishCakeCoin.transfer(msg.sender, fccAmount);
+
+        emit BuyFishcakeCoin(msg.sender, tokenUsdtAmount, fccAmount);
+    }
+
+
+    function setValutAddress(address _vaultAddress) external onlyOwner {
+        vaultAddress = _vaultAddress;
+        emit SetValutAddress(_vaultAddress);
+    }
+
+    function withdrawUsdt(uint256 _amount) external onlyOwner {
+        tokenUsdtAddress.transfer(vaultAddress, _amount);
+        emit WithdrawUsdt(vaultAddress, _amount);
+    }
+
+    function calculateFccByUsdt(uint256 _amount) internal pure returns (uint256) {
+        if (_amount >= 100_000 * usdtDecimal) { // 1 USDT = 50 FCC
+            return (_amount * 50 * fccDecimal) / usdtDecimal;
+        } else if (_amount < 100_000 * usdtDecimal && _amount >= 10_000 * usdtDecimal) { // 1 USDT = 25 FCC
+            return (_amount * 25 * fccDecimal) / usdtDecimal;
+        } else if (_amount < 10_000 * usdtDecimal && _amount >= 5_000 * usdtDecimal) { // 1 USDT = 20 FCC
+            return (_amount * 20 * fccDecimal) / usdtDecimal;
+        } else if (_amount < 5_000 * usdtDecimal && _amount >= 1_000 * usdtDecimal) { // 1 USDT = 16.66... FCC
+            return (_amount * 100 * fccDecimal) / (6 * usdtDecimal);
         } else {
-            revert AmountLessThanMinimum();
+            revert NotSupportUsdtAmount();
         }
     }
 
-    function QueryLevelWithFCC(
-        uint256 _amount
-    ) public pure returns (InvestorLevel) {
-        if (_amount >= 5_000_000 * OneFCC) {
-            return InvestorLevel.One;
-        } else if (
-            _amount < 5_000_000 * OneFCC && _amount >= 250_000 * OneFCC
-        ) {
-            return InvestorLevel.Two;
-        } else if (_amount < 250_000 * OneFCC && _amount >= 100_000 * OneFCC) {
-            return InvestorLevel.Three;
-        } else if (_amount < 100_000 * OneFCC && _amount >= 16_666 * OneFCC) {
-            return InvestorLevel.Four;
+    function calculateUsdtByFcc(uint256 _amount) internal pure returns (uint256) {
+        if (_amount >= 5_000_000 * fccDecimal) { // 1 FCC = 0.02 USDT
+            return  5_000_000 * fccDecimal / 50 * fccDecimal;
+        } else if(_amount < 5_000_000 * fccDecimal && _amount >= 250_000 * fccDecimal) { // 1 FCC = 0.04 USDT
+            return (_amount * usdtDecimal) / (fccDecimal * 25);
+        } else if (_amount < 250_000 * fccDecimal && _amount >= 100_000 * fccDecimal) { // 1 FCC = 0.05 USDT
+            return (_amount * usdtDecimal) / (fccDecimal * 20);
+        } else if (_amount < 100_000 * fccDecimal && _amount >= 16_666 * fccDecimal) { // 1 FCC = 0.06 USDT
+            return (_amount * usdtDecimal * 6) / (fccDecimal * 100);
         } else {
-            revert AmountLessThanMinimum();
+            revert NotSupportFccAmount();
         }
-    }
-
-    function calculateFCC(
-        InvestorLevel level,
-        uint256 _amount
-    ) public pure returns (uint256) {
-        if (level == InvestorLevel.One) {
-            return (_amount * 100 * OneFCC) / (6 * OneUSDT); // 1 USDT = 16.66...  FCC
-        } else if (level == InvestorLevel.Two) {
-            return (_amount * 100 * OneFCC) / (7 * OneUSDT); // 1 USDT = 14.28... FCC
-        } else if (level == InvestorLevel.Three) {
-            return (_amount * 100 * OneFCC) / (8 * OneUSDT); // 1 USDT = 12.50 FCC
-        } else if (level == InvestorLevel.Four) {
-            return (_amount * 100 * OneFCC) / (9 * OneUSDT); // 1 USDT = 11.11... FCC
-        } else {
-            revert InvestorLevelError();
-        }
-    }
-
-    function calculateUSDT(
-        InvestorLevel level,
-        uint256 _amount
-    ) public pure returns (uint256) {
-        if (level == InvestorLevel.One) {
-            return (_amount * OneUSDT * 6) / (OneFCC * 100); // 1 FCC = 0.06 USDT
-        } else if (level == InvestorLevel.Two) {
-            return (_amount * OneUSDT * 7) / (OneFCC * 100); // 1 FCC = 0.07 USDT
-        } else if (level == InvestorLevel.Three) {
-            return (_amount * OneUSDT * 8) / (OneFCC * 100); // 1 FCC = 0.08 USDT
-        } else if (level == InvestorLevel.Four) {
-            return (_amount * OneUSDT * 9) / (OneFCC * 100); // 1 FCC = 0.09 USDT
-        } else {
-            revert InvestorLevelError();
-        }
-    }
-
-    function setValut(address _vault) public onlyOwner {
-        vault = _vault;
-        emit SetValut(_vault);
-    }
-
-    function withdrawUSDT(uint256 _amount) public onlyOwner {
-        USDT.safeTransfer(vault, _amount);
-        emit WithdrawUSDT(vault, _amount);
     }
 }
