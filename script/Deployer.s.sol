@@ -5,11 +5,11 @@ import "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 
 import {Script, console} from "forge-std/Script.sol";
-import "../src/core/RedemptionPool.sol";
-import "../src/core/sale/DirectSalePool.sol";
-import "../src/core/sale/InvestorSalePool.sol";
-import "../src/core/token/NftManager.sol";
-import "../src/core/FishcakeEventManager.sol";
+import "../src/contracts/core/sale/DirectSalePool.sol";
+import "../src/contracts/core/token/NftManager.sol";
+import "../src/contracts/core/FishcakeEventManager.sol";
+import "../src/contracts/core/RedemptionPool.sol";
+import "../src/contracts/core/sale/InvestorSalePool.sol";
 
 /*
 forge script script/Deployer.s.sol:DeployerScript --rpc-url $RPC_URL --private-key $PRIVATE_KEY  --broadcast -vvvv
