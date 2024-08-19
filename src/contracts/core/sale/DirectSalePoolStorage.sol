@@ -3,8 +3,8 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import "../../interface/IDirectSalePool.sol";
-import "../../interface/IRedemptionPool.sol";
+import "../../interfaces/IDirectSalePool.sol";
+import "../../interfaces/IRedemptionPool.sol";
 
 abstract contract DirectSalePoolStorage is IDirectSalePool {
     using SafeERC20 for IERC20;
