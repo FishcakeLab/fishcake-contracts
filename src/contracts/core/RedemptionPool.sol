@@ -1,65 +1,56 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import "./token/FishcakeCoin.sol";
+import "../interface/IRedemptionPool.sol";
+import "./token/FishCakeCoin.sol";
 
-contract RedemptionPool is ReentrancyGuard {
+
+contract RedemptionPool is ReentrancyGuard, IRedemptionPool {
     using SafeERC20 for IERC20;
+
+    IERC20 public immutable fishcakeCoin;
+    IERC20 public immutable usdtToken;
+    uint256 public immutable unlockTime = block.timestamp + 1095 days;
+
     error USDTAmountIsZero();
     error NotEnoughUSDT();
+
     event ClaimSuccess(
         address indexed user,
-        uint256 USDTAmount,
+        uint256 tokenUsdtAmount,
         uint256 fishcakeCoinAmount
     );
 
-    FishcakeCoin public fishcakeCoin;
-
-   //IERC20 public immutable USDT =IERC20(0xc2132D05D31c914a87C6611C10748AEb04B58e8F);
-    IERC20 public immutable USDT;
-
-    uint public immutable TwoYears = 730 days;
-    //uint256 public immutable OneUSDT = 10 ** 6;
-    //uint256 public immutable OneFCC = 10 ** 6;
-    uint256 public UnlockTime;
-
-    modifier IsUnlock() {
-        require(block.timestamp > UnlockTime, "Redemption is locked");
-        _;
+    constructor(address _fishcakeCoin, address _usdtToken) {
+        fishcakeCoin = IERC20(_fishcakeCoin);
+        usdtToken = IERC20(_usdtToken);
     }
 
-    constructor(address _fishcakeCoin,address _USDT) {
-        fishcakeCoin = FishcakeCoin(_fishcakeCoin);
-        UnlockTime = block.timestamp + TwoYears;
-        USDT = IERC20(_USDT);
-    }
-
-    function claim(uint256 _amount) public IsUnlock nonReentrant {        
-        uint USDTAmount = calculateUSDT(_amount);
-        fishcakeCoin.burn(msg.sender, _amount);
-        if (USDTAmount == 0) {
+    function claim(uint256 _amount) external {
+        require(block.timestamp > unlockTime, "RedemptionPool claim: redemption is locked");
+        require(fishcakeCoin.balanceOf(msg.sender) >= _amount, "RedemptionPool claim: fcc balance is not enough");
+        uint usdtAmount = calculateUsdt(_amount);
+        if (usdtAmount == 0) {
             revert USDTAmountIsZero();
         }
-        if (USDTAmount > balance()) {
+        if (usdtAmount > balance()) {
             revert NotEnoughUSDT();
         }
-        USDT.safeTransfer(msg.sender, USDTAmount);
-
-        emit ClaimSuccess(msg.sender, USDTAmount, _amount);
+        FishCakeCoin(address(fishcakeCoin)).burn(msg.sender, _amount);
+        usdtToken.safeTransfer(msg.sender, usdtAmount);
+        emit ClaimSuccess(msg.sender, usdtAmount, _amount);
     }
 
-    function balance() public view returns (uint256) {
-        return USDT.balanceOf(address(this));
+    // ==================== internal function =============================
+    function balance() internal view returns (uint256) {
+        return usdtToken.balanceOf(address(this));
     }
 
-    function calculateUSDT(uint256 _amount) public view returns (uint256) {
-        // USDT balance / fishcakeCoin total supply
-        return balance() * _amount  / fishcakeCoin.totalSupply();
-
-            
+    function calculateUsdt(uint256 _amount) internal view returns (uint256){
+        return usdtToken.balanceOf(address(this)) * _amount / fishcakeCoin.totalSupply();
     }
 }
