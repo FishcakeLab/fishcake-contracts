@@ -9,6 +9,8 @@ abstract contract FishCakeCoinStorage {
 
     address public RedemptionPool;
 
+    bool internal isAllocation;
+
     struct fishCakePool {
         address  miningPool;
         address  directSalePool;

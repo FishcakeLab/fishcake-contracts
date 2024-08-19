@@ -43,8 +43,8 @@ contract FishcakeEventManager is Initializable, ERC20Upgradeable, ERC20BurnableU
         );
 
         require(_totalDropAmts == _maxDropAmt * _dropNumber, "FishcakeEventManager activityAdd: Drop Number Not Meet Total Drop Amounts.");
-        require(_totalDropAmts >= 100e6, "FishcakeEventManager activityAdd: Total Drop Amounts Too Little , Minimum of 100.");
-        require(_dropNumber < 101 || _dropNumber < _totalDropAmts / 10e6, "FishcakeEventManager activityAdd: Drop Number Too Large ,Limt 100 or TotalDropAmts/10.");
+        require(_totalDropAmts >= 10e5, "FishcakeEventManager activityAdd: Total Drop Amounts Too Little , Minimum of 1.");
+        require(_dropNumber <= 101 || _dropNumber <= _totalDropAmts / 10e6, "FishcakeEventManager activityAdd: Drop Number Too Large ,Limt 100 or TotalDropAmts/10.");
 
         require(_tokenContractAddr == address(UsdtTokenAddr) || _tokenContractAddr == address(FccTokenAddr), "FishcakeEventManager activityAdd: Token contract address error");
 
