@@ -1,66 +1,53 @@
-## Foundry
+<!--
+parent:
+  order: false
+-->
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+<div align="center">
+  <h1> Fishcake Contracts Repo</h1>
+</div>
 
-Foundry consists of:
+<div align="center">
+  <a href="https://github.com/FishcakeLab/fishcake-contracts/releases/latest">
+    <img alt="Version" src="https://img.shields.io/github/tag/FishcakeLab/fishcake-contracts.svg" />
+  </a>
+  <a href="https://github.com/FishcakeLab/fishcake-contracts/blob/main/LICENSE">
+    <img alt="License: Apache-2.0" src="https://img.shields.io/github/license/FishcakeLab/fishcake-contracts.svg" />
+  </a>
+</div>
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+Fishcake Contracts Project
 
-## Documentation
+## Installation
 
-https://book.getfoundry.sh/
+For prerequisites and detailed build instructions please read the [Installation](https://github.com/FishcakeLab/fishcake-contracts/) instructions. Once the dependencies are installed, run:
 
-## Usage
-
-### Build
-
-```shell
-$ forge build
+```bash
+git submodule update --init --recursive --remote
 ```
 
-### Test
+Or check out the latest [release](https://github.com/FishcakeLab/fishcake-contracts).
 
-```shell
-$ forge test
+##  Test And Depoly
+
+### test
+```
+forge test 
 ```
 
-### Format
+### Depoly
 
-```shell
-$ forge fmt
+```
+forge script script/Deployer.s.sol:DeployerScript --rpc-url $RPC_URL --private-key $PRIVKEY
+
 ```
 
-### Gas Snapshots
 
-```shell
-$ forge snapshot
-```
+## Community
 
-### Anvil
 
-```shell
-$ anvil
-```
+## Contributing
 
-### Deploy
+Looking for a good place to start contributing? Check out some [`good first issues`](https://github.com/FishcakeLab/fishcake-contracts/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22).
 
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+For additional instructions, standards and style guides, please refer to the [Contributing](./CONTRIBUTING.md) document.
