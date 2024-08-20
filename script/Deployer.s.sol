@@ -77,6 +77,9 @@ contract DeployerScript is Script {
             abi.encodeWithSelector(NftManager.initialize.selector, deployerAddress)
         );
         console.log("deploy proxyNftManager:", address(proxyNftManager));
+        console.log("deploy proxyNftManager redemptionPoolAddress :", address(NftManager(payable(address(proxyNftManager))).fccTokenAddr()));
+        console.log("deploy proxyNftManager redemptionPoolAddress :", address(NftManager(payable(address(proxyNftManager))).tokenUsdtAddr()));
+        console.log("deploy proxyNftManager redemptionPoolAddress :", address(NftManager(payable(address(proxyNftManager))).redemptionPoolAddress()));
 
         fishcakeEventManager = new FishcakeEventManager(address(proxyFishCakeCoin), usdtTokenAddress, address(proxyNftManager));
         TransparentUpgradeableProxy proxyFishcakeEventManager = new TransparentUpgradeableProxy(

@@ -6,6 +6,7 @@ import "@openzeppelin-upgrades/contracts/token/ERC20/extensions/ERC20BurnableUpg
 import "@openzeppelin-upgrades/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin-upgrades/contracts/access/OwnableUpgradeable.sol";
 import "@openzeppelin-upgrades/contracts/utils/ReentrancyGuardUpgradeable.sol";
+import {console} from "forge-std/console.sol";
 
 import { FishcakeEventManagerStorage } from "./FishcakeEventManagerStorage.sol";
 
@@ -19,6 +20,10 @@ contract FishcakeEventManager is Initializable, ERC20Upgradeable, ERC20BurnableU
         require(_initialOwner != address(0), "FishcakeEventManager initialize: _initialOwner can't be zero address");
         __Ownable_init(_initialOwner);
         _transferOwnership(_initialOwner);
+
+        minedAmt = 0;
+        minePercent = 50;
+        isMint = true;
     }
 
     function activityAdd(
@@ -129,7 +134,6 @@ contract FishcakeEventManager is Initializable, ERC20Upgradeable, ERC20BurnableU
                     iNFTManager.getMerchantNTFDeadline(_msgSender()) > block.timestamp ? merchantOnceMaxMineAmt : userOnceMaxMineAmt
                 );
                 // For each FCC release activity hosted on the platform, the activity initiator can mine tokens based on either 50% of the total token quantity consumed by the activity or 50% of the total number of participants multiplied by 20, whichever is lower.
-                // 平台上举办的每场FCC发布活动，活动发起人均可按照活动消耗的Token总量的50%或者总参与人数的50%乘以20（取较低者）进行Token挖矿。
                 uint256 tmpDropedVal = aie.alreadyDropNumber * 20 * 1e6;
                 uint256 tmpBusinessMinedAmt = ((aie.alreadyDropAmts > tmpDropedVal ? tmpDropedVal : aie.alreadyDropAmts) * percent) / 100;
                 if (tmpBusinessMinedAmt > maxMineAmtLimt) {

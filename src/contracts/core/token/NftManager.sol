@@ -60,6 +60,9 @@ contract NftManager is Initializable, ERC721Upgradeable, ERC721URIStorageUpgrade
         __ERC721_init("TheWebThree", "TWT");
         __Ownable_init(_initialOwner);
         _transferOwnership(_initialOwner);
+
+        merchantValue = 8e7;
+        userValue = 8e6;
     }
 
     receive() external payable {
@@ -74,7 +77,7 @@ contract NftManager is Initializable, ERC721Upgradeable, ERC721URIStorageUpgrade
         string memory _website,
         string memory _social,
         uint8 _type
-    ) public nonReentrant returns (bool, uint256) {
+    ) external override nonReentrant returns (bool, uint256) {
         require(_type == 1 || _type == 2, "NftManager createNFT: type can only equal 1 and 2, 1 stand for merchant, 2 stand for personal user");
         uint256 payUsdtAmount = _type == 1 ? merchantValue : userValue;
         uint256 nftDeadline = block.timestamp + validTime;
@@ -89,7 +92,7 @@ contract NftManager is Initializable, ERC721Upgradeable, ERC721URIStorageUpgrade
         }
 
         tokenUsdtAddr.transferFrom(msg.sender, address(this), payUsdtAmount);
-        tokenUsdtAddr.transfer(redemptionPoolAddress, (payUsdtAmount * 75) / 100);
+        tokenUsdtAddr.transfer(address(redemptionPoolAddress), (payUsdtAmount * 75) / 100);
 
         uint256 tokenId = _nextTokenId++;
 
@@ -133,18 +136,18 @@ contract NftManager is Initializable, ERC721Upgradeable, ERC721URIStorageUpgrade
         return uriPrefix;
     }
 
-    function setUriPrefix(string memory _uriPrefix) external onlyOwner {
+    function setUriPrefix(string memory _uriPrefix) external override onlyOwner {
         uriPrefix = _uriPrefix;
         emit UriPrefixSet(msg.sender, _uriPrefix);
     }
 
-    function setValues(uint256 _merchantValue, uint256 _userValue) public onlyOwner  {
+    function setValues(uint256 _merchantValue, uint256 _userValue) external override onlyOwner  {
         merchantValue = _merchantValue;
         userValue = _userValue;
         emit SetValues(msg.sender, _merchantValue, _userValue);
     }
 
-    function withdrawToken(address _tokenAddr, address _account, uint256 _value) public onlyOwner nonReentrant returns (bool) {
+    function withdrawToken(address _tokenAddr, address _account, uint256 _value) external override onlyOwner nonReentrant returns (bool) {
         require(_tokenAddr != address(0x0), "NftManager withdrawToken:token address error.");
         require(IERC20(_tokenAddr).balanceOf(address(this)) >= _value, "NftManager withdrawToken: Balance not enough.");
 
