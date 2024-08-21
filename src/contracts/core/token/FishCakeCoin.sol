@@ -46,11 +46,13 @@ contract FishCakeCoin is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeab
     }
 
     function setPoolAddress(fishCakePool memory _pool) external onlyOwner {
-        _beforeAllocation(_pool);
+        _beforeAllocation();
+        _beforePoolAddress(_pool);
         fcPool = _pool;
     }
 
     function poolAllocate() external onlyOwner {
+        _beforeAllocation();
         _mint(fcPool.miningPool, (MaxTotalSupply * 3) / 10); // 30% of total supply
         _mint(fcPool.directSalePool, (MaxTotalSupply * 2) / 10); // 20% of total supply
         _mint(fcPool.investorSalePool, MaxTotalSupply / 10); // 10% of total supply
@@ -71,8 +73,11 @@ contract FishCakeCoin is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeab
     }
 
     // ==================== internal function =============================
-    function _beforeAllocation(fishCakePool memory _pool) internal virtual {
+    function _beforeAllocation() internal virtual {
         require(!isAllocation,  "FishCakeCoin _beforeAllocation:Fishcake is already allocate");
+    }
+
+    function _beforePoolAddress(fishCakePool memory _pool) internal virtual {
         require(_pool.miningPool != address(0),  "FishCakeCoin _beforeAllocation:Missing allocate MiningPool address");
         require(_pool.directSalePool != address(0), "FishCakeCoin _beforeAllocation:Missing allocate DirectSalePool address");
         require(_pool.investorSalePool != address(0), "FishCakeCoin _beforeAllocation:Missing allocate InvestorSalePool address");
