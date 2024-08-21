@@ -82,11 +82,11 @@ contract NftManager is Initializable, ERC721Upgradeable, ERC721URIStorageUpgrade
         uint256 payUsdtAmount = _type == 1 ? merchantValue : userValue;
         uint256 nftDeadline = block.timestamp + validTime;
         if( _type == 1) {
-            require(tokenUsdtAddr.allowance(msg.sender, address(this)) > merchantValue, "NftManager createNFT: Merchant allowance must more than 80 U");
+            require(tokenUsdtAddr.allowance(msg.sender, address(this)) >= merchantValue, "NftManager createNFT: Merchant allowance must more than 80 U");
             merchantNftDeadline[msg.sender] = nftDeadline;
             fccTokenAddr.transfer(msg.sender, proMineAmt);
         } else {
-            require(tokenUsdtAddr.allowance(msg.sender, address(this)) > userValue, "NftManager createNFT: Merchant allowance must more than 8 U");
+            require(tokenUsdtAddr.allowance(msg.sender, address(this)) >= userValue, "NftManager createNFT: Merchant allowance must more than 8 U");
             userNftDeadline[msg.sender] = nftDeadline;
             fccTokenAddr.transfer(msg.sender, basicMineAmt);
         }
