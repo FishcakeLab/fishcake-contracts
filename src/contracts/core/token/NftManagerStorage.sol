@@ -22,7 +22,7 @@ abstract contract NftManagerStorage is INftManager {
     uint256 public immutable totalMineAmt = 200_000_000 * 10 ** 6;
     uint256 public immutable proMineAmt = 1000 * 10 ** 6;
     uint256 public immutable basicMineAmt = 100 * 10 ** 6;
-    address public redemptionPoolAddress;
+    IRedemptionPool public immutable redemptionPoolAddress;
 
     uint256 public minedAmt = 0;
     IERC20 public immutable fccTokenAddr;
@@ -37,8 +37,6 @@ abstract contract NftManagerStorage is INftManager {
     constructor(address _fccTokenAddr, address _tokenUsdtAddr, address _redemptionPoolAddress){
         fccTokenAddr = IERC20(_fccTokenAddr);
         tokenUsdtAddr = IERC20(_tokenUsdtAddr);
-        redemptionPoolAddress = _redemptionPoolAddress;
-        merchantValue = 80e6;
-        userValue = 8e6;
+        redemptionPoolAddress = IRedemptionPool(_redemptionPoolAddress);
     }
 }

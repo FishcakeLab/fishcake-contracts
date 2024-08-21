@@ -21,7 +21,7 @@ abstract contract FishcakeEventManagerStorage is IFishcakeEventManager {
 
     IERC20 public immutable FccTokenAddr;
     IERC20 public immutable UsdtTokenAddr;
-    INftManager public iNFTManager;
+    INftManager public immutable iNFTManager;
 
     struct ActivityInfo {
         uint256 activityId;      // Activity ID
