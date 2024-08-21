@@ -99,14 +99,14 @@ contract InvestorSalePool is Initializable, ERC20Upgradeable, ERC20BurnableUpgra
     }
 
     function calculateUsdtByFcc(uint256 _amount) internal pure returns (uint256) {
-        if (_amount >= 5_000_000 * fccDecimal) { // 1 FCC = 0.02 USDT
-            return  5_000_000 * fccDecimal / 50 * fccDecimal;
-        } else if(_amount < 5_000_000 * fccDecimal && _amount >= 250_000 * fccDecimal) { // 1 FCC = 0.04 USDT
-            return (_amount * usdtDecimal) / (fccDecimal * 25);
-        } else if (_amount < 250_000 * fccDecimal && _amount >= 100_000 * fccDecimal) { // 1 FCC = 0.05 USDT
-            return (_amount * usdtDecimal) / (fccDecimal * 20);
-        } else if (_amount < 100_000 * fccDecimal && _amount >= 16_666 * fccDecimal) { // 1 FCC = 0.06 USDT
-            return (_amount * usdtDecimal * 6) / (fccDecimal * 100);
+        if (_amount >= 5_000_000 * fccDecimal) {
+            return (_amount * usdtDecimal) / (fccDecimal * 50); // 1 FCC = 0.02 USDT
+        } else if(_amount < 5_000_000 * fccDecimal && _amount >= 250_000 * fccDecimal) {
+            return (_amount * usdtDecimal) / (fccDecimal * 25); // 1 FCC = 0.04 USDT
+        } else if (_amount < 250_000 * fccDecimal && _amount >= 100_000 * fccDecimal) {
+            return (_amount * usdtDecimal) / (fccDecimal * 20); // 1 FCC = 0.05 USDT
+        } else if (_amount < 100_000 * fccDecimal && _amount >= 16_666 * fccDecimal) {
+            return (_amount * usdtDecimal) / (fccDecimal * 16); // 1 FCC = 0.06 USDT
         } else {
             revert NotSupportFccAmount();
         }
