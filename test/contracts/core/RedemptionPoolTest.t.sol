@@ -27,7 +27,8 @@ contract RedemptionPoolTest is DirectSalePoolTest {
         console.log("RedemptionPoolTest test_claim block.timestamp:", block.timestamp);
         console.log("RedemptionPoolTest test_claim unlockTime:", redemptionPool.unlockTime());
 
-        console.log("RedemptionPoolTest test_claim before fcc totalSupply:", tempFishCakeCoin.totalSupply());
+        uint256 before_totalSupply = tempFishCakeCoin.totalSupply();
+        console.log("RedemptionPoolTest test_claim before fcc totalSupply:", before_totalSupply);
         uint256 before_deployerAddress_fcc = tempFishCakeCoin.FccBalance(address(deployerAddress));
         console.log("RedemptionPoolTest test_claim before_deployerAddress_fcc:", before_deployerAddress_fcc);
         uint256 before_redemptionPool_usdt = usdtToken.balanceOf(address(redemptionPool));
@@ -36,15 +37,27 @@ contract RedemptionPoolTest is DirectSalePoolTest {
         console.log("RedemptionPoolTest test_claim before_deployerAddress_usdt:", before_deployerAddress_usdt);
 
         vm.startPrank(deployerAddress);
-        redemptionPool.claim(100_000_000);
+        uint256 temp_amount = 100_000_000;
+        redemptionPool.claim(temp_amount);
         vm.stopPrank();
 
-        console.log("RedemptionPoolTest test_claim after fcc totalSupply:", tempFishCakeCoin.totalSupply());
+        uint256 after_totalSupply = tempFishCakeCoin.totalSupply();
+        console.log("RedemptionPoolTest test_claim after fcc totalSupply:", after_totalSupply);
+        assertTrue(after_totalSupply == (before_totalSupply - temp_amount), "after_totalSupply == (before_totalSupply - temp_amount)");
+
         uint256 after_deployerAddress_fcc = tempFishCakeCoin.FccBalance(address(deployerAddress));
         console.log("RedemptionPoolTest test_claim after_deployerAddress_fcc:", after_deployerAddress_fcc);
+        assertTrue(after_deployerAddress_fcc == (before_deployerAddress_fcc - temp_amount), "after_deployerAddress_fcc == (before_deployerAddr");
+
+        uint256 temp_result = before_redemptionPool_usdt * temp_amount / before_totalSupply;
+        console.log("RedemptionPoolTest test_claim temp_result:", temp_result);
+
         uint256 after_redemptionPool_usdt = usdtToken.balanceOf(address(redemptionPool));
         console.log("RedemptionPoolTest test_claim after_redemptionPool_usdt:", after_redemptionPool_usdt);
+        assertTrue(after_redemptionPool_usdt == (before_redemptionPool_usdt - temp_result), "after_redemptionPool_usdt == (before_redemptionPool_usdt - temp_result)");
+
         uint256 after_deployerAddress_usdt = usdtToken.balanceOf(address(deployerAddress));
         console.log("RedemptionPoolTest test_claim after_deployerAddress_usdt:", after_deployerAddress_usdt);
+        assertTrue(after_deployerAddress_usdt == (before_deployerAddress_usdt + temp_result), "after_deployerAddress_usdt == (before_deployerAddress_usdt + temp_result)");
     }
 }
