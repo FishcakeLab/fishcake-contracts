@@ -20,7 +20,6 @@ contract InvestorSalePoolTest is FishcakeTestHelperTest {
         super.test_FishCakeCoin_PoolAllocate();
 
         FishCakeCoin tempFishCakeCoin = FishCakeCoin(address(proxyFishCakeCoin));
-        // 调用通过代理合约进行
         InvestorSalePool tempInvestorSalePool = InvestorSalePool(address(proxyInvestorSalePool));
 
         uint256 before_tempInvestorSalePool_fcc = tempFishCakeCoin.FccBalance(address(tempInvestorSalePool));
@@ -44,7 +43,6 @@ contract InvestorSalePoolTest is FishcakeTestHelperTest {
         tempInvestorSalePool.buyFccAmount(fcc_amount);
         vm.stopPrank();
 
-        // 调用通过代理合约进行
         MockInvestorSalePool mockPool = new MockInvestorSalePool();
         uint256 temp_usdt = mockPool.calculateUsdtByFcc_mock(fcc_amount);
 
@@ -80,7 +78,6 @@ contract InvestorSalePoolTest is FishcakeTestHelperTest {
         super.test_FishCakeCoin_PoolAllocate();
 
         FishCakeCoin tempFishCakeCoin = FishCakeCoin(address(proxyFishCakeCoin));
-        // 调用通过代理合约进行
         InvestorSalePool tempInvestorSalePool = InvestorSalePool(address(proxyInvestorSalePool));
 
         uint256 before_tempInvestorSalePool_fcc = tempFishCakeCoin.FccBalance(address(tempInvestorSalePool));
@@ -103,7 +100,6 @@ contract InvestorSalePoolTest is FishcakeTestHelperTest {
         tempInvestorSalePool.buyFccByUsdtAmount(usdt_amount);
         vm.stopPrank();
 
-        // 调用通过代理合约进行
         MockInvestorSalePool mockPool = new MockInvestorSalePool();
         uint256 temp_fcc = mockPool.calculateFccByUsdt_mock(usdt_amount);
 
@@ -138,7 +134,6 @@ contract InvestorSalePoolTest is FishcakeTestHelperTest {
 
     function test_withdrawUsdt() public {
         FishCakeCoin tempFishCakeCoin = FishCakeCoin(address(proxyFishCakeCoin));
-        // 调用通过代理合约进行
         IInvestorSalePool tempInvestorSalePool = IInvestorSalePool(address(proxyInvestorSalePool));
 
         vm.startPrank(deployerAddress);
@@ -181,7 +176,6 @@ contract InvestorSalePoolTest is FishcakeTestHelperTest {
     }
 
     function test_calculateFccByUsdt() public {
-        // 调用通过代理合约进行
         MockInvestorSalePool mockPool = new MockInvestorSalePool();
 
         console.log("InvestorSalePoolTest test_calculateFccByUsdt usdtDecimal:", mockPool.getUsdtDecimal_mock());
@@ -223,15 +217,12 @@ contract InvestorSalePoolTest is FishcakeTestHelperTest {
 
         uint256 test_5_usdt_input = 999 * tempUsdt;
         try mockPool.calculateFccByUsdt_mock(test_5_usdt_input) returns (uint256 result) {
-            // 打印计算结果
             assertTrue(false, "If the program runs to this line, it is abnormal");
             console.log("InvestorSalePoolTest test_calculateFccByUsdt test_5_fcc:", result);
         } catch Error(string memory reason) {
-            // 捕获并打印标准错误
             console.log("Error: ", reason);
             assertTrue(false, "If the program runs to this line, it is abnormal");
         } catch (bytes memory lowLevelData) {
-            // 捕获并打印底层错误
             string memory hexString = toHexString(lowLevelData);
             console.log("Hex String:", hexString);
             assertTrue(true, "If the program runs to this line, it is normal");
@@ -281,10 +272,8 @@ contract InvestorSalePoolTest is FishcakeTestHelperTest {
         uint256 test_5_input = 16_665 * tempFcc;
         console.log("InvestorSalePoolTest test_calculateUsdtByFcc input 5 :", test_5_input);
         try mockPool.calculateUsdtByFcc_mock(test_5_input) returns (uint256 result) {
-            // 打印计算结果
             console.log("InvestorSalePoolTest test_calculateUsdtByFcc test_5:", result);
         } catch Error(string memory reason) {
-            // 捕获并打印标准错误
             console.log("InvestorSalePoolTest test_calculateUsdtByFcc Error: ", reason);
         } catch (bytes memory lowLevelData) {
 //            console.log("InvestorSalePoolTest test_calculateUsdtByFcc Low level error: ", string(lowLevelData));
@@ -294,10 +283,8 @@ contract InvestorSalePoolTest is FishcakeTestHelperTest {
     }
 
     function toHexString(bytes memory data) internal pure returns (string memory) {
-        // 用于十六进制转换的字符
         bytes memory hexSymbols = "0123456789abcdef";
 
-        // 创建用于存储结果的字符串
         bytes memory str = new bytes(2 + data.length * 2);
         str[0] = '0';
         str[1] = 'x';

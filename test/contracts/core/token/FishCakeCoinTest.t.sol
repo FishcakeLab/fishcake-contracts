@@ -6,7 +6,6 @@ import {console} from "forge-std/console.sol";
 import {FishcakeTestHelperTest} from "../../FishcakeTestHelper.t.sol";
 import {FishCakeCoin} from "@contracts/core/token/FishCakeCoin.sol";
 
-//forge test --match-path test/core/token/FishCakeCoin.t.sol
 contract FishCakeCoinTest is FishcakeTestHelperTest {
 
     function setUp() public virtual override {
@@ -46,7 +45,6 @@ contract FishCakeCoinTest is FishcakeTestHelperTest {
     }
 
     function externalTest_FishCakeCoin_PoolAllocate() external {
-        // 将原来的逻辑移到这里
         super.test_FishCakeCoin_PoolAllocate();
     }
 

@@ -14,12 +14,16 @@ contract RedemptionPoolTest is DirectSalePoolTest {
         super.setUp();
     }
 
-    // 由于时间锁的存在，需要修改代码才可以测试
-    // 修改前 uint256 public immutable unlockTime = block.timestamp + 1095 days;
-    // 修改后 uint256 public immutable unlockTime = block.timestamp;
+    // In order to run a test case, the following code needs to be modified
+    // change 1 before
+    // uint256 public immutable unlockTime = block.timestamp + 1095 days;
+    // change 1 after
+    // uint256 public immutable unlockTime = block.timestamp;
 
-    // 修改前 require(block.timestamp > unlockTime, "RedemptionPool claim: redemption is locked");
-    // 修改后 require(block.timestamp >= unlockTime, "RedemptionPool claim: redemption is locked");
+    // change 2 before
+    // require(block.timestamp > unlockTime, "RedemptionPool claim: redemption is locked");
+    // change 2 after
+    // require(block.timestamp >= unlockTime, "RedemptionPool claim: redemption is locked");
     function test_claim() external {
         FishCakeCoin tempFishCakeCoin = FishCakeCoin(address(proxyFishCakeCoin));
         test_buyFccAmount();

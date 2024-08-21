@@ -17,10 +17,8 @@ contract FishcakeTestHelperTest is FishcakeDeployerTest {
 //    address internal constant REDEMPTION_POOL = address(0x7);
 
     function test_FishCakeCoin_PoolAllocate() public {
-        // 调用通过代理合约进行
         FishCakeCoin tempFishCakeCoin = FishCakeCoin(address(proxyFishCakeCoin));
 
-        // 正确创建 FishCakePool 结构体实例
         FishCakeCoinStorage.fishCakePool memory fishCakePool = FishCakeCoinStorage.fishCakePool({
             miningPool: MINING_POOL,
             directSalePool: address(proxyDirectSalePool),

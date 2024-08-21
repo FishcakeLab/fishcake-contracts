@@ -16,7 +16,6 @@ contract NftManagerTest is FishcakeTestHelperTest {
     function test_createNFT_type1() public {
         super.test_FishCakeCoin_PoolAllocate();
 
-        // 调用通过代理合约进行
         NftManager tempNftManager = NftManager(payable(address(proxyNftManager)));
         FishCakeCoin tempFishCakeCoin = FishCakeCoin(address(proxyFishCakeCoin));
 

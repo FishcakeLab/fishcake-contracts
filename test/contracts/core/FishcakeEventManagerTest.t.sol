@@ -15,25 +15,25 @@ contract FishcakeEventManagerTest is NftManagerTest {
     function setUp() public virtual override {
         super.setUp();
     }
-//    修改前
+//    In order to run a test case, the following code needs to be modified
+//    change 1 before
 //    require(
 //        block.timestamp < _activityDeadLine &&
 //        _activityDeadLine < block.timestamp + maxDeadLine,
 //        "FishcakeEventManager activityAdd: Activity DeadLine Error."
 //    );
-//    修改后
+//    change 1 after
 //    require(
 //        _activityDeadLine < block.timestamp + maxDeadLine,
 //        "FishcakeEventManager activityAdd: Activity DeadLine Error."
 //    );
 
-//    修改前
+//    change 2 before
 //    if ( isMint && ifReward() && iNFTManager.getMerchantNTFDeadline(_msgSender()) > block.timestamp || iNFTManager.getUserNTFDeadline(_msgSender()) > block.timestamp ) {
-//    修改后
+//    change 2 after
 //    if ( isMint && ifReward()) {
 
     function test_activity() public {
-//        NftManagerTest nftManagerTest = new NftManagerTest();
         test_createNFT_type1();
 
         FishCakeCoin tempFishCakeCoin = FishCakeCoin(address(proxyFishCakeCoin));
@@ -45,21 +45,21 @@ contract FishcakeEventManagerTest is NftManagerTest {
         string memory temp_businessName = "temp_businessName";
         string memory temp_activityContent = "temp_activityContent";
         string memory temp_latitudeLongitude = "temp_latitudeLongitude";
-        // 活动截至时间
+        // activity DeadLine
         uint256 temp_activityDeadLine = 1;
-        // 活动的总奖励金额
+        // activity Total Rewards
         uint256 temp_totalDropAmts = 10e5;
         console.log("FishcakeEventManagerTest test_activity temp_totalDropAmts:", temp_totalDropAmts);
-        // 奖励类型，1 固定，2 随机
+        // dropType: 1 Fixed rewards, 2 Random rewards
         uint8 temp_dropType = 1;
-        // 奖励的次数，或者人数
+        // Number of rewards
         uint256 temp_dropNumber = 2;
         console.log("FishcakeEventManagerTest test_activity temp_dropNumber:", temp_dropNumber);
-        // 最小单次奖励金额
+        // Minimum single reward
         uint256 temp_minDropAmt = 5e5;
-        // 最大单次奖励金额
+        // maximum single reward
         uint256 temp_maxDropAmt = 5e5;
-        // 奖励所使用的代币合约地址
+        // token contract address used for the reward
         address temp_tokenContractAddr = address(proxyFishCakeCoin);
 
 //        uint256 totalDropAmts = temp_dropNumber * temp_maxDropAmt;
@@ -86,7 +86,6 @@ contract FishcakeEventManagerTest is NftManagerTest {
         console.log("FishcakeEventManagerTest test_activity activityAdd after_deployerAddress_balance:", after_deployerAddress_balance);
         assertTrue(after_deployerAddress_balance == (before_deployerAddress_balance - fcc_amount), "after_deployerAddress_balance == (before_deployerAddress_balance - fcc_amount)");
 
-//        一共两份奖励，根据注释测试进度即可
         address drop_account_1 = address(0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f);
 //        address drop_account_2 = address(0x14dC79964da2C08b23698B3D3cc7Ca32193d9955);
         uint256 drop_drop_amount = 5e5;
@@ -109,7 +108,9 @@ contract FishcakeEventManagerTest is NftManagerTest {
         assertTrue(after_drop_account_1_balance == (before_drop_account_1_balance + drop_drop_amount), "after_drop_account_1_balance == (before_drop_account_1_balance + drop_drop_amount)");
         assertTrue(after_tempFishcakeEven_balance_1 == (before_tempFishcakeEven_balance_1 - drop_drop_amount), "after_tempFishcakeEven_balance_1 == (before_tempFishcakeEven_balance_1 - drop_drop_amount)");
 
-//        放开这里后，要重新计算 temp_finish_result
+//
+//        !!!! If you cancel the annotation, you need to recalculate the temp_finish_result
+//
 //        console.log("FishcakeEventManagerTest test_activity erc20 drop_account_2 before:", erc20.balanceOf(drop_account_2));
 //        console.log("FishcakeEventManagerTest test_activity erc20 drop_2 tempFishcakeEven before:", erc20.balanceOf(address(tempFishcakeEven)));
 //        vm.startPrank(address(deployerAddress));
@@ -132,7 +133,7 @@ contract FishcakeEventManagerTest is NftManagerTest {
 
         uint256 after_activityFinish_deployerAddress_balance = erc20.balanceOf(deployerAddress);
         console.log("FishcakeEventManagerTest test_activity after_activityFinish_deployerAddress_balance:", after_activityFinish_deployerAddress_balance);
-//        挖矿奖励 = 剩余余额 + 奖励
+//        Final reward = Remaining amount + Mining rewards
         uint256 temp_finish_result = 25e4;
         console.log("FishcakeEventManagerTest test_activity temp_finish_result:", temp_finish_result);
         assertTrue(after_activityFinish_deployerAddress_balance == (before_activityFinish_deployerAddress_balance + drop_drop_amount + 25e4), "after_activityFinish_deployerAddress_balance == (before_activityFinish_deployerAddress_balance + drop_drop_amount + 25e4)");

@@ -17,7 +17,6 @@ contract DirectSalePoolTest is FishcakeTestHelperTest {
         super.test_FishCakeCoin_PoolAllocate();
 
         FishCakeCoin tempFishCakeCoin = FishCakeCoin(address(proxyFishCakeCoin));
-        // 调用通过代理合约进行
         IDirectSalePool tempDirectSalePool = IDirectSalePool(address(proxyDirectSalePool));
 
         uint256 before_tempDirectSalePool_fcc = tempFishCakeCoin.FccBalance(address(tempDirectSalePool));
@@ -72,7 +71,6 @@ contract DirectSalePoolTest is FishcakeTestHelperTest {
         super.test_FishCakeCoin_PoolAllocate();
 
         FishCakeCoin tempFishCakeCoin = FishCakeCoin(address(proxyFishCakeCoin));
-        // 调用通过代理合约进行
         IDirectSalePool tempDirectSalePool = IDirectSalePool(address(proxyDirectSalePool));
 
         uint256 before_tempDirectSalePool_fcc = tempFishCakeCoin.FccBalance(address(tempDirectSalePool));
