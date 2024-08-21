@@ -5,6 +5,7 @@ import {console} from "forge-std/console.sol";
 
 import {FishcakeTestHelperTest} from "../../FishcakeTestHelper.t.sol";
 import {FishCakeCoin} from "@contracts/core/token/FishCakeCoin.sol";
+import {FishCakeCoinStorage} from "@contracts/core/token/FishCakeCoinStorage.sol";
 
 contract FishCakeCoinTest is FishcakeTestHelperTest {
 
@@ -34,8 +35,6 @@ contract FishCakeCoinTest is FishcakeTestHelperTest {
     }
 
     function test_call_two() public {
-        super.test_FishCakeCoin_PoolAllocate();
-
         try this.externalTest_FishCakeCoin_PoolAllocate() {
             assertTrue(false, "If the program runs to this line, it is abnormal");
         } catch {
@@ -45,7 +44,23 @@ contract FishCakeCoinTest is FishcakeTestHelperTest {
     }
 
     function externalTest_FishCakeCoin_PoolAllocate() external {
-        super.test_FishCakeCoin_PoolAllocate();
+        FishCakeCoin tempFishCakeCoin = FishCakeCoin(address(proxyFishCakeCoin));
+
+        FishCakeCoinStorage.fishCakePool memory fishCakePool = FishCakeCoinStorage.fishCakePool({
+            miningPool: address(proxyFishcakeEventManager),
+            directSalePool: address(proxyDirectSalePool),
+            investorSalePool: address(proxyInvestorSalePool),
+            nftSalesRewardsPool: address(proxyNftManager),
+            ecosystemPool: ECOSYSTEM_POOL,
+            foundationPool: FOUNDATION_POOL,
+            redemptionPool: address(redemptionPool)
+        });
+
+        vm.startPrank(deployerAddress);
+        tempFishCakeCoin.setPoolAddress(fishCakePool);
+        tempFishCakeCoin.poolAllocate();
+        tempFishCakeCoin.poolAllocate();
+        vm.stopPrank();
     }
 
 }
