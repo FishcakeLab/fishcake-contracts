@@ -6,7 +6,6 @@ import "@openzeppelin-upgrades/contracts/token/ERC20/extensions/ERC20BurnableUpg
 import "@openzeppelin-upgrades/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin-upgrades/contracts/access/OwnableUpgradeable.sol";
 import "@openzeppelin-upgrades/contracts/utils/ReentrancyGuardUpgradeable.sol";
-//import {console} from "forge-std/console.sol";
 
 import { FishcakeEventManagerStorage } from "./FishcakeEventManagerStorage.sol";
 
@@ -135,17 +134,10 @@ contract FishcakeEventManager is Initializable, ERC20Upgradeable, ERC20BurnableU
                 );
                 // For each FCC release activity hosted on the platform, the activity initiator can mine tokens based on either 50% of the total token quantity consumed by the activity or 50% of the total number of participants multiplied by 20, whichever is lower.
                 uint256 tmpDropedVal = aie.alreadyDropNumber * 20 * 1e6;
-//                console.log("activityFinish aie.alreadyDropAmts:", aie.alreadyDropAmts);
-//                console.log("activityFinish tmpDropedVal:", tmpDropedVal);
-//                console.log("activityFinish percent:", percent);
                 uint256 tmpBusinessMinedAmt = ((aie.alreadyDropAmts > tmpDropedVal ? tmpDropedVal : aie.alreadyDropAmts) * percent) / 100;
                 if (tmpBusinessMinedAmt > maxMineAmtLimt) {
                     tmpBusinessMinedAmt = maxMineAmtLimt;
                 }
-//                console.log("activityFinish totalMineAmt:", totalMineAmt);
-//                console.log("activityFinish minedAmt:", minedAmt);
-//                console.log("activityFinish tmpBusinessMinedAmt:", tmpBusinessMinedAmt);
-//                console.log("activityFinish minedAmount:", minedAmount);
                 if(totalMineAmt > minedAmt){
                     if (totalMineAmt > minedAmt + tmpBusinessMinedAmt) {
                         aie.businessMinedAmt = tmpBusinessMinedAmt;
