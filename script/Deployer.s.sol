@@ -3,13 +3,14 @@ pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
-
 import {Script, console} from "forge-std/Script.sol";
+
 import "../src/contracts/core/sale/DirectSalePool.sol";
 import "../src/contracts/core/token/NftManager.sol";
 import "../src/contracts/core/FishcakeEventManager.sol";
 import "../src/contracts/core/RedemptionPool.sol";
 import "../src/contracts/core/sale/InvestorSalePool.sol";
+import {FishCakeCoinStorage} from "@contracts/core/token/FishCakeCoinStorage.sol";
 
 /*
 forge script script/Deployer.s.sol:DeployerScript --rpc-url $RPC_URL --private-key $PRIVATE_KEY  --broadcast -vvvv
@@ -30,7 +31,7 @@ contract DeployerScript is Script {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         address deployerAddress = vm.addr(deployerPrivateKey);
 
-        address usdtTokenAddress =  vm.envAddress("USDT_ADDRESS");
+        address usdtTokenAddress = vm.envAddress("USDT_ADDRESS");
 
         vm.startBroadcast(deployerPrivateKey);
 
@@ -46,7 +47,6 @@ contract DeployerScript is Script {
             abi.encodeWithSelector(FishCakeCoin.initialize.selector, deployerAddress, address(0))
         );
         console.log("deploy proxyFishCakeCoin:", address(proxyFishCakeCoin));
-
 
         // can not upgrade
         redemptionPool = new  RedemptionPool(address(proxyFishCakeCoin), usdtTokenAddress);
@@ -92,6 +92,29 @@ contract DeployerScript is Script {
         // setUp
         FishCakeCoin(address(proxyFishCakeCoin)).setRedemptionPool(address(redemptionPool));
         IInvestorSalePool(address(proxyInvestorSalePool)).setValutAddress(deployerAddress);
+
+        FishCakeCoinStorage.fishCakePool memory fishCakePool = FishCakeCoinStorage.fishCakePool({
+            miningPool: address(proxyFishcakeEventManager),
+            directSalePool: address(proxyDirectSalePool),
+            investorSalePool: address(proxyInvestorSalePool),
+            nftSalesRewardsPool: address(proxyNftManager),
+            ecosystemPool: deployerAddress,
+            foundationPool: deployerAddress,
+            redemptionPool: address(redemptionPool)
+        });
+        FishCakeCoin(address(proxyFishCakeCoin)).setPoolAddress(fishCakePool);
+
+        FishCakeCoin(address(proxyFishCakeCoin)).poolAllocate();
+
+        (address miningPool, address directSalePool, address investorSalePool, address nftSalesRewardsPool,
+            address ecosystemPool, address foundationPool, address redemptionPool) = FishCakeCoin(address(proxyFishCakeCoin)).fcPool();
+        console.log("deploy fishCakePool miningPool:", miningPool);
+        console.log("deploy fishCakePool directSalePool:", directSalePool);
+        console.log("deploy fishCakePool investorSalePool:", investorSalePool);
+        console.log("deploy fishCakePool nftSalesRewardsPool:", nftSalesRewardsPool);
+        console.log("deploy fishCakePool ecosystemPool:", ecosystemPool);
+        console.log("deploy fishCakePool foundationPool:", foundationPool);
+        console.log("deploy fishCakePool redemptionPool:", redemptionPool);
 
         vm.stopBroadcast();
     }
