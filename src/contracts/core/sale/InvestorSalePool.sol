@@ -9,7 +9,7 @@ import "@openzeppelin-upgrades/contracts/utils/ReentrancyGuardUpgradeable.sol";
 
 
 import "../../interfaces/IInvestorSalePool.sol";
-import  "./InvestorSalePoolStorage.sol";
+import "./InvestorSalePoolStorage.sol";
 
 
 contract InvestorSalePool is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable, InvestorSalePoolStorage {
@@ -73,7 +73,6 @@ contract InvestorSalePool is Initializable, ERC20Upgradeable, ERC20BurnableUpgra
         emit BuyFishcakeCoin(msg.sender, tokenUsdtAmount, fccAmount);
     }
 
-
     function setValutAddress(address _vaultAddress) external onlyOwner {
         vaultAddress = _vaultAddress;
         emit SetValutAddress(_vaultAddress);
@@ -82,6 +81,10 @@ contract InvestorSalePool is Initializable, ERC20Upgradeable, ERC20BurnableUpgra
     function withdrawUsdt(uint256 _amount) external onlyOwner {
         tokenUsdtAddress.transfer(vaultAddress, _amount);
         emit WithdrawUsdt(vaultAddress, _amount);
+    }
+
+    function calculateFccByUsdtExternal(uint256 _amount) external pure returns (uint256) {
+        return calculateFccByUsdt(_amount);
     }
 
     function calculateFccByUsdt(uint256 _amount) internal pure returns (uint256) {
@@ -98,10 +101,14 @@ contract InvestorSalePool is Initializable, ERC20Upgradeable, ERC20BurnableUpgra
         }
     }
 
+    function calculateUsdtByFccExternal(uint256 _amount) external pure returns (uint256) {
+        return calculateUsdtByFcc(_amount);
+    }
+
     function calculateUsdtByFcc(uint256 _amount) internal pure returns (uint256) {
         if (_amount >= 5_000_000 * fccDecimal) {
             return (_amount * usdtDecimal) / (fccDecimal * 50); // 1 FCC = 0.02 USDT
-        } else if(_amount < 5_000_000 * fccDecimal && _amount >= 250_000 * fccDecimal) {
+        } else if (_amount < 5_000_000 * fccDecimal && _amount >= 250_000 * fccDecimal) {
             return (_amount * usdtDecimal) / (fccDecimal * 25); // 1 FCC = 0.04 USDT
         } else if (_amount < 250_000 * fccDecimal && _amount >= 100_000 * fccDecimal) {
             return (_amount * usdtDecimal) / (fccDecimal * 20); // 1 FCC = 0.05 USDT
