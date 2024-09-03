@@ -3,7 +3,8 @@ pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
-import {Script, console} from "forge-std/Script.sol";
+import {Script} from "forge-std/Script.sol";
+import {console} from "forge-std/console.sol";
 
 import "../src/contracts/core/sale/DirectSalePool.sol";
 import "../src/contracts/core/token/NftManager.sol";
@@ -38,7 +39,6 @@ contract DeployerScript is Script {
         dapplinkProxyAdmin = new ProxyAdmin(deployerAddress);
         console.log("deploy dapplinkProxyAdmin:", address(dapplinkProxyAdmin));
 
-
         fishCakeCoin = new FishCakeCoin();
 
         TransparentUpgradeableProxy proxyFishCakeCoin = new TransparentUpgradeableProxy(
@@ -51,7 +51,6 @@ contract DeployerScript is Script {
         // can not upgrade
         redemptionPool = new  RedemptionPool(address(proxyFishCakeCoin), usdtTokenAddress);
         console.log("deploy redemptionPool:", address(redemptionPool));
-
 
         directSalePool = new DirectSalePool(address(proxyFishCakeCoin), address(redemptionPool), usdtTokenAddress);
         TransparentUpgradeableProxy proxyDirectSalePool = new TransparentUpgradeableProxy(
