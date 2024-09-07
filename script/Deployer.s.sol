@@ -17,7 +17,7 @@ import {FishCakeCoinStorage} from "@contracts/core/token/FishCakeCoinStorage.sol
 forge script script/Deployer.s.sol:DeployerScript --rpc-url $RPC_URL --private-key $PRIVATE_KEY  --broadcast -vvvv
 */
 contract DeployerScript is Script {
-    ProxyAdmin public dapplinkProxyAdmin;
+//    ProxyAdmin public dapplinkProxyAdmin;
 
     RedemptionPool public redemptionPool;
 
@@ -36,14 +36,14 @@ contract DeployerScript is Script {
 
         vm.startBroadcast(deployerPrivateKey);
 
-        dapplinkProxyAdmin = new ProxyAdmin(deployerAddress);
-        console.log("deploy dapplinkProxyAdmin:", address(dapplinkProxyAdmin));
+//        dapplinkProxyAdmin = new ProxyAdmin(deployerAddress);
+        console.log("deploy deployerAddress:", address(deployerAddress));
 
         fishCakeCoin = new FishCakeCoin();
 
         TransparentUpgradeableProxy proxyFishCakeCoin = new TransparentUpgradeableProxy(
             address(fishCakeCoin),
-            address(dapplinkProxyAdmin),
+            address(deployerAddress),
             abi.encodeWithSelector(FishCakeCoin.initialize.selector, deployerAddress, address(0))
         );
         console.log("deploy proxyFishCakeCoin:", address(proxyFishCakeCoin));
@@ -55,7 +55,7 @@ contract DeployerScript is Script {
         directSalePool = new DirectSalePool(address(proxyFishCakeCoin), address(redemptionPool), usdtTokenAddress);
         TransparentUpgradeableProxy proxyDirectSalePool = new TransparentUpgradeableProxy(
             address(directSalePool),
-            address(dapplinkProxyAdmin),
+            address(deployerAddress),
             abi.encodeWithSelector(DirectSalePool.initialize.selector, deployerAddress)
         );
         console.log("deploy proxyDirectSalePool:", address(proxyDirectSalePool));
@@ -64,7 +64,7 @@ contract DeployerScript is Script {
         investorSalePool = new InvestorSalePool(address(proxyFishCakeCoin), address(redemptionPool), usdtTokenAddress);
         TransparentUpgradeableProxy proxyInvestorSalePool = new TransparentUpgradeableProxy(
             address(investorSalePool),
-            address(dapplinkProxyAdmin),
+            address(deployerAddress),
             abi.encodeWithSelector(InvestorSalePool.initialize.selector, deployerAddress)
         );
         console.log("deploy proxyInvestorSalePool:", address(proxyInvestorSalePool));
@@ -72,7 +72,7 @@ contract DeployerScript is Script {
         nftManager = new NftManager(address(proxyFishCakeCoin), usdtTokenAddress, address(redemptionPool));
         TransparentUpgradeableProxy proxyNftManager = new TransparentUpgradeableProxy(
             address(nftManager),
-            address(dapplinkProxyAdmin),
+            address(deployerAddress),
             abi.encodeWithSelector(NftManager.initialize.selector, deployerAddress)
         );
         console.log("deploy proxyNftManager:", address(proxyNftManager));
@@ -83,7 +83,7 @@ contract DeployerScript is Script {
         fishcakeEventManager = new FishcakeEventManager(address(proxyFishCakeCoin), usdtTokenAddress, address(proxyNftManager));
         TransparentUpgradeableProxy proxyFishcakeEventManager = new TransparentUpgradeableProxy(
             address(fishcakeEventManager),
-            address(dapplinkProxyAdmin),
+            address(deployerAddress),
             abi.encodeWithSelector(FishcakeEventManager.initialize.selector, deployerAddress)
         );
         console.log("deploy proxyFishcakeEventManager:", address(proxyFishcakeEventManager));
