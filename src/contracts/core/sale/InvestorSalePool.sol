@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import {console} from "forge-std/console.sol";
-
 import "@openzeppelin-upgrades/contracts/token/ERC20/ERC20Upgradeable.sol";
 import "@openzeppelin-upgrades/contracts/token/ERC20/extensions/ERC20BurnableUpgradeable.sol";
 import "@openzeppelin-upgrades/contracts/proxy/utils/Initializable.sol";
@@ -30,7 +28,6 @@ contract InvestorSalePool is Initializable, ERC20Upgradeable, ERC20BurnableUpgra
 //    }
 
     function initialize(address _initialOwner, address _fishCakeCoin, address _redemptionPool, address _tokenUsdtAddress) public initializer {
-        console.log("initialize 1 msg.sender deployed at:", msg.sender);
 
         require(_initialOwner != address(0), "InvestorSalePool initialize: _initialOwner can't be zero address");
         __Ownable_init(_initialOwner);

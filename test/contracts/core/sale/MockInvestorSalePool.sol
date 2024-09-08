@@ -4,9 +4,9 @@ pragma solidity ^0.8.0;
 import {Test} from "forge-std/Test.sol";
 import {console} from "forge-std/console.sol";
 //import {InvestorSalePool} from "@contracts/core/sale/InvestorSalePool.sol";
-import {InvestorSalePoolV2} from "@contracts/core/sale/InvestorSalePoolV2.sol";
+import {InvestorSalePool} from "@contracts/core/sale/InvestorSalePool.sol";
 
-contract MockInvestorSalePool is InvestorSalePoolV2 {
+contract MockInvestorSalePool is InvestorSalePool {
 //    constructor() InvestorSalePool(address(1), address(2), address(3)) {
 //        // Mock implementation or leave empty
 //    }
