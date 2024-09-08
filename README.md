@@ -25,23 +25,42 @@ For prerequisites and detailed build instructions please read the [Installation]
 ```bash
 git submodule update --init --recursive --remote
 ```
+or
+```bash
+forge install foundry-rs/forge-std --no-commit
+forge install OpenZeppelin/openzeppelin-contracts-upgradeable --no-commit
+forge install OpenZeppelin/openzeppelin-contracts --no-commit
+forge install OpenZeppelin/openzeppelin-foundry-upgrades --no-commit
+```
 
 Or check out the latest [release](https://github.com/FishcakeLab/fishcake-contracts).
 
 ##  Test And Depoly
 
+```bash
+$env:PRIVATE_KEY = "0x2a871"
+$env:USDT_ADDRESS = "0x3C4249f1cDfaAAFf"
+$env:OPENZEPPELIN_BASH_PATH = "C:/Users/65126/Documents/Git/bin/bash.exe"
+```
+
+
 ### test
 ```
-forge test 
+forge test --ffi
 ```
 
 ### Depoly
 
 ```
-forge script script/Deployer.s.sol:DeployerScript --rpc-url $RPC_URL --private-key $PRIVKEY
+forge script script/DeployerV2.s.sol:DeployerScript --rpc-url $RPC_URL --private-key $PRIVKEY --ffi
 
 ```
 
+### Upgrade
+
+```
+forge script script/UpgradeInvestorSalePoolDeployerV2.s.sol:UpgradeInvestorSalePoolDeployer --rpc-url $RPC_URL --private-key $PRIVKEY --ffi
+```
 
 ## Community
 

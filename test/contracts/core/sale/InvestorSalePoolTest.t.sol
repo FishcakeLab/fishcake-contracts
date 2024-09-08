@@ -38,10 +38,10 @@ contract InvestorSalePoolTest is FishcakeTestHelperTest {
         console.log("InvestorSalePoolTest test_buyFccAmount before_deployerAddress_usdt:", before_deployerAddress_usdt);
 
         uint256 fcc_amount = 16_666 * tempInvestorSalePool.fccDecimal();
-        vm.startPrank(deployerAddress);
+        vm.startBroadcast(deployerAddress);
         usdtToken.approve(address(tempInvestorSalePool), fcc_amount);
         tempInvestorSalePool.buyFccAmount(fcc_amount);
-        vm.stopPrank();
+        vm.stopBroadcast();
 
         MockInvestorSalePool mockPool = new MockInvestorSalePool();
         uint256 temp_usdt = mockPool.calculateUsdtByFcc_mock(fcc_amount);
@@ -95,10 +95,10 @@ contract InvestorSalePoolTest is FishcakeTestHelperTest {
 
         uint256 usdt_amount = 1_000 * tempInvestorSalePool.usdtDecimal();
 
-        vm.startPrank(deployerAddress);
+        vm.startBroadcast(deployerAddress);
         usdtToken.approve(address(tempInvestorSalePool), usdt_amount);
         tempInvestorSalePool.buyFccByUsdtAmount(usdt_amount);
-        vm.stopPrank();
+        vm.stopBroadcast();
 
         MockInvestorSalePool mockPool = new MockInvestorSalePool();
         uint256 temp_fcc = mockPool.calculateFccByUsdt_mock(usdt_amount);
@@ -136,9 +136,9 @@ contract InvestorSalePoolTest is FishcakeTestHelperTest {
         FishCakeCoin tempFishCakeCoin = FishCakeCoin(address(proxyFishCakeCoin));
         IInvestorSalePool tempInvestorSalePool = IInvestorSalePool(address(proxyInvestorSalePool));
 
-        vm.startPrank(deployerAddress);
+        vm.startBroadcast(deployerAddress);
         tempInvestorSalePool.setValutAddress(deployerAddress);
-        vm.stopPrank();
+        vm.stopBroadcast();
 
         test_buyFccByUsdtAmount();
 
@@ -176,49 +176,69 @@ contract InvestorSalePoolTest is FishcakeTestHelperTest {
     }
 
     function test_calculateFccByUsdt() public {
+        // The denominator is expanded by a factor of 100
+        uint256 constant_decimal = 1e2;
+        console.log("InvestorSalePoolTest test_calculateFccByUsdt constant_decimal:", constant_decimal);
+
         MockInvestorSalePool mockPool = new MockInvestorSalePool();
 
         console.log("InvestorSalePoolTest test_calculateFccByUsdt usdtDecimal:", mockPool.getUsdtDecimal_mock());
         console.log("InvestorSalePoolTest test_calculateFccByUsdt fccDecimal:", mockPool.getFccDecimal_mock());
 
-        uint256 tempUsdt = mockPool.getUsdtDecimal_mock();
+        uint256 USDT_DECIMAL = mockPool.getUsdtDecimal_mock();
 
-        uint256 test_1_usdt_input = 100_000 * tempUsdt;
+        uint256 test_1_usdt_input = 100_000 * USDT_DECIMAL;
         console.log("InvestorSalePoolTest test_calculateFccByUsdt test_1_usdt_input:", test_1_usdt_input);
         uint256 test_1_fcc = mockPool.calculateFccByUsdt_mock(test_1_usdt_input);
         console.log("InvestorSalePoolTest test_calculateFccByUsdt test_1_fcc:", test_1_fcc);
-        uint256 test_1_div = test_1_fcc * 100 / test_1_usdt_input;
+        uint256 test_1_div = (test_1_usdt_input * constant_decimal) / test_1_fcc;
         console.log("InvestorSalePoolTest test_calculateFccByUsdt test_1_div:", test_1_div);
-        assertTrue(test_1_div == 5000, "test_1_div == 5000");
+        assertEq(test_1_div, 6, "test_1_div == 6");
 
-        uint256 test_2_usdt_input = 10_000 * tempUsdt;
+        uint256 test_2_usdt_input = 10_000 * USDT_DECIMAL;
         console.log("InvestorSalePoolTest test_calculateFccByUsdt test_2_usdt_input:", test_2_usdt_input);
         uint256 test_2_fcc = mockPool.calculateFccByUsdt_mock(test_2_usdt_input);
         console.log("InvestorSalePoolTest test_calculateFccByUsdt test_2_fcc:", test_2_fcc);
-        uint256 test_2_div = test_2_fcc * 100 / test_2_usdt_input;
+        uint256 test_2_div = (test_2_usdt_input * constant_decimal) / test_2_fcc;
         console.log("InvestorSalePoolTest test_calculateFccByUsdt test_2_div:", test_2_div);
-        assertTrue(test_2_div == 2500, "test_2_div == 2500");
+        assertTrue(test_2_div == 7, "test_2_div == 7");
 
-        uint256 test_3_usdt_input = 5_000 * tempUsdt;
+        uint256 test_3_usdt_input = 5_000 * USDT_DECIMAL;
         console.log("InvestorSalePoolTest test_calculateFccByUsdt test_3_usdt_input:", test_3_usdt_input);
         uint256 test_3_fcc = mockPool.calculateFccByUsdt_mock(test_3_usdt_input);
         console.log("InvestorSalePoolTest test_calculateFccByUsdt test_3_fcc:", test_3_fcc);
-        uint256 test_3_div = test_3_fcc * 100 / test_3_usdt_input;
+        uint256 test_3_div = (test_3_usdt_input * constant_decimal) / test_3_fcc;
         console.log("InvestorSalePoolTest test_calculateFccByUsdt test_3_div:", test_3_div);
-        assertTrue(test_3_div == 2000, "test_3_div == 2000");
+        assertTrue(test_3_div == 8, "test_3_div == 8");
 
-        uint256 test_4_usdt_input = 1_000 * tempUsdt;
+        uint256 test_4_usdt_input = 1_000 * USDT_DECIMAL;
         console.log("InvestorSalePoolTest test_calculateFccByUsdt test_4_usdt_input:", test_4_usdt_input);
         uint256 test_4_fcc = mockPool.calculateFccByUsdt_mock(test_4_usdt_input);
         console.log("InvestorSalePoolTest test_calculateFccByUsdt test_4_fcc:", test_4_fcc);
-        uint256 test_4_div = test_4_fcc * 100 / test_4_usdt_input;
+        uint256 test_4_div = (test_4_usdt_input * constant_decimal) / test_4_fcc;
         console.log("InvestorSalePoolTest test_calculateFccByUsdt test_4_div:", test_4_div);
-        assertTrue(test_4_div == 1666, "test_4_div == 1666");
+        assertTrue(test_4_div == 9, "test_4_div == 11111111");
 
-        uint256 test_5_usdt_input = 999 * tempUsdt;
-        try mockPool.calculateFccByUsdt_mock(test_5_usdt_input) returns (uint256 result) {
+        uint256 test_5_usdt_input = 999 * USDT_DECIMAL;
+        console.log("InvestorSalePoolTest test_calculateFccByUsdt test_5_usdt_input:", test_5_usdt_input);
+        uint256 test_5_fcc = mockPool.calculateFccByUsdt_mock(test_5_usdt_input);
+        console.log("InvestorSalePoolTest test_calculateFccByUsdt test_5_fcc:", test_5_fcc);
+        uint256 test_5_div = (test_5_usdt_input * constant_decimal) / test_5_fcc;
+        console.log("InvestorSalePoolTest test_calculateFccByUsdt test_5_div:", test_5_div);
+        assertTrue(test_5_div == 10, "test_5_div == 10");
+
+        uint256 test_6_usdt_input = 1 * USDT_DECIMAL;
+        console.log("InvestorSalePoolTest test_calculateFccByUsdt test_6_usdt_input:", test_6_usdt_input);
+        uint256 test_6_fcc = mockPool.calculateFccByUsdt_mock(test_6_usdt_input);
+        console.log("InvestorSalePoolTest test_calculateFccByUsdt test_6_fcc:", test_6_fcc);
+        uint256 test_6_div = (test_6_usdt_input * constant_decimal) / test_6_fcc;
+        console.log("InvestorSalePoolTest test_calculateFccByUsdt test_6_div:", test_6_div);
+        assertTrue(test_6_div == 10, "test_6_div == 10");
+
+        uint256 test_7_usdt_input = 0 * USDT_DECIMAL;
+        try mockPool.calculateFccByUsdt_mock(test_7_usdt_input) returns (uint256 result) {
             assertTrue(false, "If the program runs to this line, it is abnormal");
-            console.log("InvestorSalePoolTest test_calculateFccByUsdt test_5_fcc:", result);
+            console.log("InvestorSalePoolTest calculateFccByUsdt_mock result:", result);
         } catch Error(string memory reason) {
             console.log("Error: ", reason);
             assertTrue(false, "If the program runs to this line, it is abnormal");
@@ -230,55 +250,76 @@ contract InvestorSalePoolTest is FishcakeTestHelperTest {
     }
 
     function test_calculateUsdtByFcc() public {
+        // The denominator is expanded by a factor of 100
+        uint256 constant_decimal = 1e2;
+        console.log("InvestorSalePoolTest test_calculateUsdtByFcc constant_decimal:", constant_decimal);
+
         MockInvestorSalePool mockPool = new MockInvestorSalePool();
 
         console.log("InvestorSalePoolTest test_calculateUsdtByFcc usdtDecimal:", mockPool.getUsdtDecimal_mock());
         console.log("InvestorSalePoolTest test_calculateUsdtByFcc fccDecimal:", mockPool.getFccDecimal_mock());
 
-        uint256 tempFcc = mockPool.getFccDecimal_mock();
+        uint256 FCC_DECIMAL = mockPool.getFccDecimal_mock();
 
-        uint256 test_1_fcc_input = 5_000_000 * tempFcc;
-        console.log("InvestorSalePoolTest test_calculateUsdtByFcc input fcc 1 :", test_1_fcc_input);
+        uint256 test_1_fcc_input = 5_000_000 * FCC_DECIMAL;
+        console.log("InvestorSalePoolTest test_calculateUsdtByFcc test_1_fcc_input:", test_1_fcc_input);
         uint256 test_1_usdt = mockPool.calculateUsdtByFcc_mock(test_1_fcc_input);
         console.log("InvestorSalePoolTest test_calculateUsdtByFcc test_1_usdt:", test_1_usdt);
-        uint256 test_1_div = test_1_usdt * 100 / test_1_fcc_input;
+        uint256 test_1_div = (test_1_usdt * constant_decimal) / test_1_fcc_input;
         console.log("InvestorSalePoolTest test_calculateUsdtByFcc test_1_div:", test_1_div);
-        assertTrue(test_1_div == 2, "test_1_div == 2");
+        assertTrue(test_1_div == 6, "test_1_div == 6");
 
-        uint256 test_2_input = 250_000 * tempFcc;
-        console.log("InvestorSalePoolTest test_calculateUsdtByFcc input 2 :", test_2_input);
-        uint256 test_2 = mockPool.calculateUsdtByFcc_mock(test_2_input);
-        console.log("InvestorSalePoolTest test_calculateUsdtByFcc test_2:", test_2);
-        uint256 test_2_div = test_2 * 100 / test_2_input;
+        uint256 test_2_fcc_input = 250_000 * FCC_DECIMAL;
+        console.log("InvestorSalePoolTest test_calculateUsdtByFcc test_2_fcc_input:", test_2_fcc_input);
+        uint256 test_2_usdt = mockPool.calculateUsdtByFcc_mock(test_2_fcc_input);
+        console.log("InvestorSalePoolTest test_calculateUsdtByFcc test_2_usdt:", test_2_usdt);
+        uint256 test_2_div = (test_2_usdt * constant_decimal) / test_2_fcc_input;
         console.log("InvestorSalePoolTest test_calculateUsdtByFcc test_2_div:", test_2_div);
-        assertTrue(test_2_div == 4, "test_2_div == 4");
+        assertTrue(test_2_div == 7, "test_2_div == 7");
 
-        uint256 test_3_input = 100_000 * tempFcc;
-        console.log("InvestorSalePoolTest test_calculateUsdtByFcc input 3 :", test_3_input);
-        uint256 test_3 = mockPool.calculateUsdtByFcc_mock(test_3_input);
-        console.log("InvestorSalePoolTest test_calculateUsdtByFcc test_3:", test_3);
-        uint256 test_3_div = test_3 * 100 / test_3_input;
+        uint256 test_3_fcc_input = 100_000 * FCC_DECIMAL;
+        console.log("InvestorSalePoolTest test_calculateUsdtByFcc test_3_fcc_input:", test_3_fcc_input);
+        uint256 test_3_usdt = mockPool.calculateUsdtByFcc_mock(test_3_fcc_input);
+        console.log("InvestorSalePoolTest test_calculateUsdtByFcc test_3_usdt:", test_3_usdt);
+        uint256 test_3_div = (test_3_usdt * constant_decimal) / test_3_fcc_input;
         console.log("InvestorSalePoolTest test_calculateUsdtByFcc test_3_div:", test_3_div);
-        assertTrue(test_3_div == 5, "test_3_div == 5");
+        assertTrue(test_3_div == 8, "test_3_div == 8");
 
-        uint256 test_4_input = 16_666 * tempFcc;
-        console.log("InvestorSalePoolTest test_calculateUsdtByFcc input 4 :", test_4_input);
-        uint256 test_4 = mockPool.calculateUsdtByFcc_mock(test_4_input);
-        console.log("InvestorSalePoolTest test_calculateUsdtByFcc test_4:", test_4);
-        uint256 test_4_div = test_4 * 100 / test_4_input;
+        uint256 test_4_fcc_input = 16_666 * FCC_DECIMAL;
+        console.log("InvestorSalePoolTest test_calculateUsdtByFcc test_4_fcc_input:", test_4_fcc_input);
+        uint256 test_4_usdt = mockPool.calculateUsdtByFcc_mock(test_4_fcc_input);
+        console.log("InvestorSalePoolTest test_calculateUsdtByFcc test_4_usdt:", test_4_usdt);
+        uint256 test_4_div = (test_4_usdt * constant_decimal) / test_4_fcc_input;
         console.log("InvestorSalePoolTest test_calculateUsdtByFcc test_4_div:", test_4_div);
-        assertTrue(test_4_div == 6, "test_4_div == 6");
+        assertTrue(test_4_div == 9, "test_4_div == 9");
 
-        uint256 test_5_input = 16_665 * tempFcc;
-        console.log("InvestorSalePoolTest test_calculateUsdtByFcc input 5 :", test_5_input);
-        try mockPool.calculateUsdtByFcc_mock(test_5_input) returns (uint256 result) {
-            console.log("InvestorSalePoolTest test_calculateUsdtByFcc test_5:", result);
+        uint256 test_5_fcc_input = 16_665 * FCC_DECIMAL;
+        console.log("InvestorSalePoolTest test_calculateUsdtByFcc test_5_fcc_input:", test_5_fcc_input);
+        uint256 test_5_usdt = mockPool.calculateUsdtByFcc_mock(test_5_fcc_input);
+        console.log("InvestorSalePoolTest test_calculateUsdtByFcc test_5_usdt:", test_5_usdt);
+        uint256 test_5_div = (test_5_usdt * constant_decimal) / test_5_fcc_input;
+        console.log("InvestorSalePoolTest test_calculateUsdtByFcc test_5_div:", test_5_div);
+        assertTrue(test_5_div == 10, "test_5_div == 10");
+
+        uint256 test_6_fcc_input = 1 * FCC_DECIMAL;
+        console.log("InvestorSalePoolTest test_calculateUsdtByFcc test_6_fcc_input:", test_6_fcc_input);
+        uint256 test_6_usdt = mockPool.calculateUsdtByFcc_mock(test_6_fcc_input);
+        console.log("InvestorSalePoolTest test_calculateUsdtByFcc test_6_usdt:", test_6_usdt);
+        uint256 test_6_div = (test_6_usdt * constant_decimal) / test_6_fcc_input;
+        console.log("InvestorSalePoolTest test_calculateUsdtByFcc test_6_div:", test_6_div);
+        assertTrue(test_6_div == 10, "test_6_div == 10");
+
+        uint256 test_7_usdt_input = 0 * FCC_DECIMAL;
+        try mockPool.calculateUsdtByFcc_mock(test_7_usdt_input) returns (uint256 result) {
+            assertTrue(false, "If the program runs to this line, it is abnormal");
+            console.log("InvestorSalePoolTest calculateUsdtByFcc_mock result:", result);
         } catch Error(string memory reason) {
-            console.log("InvestorSalePoolTest test_calculateUsdtByFcc Error: ", reason);
+            console.log("Error: ", reason);
+            assertTrue(false, "If the program runs to this line, it is abnormal");
         } catch (bytes memory lowLevelData) {
-//            console.log("InvestorSalePoolTest test_calculateUsdtByFcc Low level error: ", string(lowLevelData));
             string memory hexString = toHexString(lowLevelData);
             console.log("Hex String:", hexString);
+            assertTrue(true, "If the program runs to this line, it is normal");
         }
     }
 

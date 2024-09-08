@@ -7,22 +7,20 @@ import "@openzeppelin-upgrades/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin-upgrades/contracts/access/OwnableUpgradeable.sol";
 import "@openzeppelin-upgrades/contracts/utils/ReentrancyGuardUpgradeable.sol";
 
-import { FishcakeEventManagerStorage } from "./FishcakeEventManagerStorage.sol";
+import {FishcakeEventManagerStorage} from "./FishcakeEventManagerStorage.sol";
 
 
 contract FishcakeEventManager is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable, FishcakeEventManagerStorage {
-    constructor(address _fccAddress, address _usdtTokenAddr, address _NFTManagerAddr) FishcakeEventManagerStorage(_fccAddress, _usdtTokenAddr, _NFTManagerAddr) {
-        _disableInitializers();
-    }
+//    constructor(address _fccAddress, address _usdtTokenAddr, address _NFTManagerAddr) FishcakeEventManagerStorage(_fccAddress, _usdtTokenAddr, _NFTManagerAddr) {
+//        _disableInitializers();
+//    }
 
-    function initialize(address _initialOwner) public initializer {
+    function initialize(address _initialOwner, address _fccAddress, address _usdtTokenAddr, address _NFTManagerAddr) public initializer {
         require(_initialOwner != address(0), "FishcakeEventManager initialize: _initialOwner can't be zero address");
         __Ownable_init(_initialOwner);
         _transferOwnership(_initialOwner);
-
-        minedAmt = 0;
-        minePercent = 50;
-        isMint = true;
+        __ReentrancyGuard_init();
+        __FishcakeEventManagerStorage_init(_fccAddress, _usdtTokenAddr, _NFTManagerAddr);
     }
 
     function activityAdd(
@@ -52,8 +50,8 @@ contract FishcakeEventManager is Initializable, ERC20Upgradeable, ERC20BurnableU
 
         require(_tokenContractAddr == address(UsdtTokenAddr) || _tokenContractAddr == address(FccTokenAddr), "FishcakeEventManager activityAdd: Token contract address error");
 
-        if(_dropType==1){
-            _minDropAmt=0;
+        if (_dropType == 1) {
+            _minDropAmt = 0;
         }
 
         // Transfer token to this contract for locking.
@@ -100,7 +98,7 @@ contract FishcakeEventManager is Initializable, ERC20Upgradeable, ERC20BurnableU
             _maxDropAmt,
             _tokenContractAddr
         );
-        return(true, ai.activityId);
+        return (true, ai.activityId);
     }
 
     function activityFinish(uint256 _activityId) public nonReentrant returns (bool) {
@@ -114,18 +112,18 @@ contract FishcakeEventManager is Initializable, ERC20Upgradeable, ERC20BurnableU
         uint256 returnAmount = ai.maxDropAmt * ai.dropNumber - aie.alreadyDropAmts;
 
         uint256 minedAmount = 0;
-        if (returnAmount > 0 ) {
+        if (returnAmount > 0) {
             IERC20(ai.tokenContractAddr).transfer(msg.sender, returnAmount);
         }
 
         //ifReward There is only one reward in 24 hours
-        if ( isMint && ifReward() && iNFTManager.getMerchantNTFDeadline(_msgSender()) > block.timestamp || iNFTManager.getUserNTFDeadline(_msgSender()) > block.timestamp ) {
+        if (isMint && ifReward() && iNFTManager.getMerchantNTFDeadline(_msgSender()) > block.timestamp || iNFTManager.getUserNTFDeadline(_msgSender()) > block.timestamp) {
             //Get the current percentage of mined tokens
             uint8 currentMinePercent = getCurrentMinePercent();
             if (minePercent != currentMinePercent) {
                 minePercent = currentMinePercent;
             }
-            if ( minePercent > 0 && address(FccTokenAddr) == ai.tokenContractAddr) {
+            if (minePercent > 0 && address(FccTokenAddr) == ai.tokenContractAddr) {
                 uint8 percent = (
                     iNFTManager.getMerchantNTFDeadline(_msgSender()) > block.timestamp ? minePercent : minePercent / 2
                 );
@@ -138,7 +136,7 @@ contract FishcakeEventManager is Initializable, ERC20Upgradeable, ERC20BurnableU
                 if (tmpBusinessMinedAmt > maxMineAmtLimt) {
                     tmpBusinessMinedAmt = maxMineAmtLimt;
                 }
-                if(totalMineAmt > minedAmt){
+                if (totalMineAmt > minedAmt) {
                     if (totalMineAmt > minedAmt + tmpBusinessMinedAmt) {
                         aie.businessMinedAmt = tmpBusinessMinedAmt;
                         minedAmt += tmpBusinessMinedAmt;
@@ -151,7 +149,7 @@ contract FishcakeEventManager is Initializable, ERC20Upgradeable, ERC20BurnableU
                         minedAmount = aie.businessMinedAmt;
                         isMint = false;
                     }
-                    NTFLastMineTime[msg.sender] =block.timestamp;
+                    NTFLastMineTime[msg.sender] = block.timestamp;
                 }
             }
         }
@@ -177,7 +175,7 @@ contract FishcakeEventManager is Initializable, ERC20Upgradeable, ERC20BurnableU
 
         require(aie.activityStatus == 1, "FishcakeEventManager drop: Activity Status Error.");
         require(ai.businessAccount == msg.sender, "FishcakeEventManager drop: Not The Owner.");
-        require(ai.activityDeadLine>= block.timestamp, "FishcakeEventManager drop: Activity Has Expired.");
+        require(ai.activityDeadLine >= block.timestamp, "FishcakeEventManager drop: Activity Has Expired.");
 
         if (ai.dropType == 2) {
             require(_dropAmt <= ai.maxDropAmt && _dropAmt >= ai.minDropAmt, "FishcakeEventManager drop: Drop Amount Error.");
@@ -224,11 +222,11 @@ contract FishcakeEventManager is Initializable, ERC20Upgradeable, ERC20BurnableU
 
     function ifReward() internal view returns (bool _ret){
         if (NTFLastMineTime[_msgSender()] == 0) {
-            _ret=true;
-        } else if (NTFLastMineTime[_msgSender()] - oneDay>= 0) {
-            _ret=true;
+            _ret = true;
+        } else if (NTFLastMineTime[_msgSender()] - oneDay >= 0) {
+            _ret = true;
         } else {
-            _ret=false;
+            _ret = false;
         }
     }
 }

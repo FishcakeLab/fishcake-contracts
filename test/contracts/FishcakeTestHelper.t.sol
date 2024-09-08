@@ -29,10 +29,10 @@ contract FishcakeTestHelperTest is FishcakeDeployerTest {
             redemptionPool: address(redemptionPool)
         });
 
-        vm.startPrank(deployerAddress);
+        vm.startBroadcast(deployerAddress);
         tempFishCakeCoin.setPoolAddress(fishCakePool);
         tempFishCakeCoin.poolAllocate();
-        vm.stopPrank();
+        vm.stopBroadcast();
 
         assertTrue(6 == tempFishCakeCoin.decimals(), "fishCakeCoin decimals is 6");
 

@@ -2,26 +2,27 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin-upgrades/contracts/proxy/utils/Initializable.sol";
 
 import "../interfaces/IFishcakeEventManager.sol";
 import "../interfaces/INftManager.sol";
 
-abstract contract FishcakeEventManagerStorage is IFishcakeEventManager {
+abstract contract FishcakeEventManagerStorage is Initializable, IFishcakeEventManager {
     using SafeERC20 for IERC20;
 
-    uint256 public immutable totalMineAmt = 300_000_000 * 10 ** 6;   // Total mining quantity
-    uint256 public immutable maxDeadLine = 2592000;                 // 30 days = 2592000 s
-    uint256 public immutable oneDay = 86400;                        // one day 86400 s
-    uint256 public immutable merchantOnceMaxMineAmt = 240 * 10 ** 6; // pro nft once max mining quantity
-    uint256 public immutable userOnceMaxMineAmt = 24 * 10 ** 6;      // basic nft once max mining quantity
+    uint256 public constant totalMineAmt = 300_000_000 * 10 ** 6;   // Total mining quantity
+    uint256 public constant maxDeadLine = 2592000;                 // 30 days = 2592000 s
+    uint256 public constant oneDay = 86400;                        // one day 86400 s
+    uint256 public constant merchantOnceMaxMineAmt = 240 * 10 ** 6; // pro nft once max mining quantity
+    uint256 public constant userOnceMaxMineAmt = 24 * 10 ** 6;      // basic nft once max mining quantity
 
-    uint256 public minedAmt = 0;   // Mined quantity
-    uint8 public minePercent = 50; // Mining percentage
-    bool public isMint = true;     // Whether to mint
+    uint256 public minedAmt;   // Mined quantity
+    uint8 public minePercent; // Mining percentage
+    bool public isMint;     // Whether to mint
 
-    IERC20 public immutable FccTokenAddr;
-    IERC20 public immutable UsdtTokenAddr;
-    INftManager public immutable iNFTManager;
+    IERC20 public FccTokenAddr;
+    IERC20 public UsdtTokenAddr;
+    INftManager public iNFTManager;
 
     struct ActivityInfo {
         uint256 activityId;      // Activity ID
@@ -64,11 +65,20 @@ abstract contract FishcakeEventManagerStorage is IFishcakeEventManager {
 
     mapping(uint256 => mapping(address => bool)) public activityDropedToAccount;
 
+//    constructor(address _fccAddress, address _usdtTokenAddr, address _NFTManagerAddr){
+//        FccTokenAddr = IERC20(_fccAddress);
+//        UsdtTokenAddr = IERC20(_usdtTokenAddr);
+//        iNFTManager = INftManager(_NFTManagerAddr);
+//    }
 
-    constructor( address _fccAddress, address _usdtTokenAddr, address _NFTManagerAddr){
+    function __FishcakeEventManagerStorage_init(address _fccAddress, address _usdtTokenAddr, address _NFTManagerAddr) internal initializer {
         FccTokenAddr = IERC20(_fccAddress);
         UsdtTokenAddr = IERC20(_usdtTokenAddr);
         iNFTManager = INftManager(_NFTManagerAddr);
+
+        minedAmt = 0;
+        minePercent = 50;
+        isMint = true;
     }
 
     uint256[100] private __gap;

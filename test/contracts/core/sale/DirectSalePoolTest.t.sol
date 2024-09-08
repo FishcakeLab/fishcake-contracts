@@ -36,10 +36,10 @@ contract DirectSalePoolTest is FishcakeTestHelperTest {
 
         uint256 fcc_amount = 1_000_000_000;
 
-        vm.startPrank(deployerAddress);
+        vm.startBroadcast(deployerAddress);
         usdtToken.approve(address(tempDirectSalePool), fcc_amount);
         tempDirectSalePool.buyFccAmount(fcc_amount);
-        vm.stopPrank();
+        vm.stopBroadcast();
 
         uint256 after_tempDirectSalePool_fcc = tempFishCakeCoin.FccBalance(address(tempDirectSalePool));
         console.log("DirectSalePoolTest test_buyFccAmount after_tempDirectSalePool_fcc:", after_tempDirectSalePool_fcc);
@@ -91,10 +91,10 @@ contract DirectSalePoolTest is FishcakeTestHelperTest {
 
         uint256 usdt_amount = 10000;
 
-        vm.startPrank(deployerAddress);
+        vm.startBroadcast(deployerAddress);
         usdtToken.approve(address(tempDirectSalePool), usdt_amount);
         tempDirectSalePool.buyFccByUsdtAmount(usdt_amount);
-        vm.stopPrank();
+        vm.stopBroadcast();
 
         uint256 after_tempDirectSalePool_fcc = tempFishCakeCoin.FccBalance(address(tempDirectSalePool));
         console.log("DirectSalePoolTest test_buyFccByUsdtAmount after_tempDirectSalePool_fcc:", after_tempDirectSalePool_fcc);

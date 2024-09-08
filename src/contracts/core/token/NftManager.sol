@@ -7,7 +7,7 @@ import "@openzeppelin-upgrades/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin-upgrades/contracts/access/OwnableUpgradeable.sol";
 import "@openzeppelin-upgrades/contracts/utils/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin-upgrades/contracts/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
-import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
 import "./NftManagerStorage.sol";
 
@@ -49,20 +49,17 @@ contract NftManager is Initializable, ERC721Upgradeable, ERC721URIStorageUpgrade
 
     event Withdraw(address indexed withdrawer, uint256 _amount);
     event Received(address indexed receiver, uint _value);
-    
 
-    constructor(address _fccTokenAddr, address _tokenUsdtAddr, address _redemptionPoolAddress) NftManagerStorage (_fccTokenAddr, _tokenUsdtAddr, _redemptionPoolAddress){
-        _disableInitializers();
-    }
+//    constructor(address _fccTokenAddr, address _tokenUsdtAddr, address _redemptionPoolAddress) NftManagerStorage (_fccTokenAddr, _tokenUsdtAddr, _redemptionPoolAddress){
+//        _disableInitializers();
+//    }
 
-    function initialize(address _initialOwner) public initializer {
+    function initialize(address _initialOwner, address _fccTokenAddr, address _tokenUsdtAddr, address _redemptionPoolAddress) public initializer {
         require(_initialOwner != address(0), "NftManager initialize: _initialOwner can't be zero address");
         __ERC721_init("TheWebThree", "TWT");
         __Ownable_init(_initialOwner);
         _transferOwnership(_initialOwner);
-
-        merchantValue = 8e7;
-        userValue = 8e6;
+        __NftManagerStorage_init(_fccTokenAddr, _tokenUsdtAddr, _redemptionPoolAddress);
     }
 
     receive() external payable {
@@ -81,7 +78,7 @@ contract NftManager is Initializable, ERC721Upgradeable, ERC721URIStorageUpgrade
         require(_type == 1 || _type == 2, "NftManager createNFT: type can only equal 1 and 2, 1 stand for merchant, 2 stand for personal user");
         uint256 payUsdtAmount = _type == 1 ? merchantValue : userValue;
         uint256 nftDeadline = block.timestamp + validTime;
-        if( _type == 1) {
+        if (_type == 1) {
             require(tokenUsdtAddr.allowance(msg.sender, address(this)) >= merchantValue, "NftManager createNFT: Merchant allowance must more than 80 U");
             merchantNftDeadline[msg.sender] = nftDeadline;
             fccTokenAddr.transfer(msg.sender, proMineAmt);
@@ -101,7 +98,7 @@ contract NftManager is Initializable, ERC721Upgradeable, ERC721URIStorageUpgrade
         nftMintType[tokenId] = _type;
 
         string memory uri = string(
-            abi.encodePacked(uriPrefix,   _type.toString(), ".json")
+            abi.encodePacked(uriPrefix, _type.toString(), ".json")
         );
 
         _setTokenURI(tokenId, uri);
@@ -141,7 +138,7 @@ contract NftManager is Initializable, ERC721Upgradeable, ERC721URIStorageUpgrade
         emit UriPrefixSet(msg.sender, _uriPrefix);
     }
 
-    function setValues(uint256 _merchantValue, uint256 _userValue) external onlyOwner  {
+    function setValues(uint256 _merchantValue, uint256 _userValue) external onlyOwner {
         merchantValue = _merchantValue;
         userValue = _userValue;
         emit SetValues(msg.sender, _merchantValue, _userValue);
@@ -161,7 +158,7 @@ contract NftManager is Initializable, ERC721Upgradeable, ERC721URIStorageUpgrade
     function withdrawNativeToken(address payable _recipient, uint256 _amount) public onlyOwner nonReentrant returns (bool) {
         require(_recipient != address(0x0), "NftManager withdrawNativeToken: recipient address error.");
         require(_amount <= address(this).balance, "NftManager withdrawNativeToken: Balance not enough.");
-        (bool _ret, ) = _recipient.call{value: _amount}("");
+        (bool _ret,) = _recipient.call{value: _amount}("");
         emit Withdraw(_recipient, _amount);
         return _ret;
     }

@@ -56,11 +56,11 @@ contract FishCakeCoinTest is FishcakeTestHelperTest {
             redemptionPool: address(redemptionPool)
         });
 
-        vm.startPrank(deployerAddress);
+        vm.startBroadcast(deployerAddress);
         tempFishCakeCoin.setPoolAddress(fishCakePool);
         tempFishCakeCoin.poolAllocate();
         tempFishCakeCoin.poolAllocate();
-        vm.stopPrank();
+        vm.stopBroadcast();
     }
 
 }

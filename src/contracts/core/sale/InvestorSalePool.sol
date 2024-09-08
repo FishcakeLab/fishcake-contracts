@@ -23,14 +23,17 @@ contract InvestorSalePool is Initializable, ERC20Upgradeable, ERC20BurnableUpgra
     event WithdrawUsdt(address indexed withdrawAddress, uint256 _amount);
     event BuyFishcakeCoin(address indexed buyer, uint256 USDTAmount, uint256 fishcakeCoinAmount);
 
-    constructor(address _fishCakeCoin, address _redemptionPool, address _tokenUsdtAddress) InvestorSalePoolStorage(_fishCakeCoin, _redemptionPool, _tokenUsdtAddress) {
-        _disableInitializers();
-    }
+//    constructor(address _fishCakeCoin, address _redemptionPool, address _tokenUsdtAddress) InvestorSalePoolStorage(_fishCakeCoin, _redemptionPool, _tokenUsdtAddress) {
+//        _disableInitializers();
+//    }
 
-    function initialize(address _initialOwner) public initializer {
+    function initialize(address _initialOwner, address _fishCakeCoin, address _redemptionPool, address _tokenUsdtAddress) public initializer {
+
         require(_initialOwner != address(0), "InvestorSalePool initialize: _initialOwner can't be zero address");
         __Ownable_init(_initialOwner);
         _transferOwnership(_initialOwner);
+        __ReentrancyGuard_init();
+        __InvestorSalePoolStorage_init(_fishCakeCoin, _redemptionPool, _tokenUsdtAddress);
     }
 
     function buyFccAmount(uint256 fccAmount) external {
@@ -87,15 +90,17 @@ contract InvestorSalePool is Initializable, ERC20Upgradeable, ERC20BurnableUpgra
         return calculateFccByUsdt(_amount);
     }
 
-    function calculateFccByUsdt(uint256 _amount) internal pure returns (uint256) {
-        if (_amount >= 100_000 * usdtDecimal) { // 1 USDT = 50 FCC
-            return (_amount * 50 * fccDecimal) / usdtDecimal;
-        } else if (_amount < 100_000 * usdtDecimal && _amount >= 10_000 * usdtDecimal) { // 1 USDT = 25 FCC
-            return (_amount * 25 * fccDecimal) / usdtDecimal;
-        } else if (_amount < 10_000 * usdtDecimal && _amount >= 5_000 * usdtDecimal) { // 1 USDT = 20 FCC
-            return (_amount * 20 * fccDecimal) / usdtDecimal;
-        } else if (_amount < 5_000 * usdtDecimal && _amount >= 1_000 * usdtDecimal) { // 1 USDT = 16.66... FCC
-            return (_amount * 100 * fccDecimal) / (6 * usdtDecimal);
+    function calculateFccByUsdt(uint256 _usdtAmount) internal pure returns (uint256) {
+        if (_usdtAmount >= 100_000 * usdtDecimal) { // Tier 1: 1 FCC = 0.06 USDT
+            return (_usdtAmount * 100 * fccDecimal) / (6 * usdtDecimal);
+        } else if (_usdtAmount < 100_000 * usdtDecimal && _usdtAmount >= 10_000 * usdtDecimal) { // Tier 2: 1 FCC = 0.07 USDT
+            return (_usdtAmount * 100 * fccDecimal) / (7 * usdtDecimal);
+        } else if (_usdtAmount < 10_000 * usdtDecimal && _usdtAmount >= 5_000 * usdtDecimal) { // Tier 3: 1 FCC = 0.08 USDT
+            return (_usdtAmount * 100 * fccDecimal) / (8 * usdtDecimal);
+        } else if (_usdtAmount < 5_000 * usdtDecimal && _usdtAmount >= 1_000 * usdtDecimal) { // Tier 4: 1 FCC = 0.09 USDT
+            return (_usdtAmount * 100 * fccDecimal) / (9 * usdtDecimal);
+        } else if (_usdtAmount < 1_000 * usdtDecimal && _usdtAmount > 0 * usdtDecimal) { // Tier 5: 1 FCC = 0.1 USDT
+            return (_usdtAmount * 10 * fccDecimal) / usdtDecimal;
         } else {
             revert NotSupportUsdtAmount();
         }
@@ -105,15 +110,17 @@ contract InvestorSalePool is Initializable, ERC20Upgradeable, ERC20BurnableUpgra
         return calculateUsdtByFcc(_amount);
     }
 
-    function calculateUsdtByFcc(uint256 _amount) internal pure returns (uint256) {
-        if (_amount >= 5_000_000 * fccDecimal) {
-            return (_amount * usdtDecimal) / (fccDecimal * 50); // 1 FCC = 0.02 USDT
-        } else if (_amount < 5_000_000 * fccDecimal && _amount >= 250_000 * fccDecimal) {
-            return (_amount * usdtDecimal) / (fccDecimal * 25); // 1 FCC = 0.04 USDT
-        } else if (_amount < 250_000 * fccDecimal && _amount >= 100_000 * fccDecimal) {
-            return (_amount * usdtDecimal) / (fccDecimal * 20); // 1 FCC = 0.05 USDT
-        } else if (_amount < 100_000 * fccDecimal && _amount >= 16_666 * fccDecimal) {
-            return (_amount * usdtDecimal) / (fccDecimal * 16); // 1 FCC = 0.06 USDT
+    function calculateUsdtByFcc(uint256 _fccAmount) internal pure returns (uint256) {
+        if (_fccAmount >= 5_000_000 * fccDecimal) { // tier1: 1 FCC = 0.06 USDT
+            return (_fccAmount * 6 * usdtDecimal) / (100 * fccDecimal);
+        } else if (_fccAmount < 5_000_000 * fccDecimal && _fccAmount >= 250_000 * fccDecimal) { // tier2: 1 FCC = 0.07 USDT
+            return (_fccAmount * 7 * usdtDecimal) / (100 * fccDecimal);
+        } else if (_fccAmount < 250_000 * fccDecimal && _fccAmount >= 100_000 * fccDecimal) { // tier3: 1 FCC = 0.08 USDT
+            return (_fccAmount * 8 * usdtDecimal) / (100 * fccDecimal);
+        } else if (_fccAmount < 100_000 * fccDecimal && _fccAmount >= 16_666 * fccDecimal) { // tier4: 1 FCC = 0.09 USDT
+            return (_fccAmount * 9 * usdtDecimal) / (100 * fccDecimal);
+        } else if (_fccAmount < 16_666 * fccDecimal && _fccAmount > 0 * fccDecimal) { // tier5: 1 FCC = 0.1 USDT
+            return (_fccAmount * 10 * usdtDecimal) / (100 * fccDecimal);
         } else {
             revert NotSupportFccAmount();
         }
