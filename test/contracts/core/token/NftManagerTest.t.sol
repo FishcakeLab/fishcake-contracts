@@ -48,13 +48,13 @@ contract NftManagerTest is FishcakeTestHelperTest {
         uint256 before_721_count = tempNftManager.balanceOf(deployerAddress);
         console.log("NftManagerTest test_createNFT_type1 before_721_count:", before_721_count);
 
-        vm.startPrank(deployerAddress);
+        vm.startBroadcast(deployerAddress);
         uint256 usdt_amount = 8e7 + 1;
         console.log("NftManagerTest test_createNFT_type1 usdt_amount:", usdt_amount);
         usdtToken.approve(address(tempNftManager), usdt_amount);
         tempNftManager.createNFT(temp_businessName, temp_description, temp_imgUrl, temp_businessAddress,
             temp_website, temp_social, temp_type);
-        vm.stopPrank();
+        vm.stopBroadcast();
 
         uint256 after_tempNftManager_fcc = tempFishCakeCoin.FccBalance(address(tempNftManager));
         console.log("NftManagerTest test_createNFT_type1 after_tempNftManager_fcc:", after_tempNftManager_fcc);

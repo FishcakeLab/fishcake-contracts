@@ -38,10 +38,10 @@ contract InvestorSalePoolTest is FishcakeTestHelperTest {
         console.log("InvestorSalePoolTest test_buyFccAmount before_deployerAddress_usdt:", before_deployerAddress_usdt);
 
         uint256 fcc_amount = 16_666 * tempInvestorSalePool.fccDecimal();
-        vm.startPrank(deployerAddress);
+        vm.startBroadcast(deployerAddress);
         usdtToken.approve(address(tempInvestorSalePool), fcc_amount);
         tempInvestorSalePool.buyFccAmount(fcc_amount);
-        vm.stopPrank();
+        vm.stopBroadcast();
 
         MockInvestorSalePool mockPool = new MockInvestorSalePool();
         uint256 temp_usdt = mockPool.calculateUsdtByFcc_mock(fcc_amount);
@@ -95,10 +95,10 @@ contract InvestorSalePoolTest is FishcakeTestHelperTest {
 
         uint256 usdt_amount = 1_000 * tempInvestorSalePool.usdtDecimal();
 
-        vm.startPrank(deployerAddress);
+        vm.startBroadcast(deployerAddress);
         usdtToken.approve(address(tempInvestorSalePool), usdt_amount);
         tempInvestorSalePool.buyFccByUsdtAmount(usdt_amount);
-        vm.stopPrank();
+        vm.stopBroadcast();
 
         MockInvestorSalePool mockPool = new MockInvestorSalePool();
         uint256 temp_fcc = mockPool.calculateFccByUsdt_mock(usdt_amount);
@@ -136,9 +136,9 @@ contract InvestorSalePoolTest is FishcakeTestHelperTest {
         FishCakeCoin tempFishCakeCoin = FishCakeCoin(address(proxyFishCakeCoin));
         IInvestorSalePool tempInvestorSalePool = IInvestorSalePool(address(proxyInvestorSalePool));
 
-        vm.startPrank(deployerAddress);
+        vm.startBroadcast(deployerAddress);
         tempInvestorSalePool.setValutAddress(deployerAddress);
-        vm.stopPrank();
+        vm.stopBroadcast();
 
         test_buyFccByUsdtAmount();
 

@@ -32,16 +32,21 @@ Or check out the latest [release](https://github.com/FishcakeLab/fishcake-contra
 
 ### test
 ```
-forge test 
+forge test --ffi
 ```
 
 ### Depoly
 
 ```
-forge script script/Deployer.s.sol:DeployerScript --rpc-url $RPC_URL --private-key $PRIVKEY
+forge script script/DeployerV2.s.sol:DeployerScript --rpc-url $RPC_URL --private-key $PRIVKEY --ffi
 
 ```
 
+### Upgrade
+
+```
+forge script script/UpgradeInvestorSalePoolDeployerV2.s.sol:UpgradeInvestorSalePoolDeployer --rpc-url $RPC_URL --private-key $PRIVKEY --ffi
+```
 
 ## Community
 

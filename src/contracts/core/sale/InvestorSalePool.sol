@@ -25,16 +25,18 @@ contract InvestorSalePool is Initializable, ERC20Upgradeable, ERC20BurnableUpgra
     event WithdrawUsdt(address indexed withdrawAddress, uint256 _amount);
     event BuyFishcakeCoin(address indexed buyer, uint256 USDTAmount, uint256 fishcakeCoinAmount);
 
-    constructor(address _fishCakeCoin, address _redemptionPool, address _tokenUsdtAddress) InvestorSalePoolStorage(_fishCakeCoin, _redemptionPool, _tokenUsdtAddress) {
-        _disableInitializers();
-    }
+//    constructor(address _fishCakeCoin, address _redemptionPool, address _tokenUsdtAddress) InvestorSalePoolStorage(_fishCakeCoin, _redemptionPool, _tokenUsdtAddress) {
+//        _disableInitializers();
+//    }
 
-    function initialize(address _initialOwner) public initializer {
+    function initialize(address _initialOwner, address _fishCakeCoin, address _redemptionPool, address _tokenUsdtAddress) public initializer {
         console.log("initialize 1 msg.sender deployed at:", msg.sender);
 
         require(_initialOwner != address(0), "InvestorSalePool initialize: _initialOwner can't be zero address");
         __Ownable_init(_initialOwner);
         _transferOwnership(_initialOwner);
+        __ReentrancyGuard_init();
+        __InvestorSalePoolStorage_init(_fishCakeCoin, _redemptionPool, _tokenUsdtAddress);
     }
 
     function buyFccAmount(uint256 fccAmount) external {

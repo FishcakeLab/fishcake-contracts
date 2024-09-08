@@ -3,6 +3,7 @@ forge-std/=lib/forge-std/src/
 @openzeppelin-upgrades/=lib/openzeppelin-contracts-upgradeable/
 @openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/
 @openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
+@openzeppelin-foundry-upgrades=lib/openzeppelin-foundry-upgrades/src/
 ERC721A/=lib/ERC721A/contracts/
 ds-test/=lib/forge-std/lib/ds-test/src/
 erc4626-tests/=lib/openzeppelin-contracts-upgradeable/lib/erc4626-tests/

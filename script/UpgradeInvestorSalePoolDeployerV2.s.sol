@@ -6,8 +6,9 @@
 //
 //import "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 //import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
+//import "@openzeppelin-foundry-upgrades/Upgrades.sol";
 //
-//import "../src/contracts/core/sale/InvestorSalePool.sol";
+//import {InvestorSalePoolV2} from "../src/contracts/core/sale/InvestorSalePoolV2.sol";
 //
 //contract UpgradeInvestorSalePoolDeployer is Script {
 //    // main net
@@ -17,10 +18,10 @@
 //    // address public OLD_REDEMPTION_POOL = address(0x692F53439bf4656AB0F15fc1c2237b5cC96D36cE);
 //
 //    // local
-//    address public constant PROXY_INVESTOR_SALE_POOL = address(0x547C22E900813Bb331893878CD3bfe7171E4702F);
+//    address public constant PROXY_INVESTOR_SALE_POOL = address(0xae646B445f556266003803558CB862bec1d8e271);
 //
-//    address public OLD_PROXY_FISHCAKE_COIN = address(0xb3e2864c9FF44E2B4d1EC8aA84a169D8bCb511c8);
-//    address public OLD_REDEMPTION_POOL = address(0xB8A6dd862133A4C20FAa722EA683334D1E194AB1);
+//    address public OLD_PROXY_FISHCAKE_COIN = address(0xDb91C3a7d3bF428d6E6e4Ba93bC2b1f8096606D3);
+//    address public OLD_REDEMPTION_POOL = address(0x8a46B53Ba1488Fa6435BdE5f8dD4855f7eE60279);
 //
 //    function run() public {
 //        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
@@ -29,33 +30,21 @@
 //        address usdtTokenAddress = vm.envAddress("USDT_ADDRESS");
 //
 //        // new InvestorSalePool
-//        InvestorSalePool newInvestorSalePool = new InvestorSalePool(
-//            OLD_PROXY_FISHCAKE_COIN, // proxyFishCakeCoin address
-//            OLD_REDEMPTION_POOL, // redemptionPool address
-//            usdtTokenAddress  // usdtTokenAddress
-//        );
+//        InvestorSalePoolV2 newInvestorSalePool = new InvestorSalePoolV2();
 //        console.log("New InvestorSalePool implementation deployed at:", address(newInvestorSalePool));
 //
-//        ProxyAdmin proxyAdmin = new ProxyAdmin(deployerAddress);
-//        console.log("proxyAdmin  deployed at:", address(proxyAdmin));
-//        console.log("proxyAdmin owner deployed at:", proxyAdmin.owner());
-//        console.log("deployerAddress deployed at:", deployerAddress);
-//        require(proxyAdmin.owner() == deployerAddress, "Deployer is not the owner of ProxyAdmin");
-//
 //        console.log("run 1 msg.sender deployed at:", msg.sender);
-//
 //        vm.startBroadcast(deployerPrivateKey);
-//        bytes memory data = abi.encodeCall(newInvestorSalePool.initialize, deployerAddress);
+////        bytes memory data = abi.encodeCall(newInvestorSalePool.initialize, (deployerAddress, OLD_PROXY_FISHCAKE_COIN, OLD_REDEMPTION_POOL, usdtTokenAddress));
 //
-//        proxyAdmin.upgradeAndCall(
-//            ITransparentUpgradeableProxy(address(TransparentUpgradeableProxy(payable(PROXY_INVESTOR_SALE_POOL)))),
-//            address(newInvestorSalePool),
-//            data
+//        Upgrades.upgradeProxy(
+//            PROXY_INVESTOR_SALE_POOL,
+//            "InvestorSalePoolV2.sol",
+//            ""
 //        );
 //        vm.stopBroadcast();
 //
 //        console.log("run 2 msg.sender deployed at:", msg.sender);
-//
 //        console.log("InvestorSalePool proxy upgraded and initialized with new implementation");
 //        console.log("=======================================================================");
 //        console.log("=======================================================================");

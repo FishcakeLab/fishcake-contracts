@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 
 abstract contract FishCakeCoinStorage {
-    uint256 public immutable MaxTotalSupply = 1_000_000_000 * 10 ** 6;
+    uint256 public constant MaxTotalSupply = 1_000_000_000 * 10 ** 6;
 
     uint256 public _burnedTokens;
 

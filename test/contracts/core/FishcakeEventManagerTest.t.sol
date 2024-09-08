@@ -69,13 +69,13 @@ contract FishcakeEventManagerTest is NftManagerTest {
         uint256 before_deployerAddress_balance = erc20.balanceOf(deployerAddress);
         console.log("FishcakeEventManagerTest test_activity activityAdd before_deployerAddress_balance:", before_deployerAddress_balance);
 
-        vm.startPrank(deployerAddress);
+        vm.startBroadcast(deployerAddress);
         uint256 fcc_amount = temp_totalDropAmts;
         erc20.approve(address(tempFishcakeEven), fcc_amount);
         (bool success, uint256 activityId) = tempFishcakeEven.activityAdd(temp_businessName, temp_activityContent, temp_latitudeLongitude,
             temp_activityDeadLine, temp_totalDropAmts, temp_dropType, temp_dropNumber, temp_minDropAmt,
             temp_maxDropAmt, temp_tokenContractAddr);
-        vm.stopPrank();
+        vm.stopBroadcast();
 
         console.log("FishcakeEventManagerTest test_activity activityAdd success:", success);
         console.log("FishcakeEventManagerTest test_activity activityAdd activityId:", activityId);
@@ -94,7 +94,7 @@ contract FishcakeEventManagerTest is NftManagerTest {
 
         console.log("FishcakeEventManagerTest test_activity drop_1 before_drop_account_1_balance:", before_drop_account_1_balance);
         console.log("FishcakeEventManagerTest test_activity drop_1 before_tempFishcakeEven_balance_1:", before_tempFishcakeEven_balance_1);
-        vm.startPrank(address(deployerAddress));
+        vm.startPrank(deployerAddress);
 //        erc20.approve(address(drop_account_1), drop_drop_amount);
         bool success_1 = tempFishcakeEven.drop(activityId, drop_account_1, drop_drop_amount);
         vm.stopPrank();
@@ -124,7 +124,7 @@ contract FishcakeEventManagerTest is NftManagerTest {
         uint256 before_activityFinish_deployerAddress_balance = erc20.balanceOf(deployerAddress);
         console.log("FishcakeEventManagerTest test_activity before_activityFinish_deployerAddress_balance:", before_activityFinish_deployerAddress_balance);
 
-        vm.startPrank(address(deployerAddress));
+        vm.startPrank(deployerAddress);
         // bool success_activityFinish = tempFishcakeEven.activityFinish(activityId);
         vm.stopPrank();
 
