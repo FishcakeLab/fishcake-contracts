@@ -14,6 +14,7 @@ abstract contract NftManagerStorage is Initializable, INftManager {
     using SafeERC20 for IERC20;
 
     uint256 public _nextTokenId;
+    // don't use 20241016 1630
     string public uriPrefix;
     uint256 public merchantValue;
     uint256 public userValue;
@@ -34,6 +35,12 @@ abstract contract NftManagerStorage is Initializable, INftManager {
     //nftTokenID => 1 merchant,2 user ==》 1 pro,2 basic
     mapping(uint256 => uint8) public nftMintType;
 
+    string public basicNftJson;
+    string public proNftJson;
+
+    string public _customName;
+    string public _customSymbol;
+
     function __NftManagerStorage_init(address _fccTokenAddr, address _tokenUsdtAddr, address _redemptionPoolAddress) internal initializer {
         fccTokenAddr = IERC20(_fccTokenAddr);
         tokenUsdtAddr = IERC20(_tokenUsdtAddr);
@@ -43,5 +50,8 @@ abstract contract NftManagerStorage is Initializable, INftManager {
         merchantValue = 8e7;
         userValue = 8e6;
         minedAmt = 0;
+
+        proNftJson = "https://www.fishcake.org/image/1.json";
+        basicNftJson = "https://www.fishcake.org/image/2.json";
     }
 }
