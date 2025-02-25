@@ -209,7 +209,7 @@ contract FishcakeEventManagerV1 is Initializable, ERC20Upgradeable, ERC20Burnabl
     }
 
     // ======================= internal =======================
-    function getCurrentMinePercent() internal view returns (uint, uint256, uint256){
+    function getCurrentMinePercent() internal view returns (uint8, uint256, uint256){
         uint8 currentMinePercent = 0;
         uint256 merchantOnceMaxMineTmpAmt = 0;
         uint256 userOnceMaxMineTmpAmt = 0;
