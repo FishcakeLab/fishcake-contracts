@@ -27,7 +27,7 @@ contract DirectSalePoolTest is FishcakeTestHelperTest {
         uint256 before_redemptionPool_fcc = tempFishCakeCoin.FccBalance(address(redemptionPool));
         console.log("DirectSalePoolTest test_buyFccAmount before_redemptionPool_fcc:", before_redemptionPool_fcc);
         uint256 before_redemptionPool_usdt = usdtToken.balanceOf(address(redemptionPool));
-        console.log("DirectSalePoolTest test_buyFccAmount before_redemptionPool_usdt:", before_redemptionPool_fcc);
+        console.log("DirectSalePoolTest test_buyFccAmount before_redemptionPool_usdt:", before_redemptionPool_usdt);
 
         uint256 before_deployerAddress_fcc = tempFishCakeCoin.FccBalance(address(deployerAddress));
         console.log("DirectSalePoolTest test_buyFccAmount before_deployerAddress_fcc:", before_deployerAddress_fcc);
@@ -82,7 +82,7 @@ contract DirectSalePoolTest is FishcakeTestHelperTest {
         uint256 before_redemptionPool_fcc = tempFishCakeCoin.FccBalance(address(redemptionPool));
         console.log("DirectSalePoolTest test_buyFccByUsdtAmount before_redemptionPool_fcc:", before_redemptionPool_fcc);
         uint256 before_redemptionPool_usdt = usdtToken.balanceOf(address(redemptionPool));
-        console.log("DirectSalePoolTest test_buyFccByUsdtAmount before_redemptionPool_usdt:", before_redemptionPool_fcc);
+        console.log("DirectSalePoolTest test_buyFccByUsdtAmount before_redemptionPool_usdt:", before_redemptionPool_usdt);
 
         uint256 before_deployerAddress_fcc = tempFishCakeCoin.FccBalance(address(deployerAddress));
         console.log("DirectSalePoolTest test_buyFccByUsdtAmount before_deployerAddress_fcc:", before_deployerAddress_fcc);

@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
 
 import "@openzeppelin-upgrades/contracts/token/ERC721/ERC721Upgradeable.sol";
 import "@openzeppelin-upgrades/contracts/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
@@ -12,18 +12,21 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import "./NftManagerStorage.sol";
 
 /// @custom:oz-upgrades-from NftManagerV3
-contract NftManagerV4 is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable, NftManagerStorage {
+contract NftManagerV4 is
+    Initializable,
+    ERC721Upgradeable,
+    ERC721URIStorageUpgradeable,
+    OwnableUpgradeable,
+    ReentrancyGuardUpgradeable,
+    NftManagerStorage
+{
     using Strings for uint256;
     using Strings for uint8;
     using SafeERC20 for IERC20;
 
     event UriPrefixSet(address indexed setterAddress, string urlPrefix);
 
-    event SetValues(
-        address indexed _setterAddress,
-        uint256 _merchantValue,
-        uint256 _userValue
-    );
+    event SetValues(address indexed _setterAddress, uint256 _merchantValue, uint256 _userValue);
 
     event CreateNFT(
         address indexed creator,
@@ -40,25 +43,27 @@ contract NftManagerV4 is Initializable, ERC721Upgradeable, ERC721URIStorageUpgra
     );
 
     event WithdrawUToken(
-        address indexed withdrawer,
-        address indexed _tokenAddr,
-        address indexed _account,
-        uint256 _value
+        address indexed withdrawer, address indexed _tokenAddr, address indexed _account, uint256 _value
     );
 
     event SetValidTime(address indexed setter, uint256 _time);
 
     event Withdraw(address indexed withdrawer, uint256 _amount);
-    event Received(address indexed receiver, uint _value);
+    event Received(address indexed receiver, uint256 _value);
 
     event UpdatedNftJson(address indexed creator, uint8 nftType, string newJsonUrl);
     event NameSymbolUpdated(string newName, string newSymbol);
 
-//    constructor(address _fccTokenAddr, address _tokenUsdtAddr, address _redemptionPoolAddress) NftManagerStorage (_fccTokenAddr, _tokenUsdtAddr, _redemptionPoolAddress){
-//        _disableInitializers();
-//    }
+    //    constructor(address _fccTokenAddr, address _tokenUsdtAddr, address _redemptionPoolAddress) NftManagerStorage (_fccTokenAddr, _tokenUsdtAddr, _redemptionPoolAddress){
+    //        _disableInitializers();
+    //    }
 
-    function initialize(address _initialOwner, address _fccTokenAddr, address _tokenUsdtAddr, address _redemptionPoolAddress) public initializer {
+    function initialize(
+        address _initialOwner,
+        address _fccTokenAddr,
+        address _tokenUsdtAddr,
+        address _redemptionPoolAddress
+    ) public initializer {
         require(_initialOwner != address(0), "NftManager initialize: _initialOwner can't be zero address");
         __ERC721_init("Fishcake Pass NFT", "FNFT");
         __Ownable_init(_initialOwner);
@@ -79,15 +84,24 @@ contract NftManagerV4 is Initializable, ERC721Upgradeable, ERC721URIStorageUpgra
         string memory _social,
         uint8 _type
     ) external nonReentrant returns (bool, uint256) {
-        require(_type == 1 || _type == 2, "NftManager createNFT: type can only equal 1 and 2, 1 stand for merchant, 2 stand for personal user");
+        require(
+            _type == 1 || _type == 2,
+            "NftManager createNFT: type can only equal 1 and 2, 1 stand for merchant, 2 stand for personal user"
+        );
         uint256 payUsdtAmount = _type == 1 ? merchantValue : userValue;
         uint256 nftDeadline = block.timestamp + validTime;
         if (_type == 1) {
-            require(tokenUsdtAddr.allowance(msg.sender, address(this)) >= merchantValue, "NftManager createNFT: Merchant allowance must more than 80 U");
+            require(
+                tokenUsdtAddr.allowance(msg.sender, address(this)) >= merchantValue,
+                "NftManager createNFT: Merchant allowance must more than 80 U"
+            );
             merchantNftDeadline[msg.sender] = nftDeadline;
             fccTokenAddr.transfer(msg.sender, proMineAmt);
         } else {
-            require(tokenUsdtAddr.allowance(msg.sender, address(this)) >= userValue, "NftManager createNFT: Merchant allowance must more than 8 U");
+            require(
+                tokenUsdtAddr.allowance(msg.sender, address(this)) >= userValue,
+                "NftManager createNFT: Merchant allowance must more than 8 U"
+            );
             userNftDeadline[msg.sender] = nftDeadline;
             fccTokenAddr.transfer(msg.sender, basicMineAmt);
         }
@@ -115,7 +129,12 @@ contract NftManagerV4 is Initializable, ERC721Upgradeable, ERC721URIStorageUpgra
         return (true, tokenId);
     }
 
-    function tokenURI(uint256 tokenId) public view override(ERC721Upgradeable, ERC721URIStorageUpgradeable) returns (string memory) {
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        override(ERC721Upgradeable, ERC721URIStorageUpgradeable)
+        returns (string memory)
+    {
         require(_ownerOf(tokenId) != address(0), "ERC721Metadata: URI query for nonexistent token");
 
         uint8 nftType = nftMintType[tokenId];
@@ -143,7 +162,12 @@ contract NftManagerV4 is Initializable, ERC721Upgradeable, ERC721URIStorageUpgra
         emit SetValues(msg.sender, _merchantValue, _userValue);
     }
 
-    function withdrawToken(address _tokenAddr, address _account, uint256 _value) external onlyOwner nonReentrant returns (bool) {
+    function withdrawToken(address _tokenAddr, address _account, uint256 _value)
+        external
+        onlyOwner
+        nonReentrant
+        returns (bool)
+    {
         require(_tokenAddr != address(0x0), "NftManager withdrawToken:token address error.");
         require(IERC20(_tokenAddr).balanceOf(address(this)) >= _value, "NftManager withdrawToken: Balance not enough.");
 
@@ -154,7 +178,12 @@ contract NftManagerV4 is Initializable, ERC721Upgradeable, ERC721URIStorageUpgra
         return true;
     }
 
-    function withdrawNativeToken(address payable _recipient, uint256 _amount) public onlyOwner nonReentrant returns (bool) {
+    function withdrawNativeToken(address payable _recipient, uint256 _amount)
+        public
+        onlyOwner
+        nonReentrant
+        returns (bool)
+    {
         require(_recipient != address(0x0), "NftManager withdrawNativeToken: recipient address error.");
         require(_amount <= address(this).balance, "NftManager withdrawNativeToken: Balance not enough.");
         (bool _ret,) = _recipient.call{value: _amount}("");
@@ -174,7 +203,12 @@ contract NftManagerV4 is Initializable, ERC721Upgradeable, ERC721URIStorageUpgra
         return IERC20(tokenAddress).balanceOf(address(this));
     }
 
-    function supportsInterface(bytes4 interfaceId) public view override(ERC721Upgradeable, ERC721URIStorageUpgradeable) returns (bool) {
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC721Upgradeable, ERC721URIStorageUpgradeable)
+        returns (bool)
+    {
         return super.supportsInterface(interfaceId);
     }
 

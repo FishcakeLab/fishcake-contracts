@@ -19,7 +19,7 @@ contract InvestorSalePool is Initializable, ERC20Upgradeable, ERC20BurnableUpgra
     error TokenUsdtAmountNotEnough();
     error FccTokenAmountNotEnough();
 
-    event SetValutAddress(address _vaultAddress);
+    event SetVaultAddress(address _vaultAddress);
     event WithdrawUsdt(address indexed withdrawAddress, uint256 _amount);
     event BuyFishcakeCoin(address indexed buyer, uint256 USDTAmount, uint256 fishcakeCoinAmount);
 
@@ -76,9 +76,9 @@ contract InvestorSalePool is Initializable, ERC20Upgradeable, ERC20BurnableUpgra
         emit BuyFishcakeCoin(msg.sender, tokenUsdtAmount, fccAmount);
     }
 
-    function setValutAddress(address _vaultAddress) external onlyOwner {
+    function setVaultAddress(address _vaultAddress) external onlyOwner {
         vaultAddress = _vaultAddress;
-        emit SetValutAddress(_vaultAddress);
+        emit SetVaultAddress(_vaultAddress);
     }
 
     function withdrawUsdt(uint256 _amount) external onlyOwner {

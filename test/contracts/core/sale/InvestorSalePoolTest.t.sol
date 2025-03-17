@@ -30,7 +30,7 @@ contract InvestorSalePoolTest is FishcakeTestHelperTest {
         uint256 before_redemptionPool_fcc = tempFishCakeCoin.FccBalance(address(redemptionPool));
         console.log("InvestorSalePoolTest test_buyFccAmount before_redemptionPool_fcc:", before_redemptionPool_fcc);
         uint256 before_redemptionPool_usdt = usdtToken.balanceOf(address(redemptionPool));
-        console.log("InvestorSalePoolTest test_buyFccAmount before_redemptionPool_usdt:", before_redemptionPool_fcc);
+        console.log("InvestorSalePoolTest test_buyFccAmount before_redemptionPool_usdt:", before_redemptionPool_usdt);
 
         uint256 before_deployerAddress_fcc = tempFishCakeCoin.FccBalance(address(deployerAddress));
         console.log("InvestorSalePoolTest test_buyFccAmount before_deployerAddress_fcc:", before_deployerAddress_fcc);
@@ -87,7 +87,7 @@ contract InvestorSalePoolTest is FishcakeTestHelperTest {
         uint256 before_redemptionPool_fcc = tempFishCakeCoin.FccBalance(address(redemptionPool));
         console.log("InvestorSalePoolTest test_buyFccByUsdtAmount before_redemptionPool_fcc:", before_redemptionPool_fcc);
         uint256 before_redemptionPool_usdt = usdtToken.balanceOf(address(redemptionPool));
-        console.log("InvestorSalePoolTest test_buyFccByUsdtAmount before_redemptionPool_usdt:", before_redemptionPool_fcc);
+        console.log("InvestorSalePoolTest test_buyFccByUsdtAmount before_redemptionPool_usdt:", before_redemptionPool_usdt);
         uint256 before_deployerAddress_fcc = tempFishCakeCoin.FccBalance(address(deployerAddress));
         console.log("InvestorSalePoolTest test_buyFccByUsdtAmount before_deployerAddress_fcc:", before_deployerAddress_fcc);
         uint256 before_deployerAddress_usdt = usdtToken.balanceOf(deployerAddress);
@@ -137,7 +137,7 @@ contract InvestorSalePoolTest is FishcakeTestHelperTest {
         IInvestorSalePool tempInvestorSalePool = IInvestorSalePool(address(proxyInvestorSalePool));
 
         vm.startBroadcast(deployerAddress);
-        tempInvestorSalePool.setValutAddress(deployerAddress);
+        tempInvestorSalePool.setVaultAddress(deployerAddress);
         vm.stopBroadcast();
 
         test_buyFccByUsdtAmount();

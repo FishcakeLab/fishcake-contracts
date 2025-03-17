@@ -63,7 +63,7 @@ abstract contract FishcakeEventManagerStorage is Initializable, IFishcakeEventMa
 
     mapping(address => uint256) public NTFLastMineTime; // nft last mining time
 
-    mapping(uint256 => mapping(address => bool)) public activityDropedToAccount;
+    mapping(uint256 => mapping(address => bool)) public activityDroppedToAccount;
 
 //    constructor(address _fccAddress, address _usdtTokenAddr, address _NFTManagerAddr){
 //        FccTokenAddr = IERC20(_fccAddress);

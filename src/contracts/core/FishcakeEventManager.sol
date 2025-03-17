@@ -168,7 +168,7 @@ contract FishcakeEventManager is Initializable, ERC20Upgradeable, ERC20BurnableU
 
 
     function drop(uint256 _activityId, address _userAccount, uint256 _dropAmt) external nonReentrant returns (bool) {
-        require(activityDropedToAccount[_activityId][_userAccount] == false, "FishcakeEventManager drop: User Has Droped.");
+        require(activityDroppedToAccount[_activityId][_userAccount] == false, "FishcakeEventManager drop: User Has Dropped.");
 
         ActivityInfo storage ai = activityInfoArrs[_activityId - 1];
         ActivityInfoExt storage aie = activityInfoExtArrs[_activityId - 1];
@@ -188,7 +188,7 @@ contract FishcakeEventManager is Initializable, ERC20Upgradeable, ERC20BurnableU
 
         IERC20(ai.tokenContractAddr).transfer(_userAccount, _dropAmt);
 
-        activityDropedToAccount[_activityId][_userAccount] = true;
+        activityDroppedToAccount[_activityId][_userAccount] = true;
 
         DropInfo memory di = DropInfo({
             activityId: _activityId,
