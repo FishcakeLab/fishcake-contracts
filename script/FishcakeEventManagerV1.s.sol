@@ -6,7 +6,7 @@ import {Script, console} from "forge-std/Script.sol";
 import {FishcakeEventManagerV1} from "../src/contracts/core/FishcakeEventManagerV1.sol";
 
 contract FishcakeEventManagerV1Script is Script {
-    address public constant PROXY_FISH_CAKE_EVENT_MANAGER = address(0x0B306BF915C4d645ff596e518fAf3F9669b97016);
+    address public constant PROXY_FISH_CAKE_EVENT_MANAGER = address(0x2CAf752814f244b3778e30c27051cc6B45CB1fc9);
 
     function run() public {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");

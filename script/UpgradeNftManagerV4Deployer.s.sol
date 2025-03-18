@@ -12,10 +12,10 @@ import {NftManagerV4} from "../src/contracts/core/token/NftManagerV4.sol";
 
 contract UpgradeNftManagerV4DeployerScript is Script {
     // main network
-    // address public constant PROXY_NFT_MANAGER = address(0x2F2Cb24BaB1b6E2353EF6246a2Ea4ce50487008B);
+    address public constant PROXY_NFT_MANAGER = address(0x2F2Cb24BaB1b6E2353EF6246a2Ea4ce50487008B);
 
     // local
-    address public constant PROXY_NFT_MANAGER = address(0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0);
+    // address public constant PROXY_NFT_MANAGER = address(0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0);
 
     function run() public {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
