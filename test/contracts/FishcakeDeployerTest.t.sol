@@ -117,7 +117,7 @@ contract FishcakeDeployerTest is Test {
 
         // setUp
         FishCakeCoin(address(proxyFishCakeCoin)).setRedemptionPool(address(redemptionPool));
-        IInvestorSalePool(address(proxyInvestorSalePool)).setValutAddress(deployerAddress);
+        IInvestorSalePool(address(proxyInvestorSalePool)).setVaultAddress(deployerAddress);
 
         vm.stopBroadcast();
     }

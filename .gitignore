@@ -23,3 +23,5 @@ broadcast
 /data
 .idea
 .history
+.vscode
+.env.example

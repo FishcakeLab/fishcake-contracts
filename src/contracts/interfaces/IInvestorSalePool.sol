@@ -5,6 +5,6 @@ interface IInvestorSalePool {
     function buyFccAmount(uint256 fccAmount) external;
     function buyFccByUsdtAmount(uint256 tokenUsdtAmount) external;
 
-    function setValutAddress(address _vaultAddress) external;
+    function setVaultAddress(address _vaultAddress) external;
     function withdrawUsdt(uint256 _amount) external;
 }

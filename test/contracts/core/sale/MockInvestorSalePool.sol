@@ -11,11 +11,11 @@ contract MockInvestorSalePool is InvestorSalePool {
 //        // Mock implementation or leave empty
 //    }
 
-    function getUsdtDecimal_mock() public view returns (uint256) {
+    function getUsdtDecimal_mock() public pure returns (uint256) {
         return usdtDecimal;
     }
 
-    function getFccDecimal_mock() public view returns (uint256) {
+    function getFccDecimal_mock() public pure returns (uint256) {
         return fccDecimal;
     }
 

@@ -41,7 +41,7 @@ contract RedemptionPoolTest is DirectSalePoolTest {
         console.log("RedemptionPoolTest test_claim before_deployerAddress_usdt:", before_deployerAddress_usdt);
 
         vm.startPrank(deployerAddress);
-        uint256 temp_amount = 100_000_000;
+        // uint256 temp_amount = 100_000_000;
         // redemptionPool.claim(temp_amount);
         vm.stopPrank();
 

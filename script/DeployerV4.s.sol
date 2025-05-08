@@ -1,14 +1,12 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.26;
 
-import "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
-import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import "@openzeppelin-foundry-upgrades/Upgrades.sol";
 import {Script} from "forge-std/Script.sol";
 import {console} from "forge-std/console.sol";
 
 import "../src/contracts/core/sale/DirectSalePool.sol";
-import "../src/contracts/core/token/NftManager.sol";
+import {NftManagerV3 as NftManager} from "../src/contracts/core/token/NftManagerV3.sol";
 import "../src/contracts/core/FishcakeEventManager.sol";
 import "../src/contracts/core/RedemptionPool.sol";
 import "../src/contracts/core/sale/InvestorSalePool.sol";
@@ -17,9 +15,7 @@ import {FishCakeCoinStorage} from "@contracts/core/token/FishCakeCoinStorage.sol
 /*
 forge script script/Deployer.s.sol:DeployerScript --rpc-url $RPC_URL --private-key $PRIVATE_KEY  --broadcast -vvvv
 */
-contract DeployerScript is Script {
-//    ProxyAdmin public dapplinkProxyAdmin;
-
+contract DeployerV4Script is Script {
     RedemptionPool public redemptionPool;
 
     // ========= can upgrade ===========
@@ -32,13 +28,11 @@ contract DeployerScript is Script {
     function run() public {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         address deployerAddress = vm.addr(deployerPrivateKey);
-
-        address usdtTokenAddress = vm.envAddress("USDT_ADDRESS");
         console.log("deploy deployerAddress:", address(deployerAddress));
-//        dapplinkProxyAdmin = new ProxyAdmin(deployerAddress);
+        address usdtTokenAddress = vm.envAddress("USDT_ADDRESS");
 
         vm.startBroadcast(deployerPrivateKey);
-
+        // 1. 部署 FishCakeCoin 合约
         fishCakeCoin = new FishCakeCoin();
         address proxyFishCakeCoin = Upgrades.deployTransparentProxy(
             "FishCakeCoin.sol:FishCakeCoin",
@@ -47,10 +41,11 @@ contract DeployerScript is Script {
         );
         console.log("deploy proxyFishCakeCoin:", address(proxyFishCakeCoin));
 
-        // can not upgrade
+        // 2. 部署 RedemptionPool 合约
         redemptionPool = new RedemptionPool(address(proxyFishCakeCoin), usdtTokenAddress);
         console.log("deploy redemptionPool:", address(redemptionPool));
 
+        // 3. 部署 DirectSalePool 合约
         directSalePool = new DirectSalePool();
         address proxyDirectSalePool = Upgrades.deployTransparentProxy(
             "DirectSalePool.sol:DirectSalePool",
@@ -59,6 +54,7 @@ contract DeployerScript is Script {
         );
         console.log("deploy proxyDirectSalePool:", address(proxyDirectSalePool));
 
+        // 4. 部署 InvestorSalePool 合约
         investorSalePool = new InvestorSalePool();
         address proxyInvestorSalePool = Upgrades.deployTransparentProxy(
             "InvestorSalePool.sol:InvestorSalePool",
@@ -67,6 +63,7 @@ contract DeployerScript is Script {
         );
         console.log("deploy proxyInvestorSalePool:", address(proxyInvestorSalePool));
 
+        // 5. 部署 NftManager 合约
         nftManager = new NftManager();
         address proxyNftManager = Upgrades.deployTransparentProxy(
             "NftManager.sol:NftManager",
@@ -78,6 +75,7 @@ contract DeployerScript is Script {
         console.log("deploy proxyNftManager tokenUsdtAddr :", address(NftManager(payable(address(proxyNftManager))).tokenUsdtAddr()));
         console.log("deploy proxyNftManager redemptionPoolAddress :", address(NftManager(payable(address(proxyNftManager))).redemptionPoolAddress()));
 
+        // 6. 部署 FishcakeEventManager 合约
         fishcakeEventManager = new FishcakeEventManager();
         address proxyFishcakeEventManager = Upgrades.deployTransparentProxy(
             "FishcakeEventManager.sol:FishcakeEventManager",
