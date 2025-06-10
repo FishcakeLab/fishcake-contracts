@@ -20,9 +20,9 @@ contract DirectSalePool is Initializable, ERC20Upgradeable, ERC20BurnableUpgrade
         uint256 fccAmount
     );
 
-//    constructor(address _fishCakeCoin, address _redemptionPool, address _tokenUsdtAddress) DirectSalePoolStorage(_fishCakeCoin, _redemptionPool, _tokenUsdtAddress) {
-//        _disableInitializers();
-//    }
+    constructor() {
+        _disableInitializers();
+    }
 
     function initialize(address _initialOwner, address _fishCakeCoin, address _redemptionPool, address _tokenUsdtAddress) public initializer {
         require(_initialOwner != address(0), "DirectSalePool initialize: _initialOwner can't be zero address");

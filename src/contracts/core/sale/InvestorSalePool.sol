@@ -7,7 +7,6 @@ import "@openzeppelin-upgrades/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin-upgrades/contracts/access/OwnableUpgradeable.sol";
 import "@openzeppelin-upgrades/contracts/utils/ReentrancyGuardUpgradeable.sol";
 
-
 import "../../interfaces/IInvestorSalePool.sol";
 import "./InvestorSalePoolStorage.sol";
 
@@ -23,9 +22,9 @@ contract InvestorSalePool is Initializable, ERC20Upgradeable, ERC20BurnableUpgra
     event WithdrawUsdt(address indexed withdrawAddress, uint256 _amount);
     event BuyFishcakeCoin(address indexed buyer, uint256 USDTAmount, uint256 fishcakeCoinAmount);
 
-//    constructor(address _fishCakeCoin, address _redemptionPool, address _tokenUsdtAddress) InvestorSalePoolStorage(_fishCakeCoin, _redemptionPool, _tokenUsdtAddress) {
-//        _disableInitializers();
-//    }
+    constructor() {
+        _disableInitializers();
+    }
 
     function initialize(address _initialOwner, address _fishCakeCoin, address _redemptionPool, address _tokenUsdtAddress) public initializer {
 

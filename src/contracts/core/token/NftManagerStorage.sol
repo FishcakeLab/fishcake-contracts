@@ -6,7 +6,9 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin-upgrades/contracts/proxy/utils/Initializable.sol";
 
 import "../../interfaces/IRedemptionPool.sol";
+import "../../interfaces/IFishcakeEventManager.sol";
 import "../../interfaces/INftManager.sol";
+
 
 abstract contract NftManagerStorage is Initializable, INftManager {
     using Strings for uint256;
@@ -41,7 +43,18 @@ abstract contract NftManagerStorage is Initializable, INftManager {
     string public _customName;
     string public _customSymbol;
 
-    function __NftManagerStorage_init(address _fccTokenAddr, address _tokenUsdtAddr, address _redemptionPoolAddress) internal initializer {
+    string public uncommonFishcakeNftJson;
+    string public rareShrimpNftJson;
+    string public epicSalmonNftJson;
+    string public legendaryTunaNftJson;
+
+    IFishcakeEventManager public feManagerAddress;
+
+    mapping(address => uint256) public minerActiveNft;
+
+    address public boosterAddress;
+
+    function __NftManagerStorage_init(address _fccTokenAddr, address _tokenUsdtAddr, address _redemptionPoolAddress,  address _feManagerAddress, address _boosterAddress) internal initializer {
         fccTokenAddr = IERC20(_fccTokenAddr);
         tokenUsdtAddr = IERC20(_tokenUsdtAddr);
         redemptionPoolAddress = IRedemptionPool(_redemptionPoolAddress);
@@ -53,5 +66,14 @@ abstract contract NftManagerStorage is Initializable, INftManager {
 
         proNftJson = "https://www.fishcake.org/image/1.json";
         basicNftJson = "https://www.fishcake.org/image/2.json";
+
+        // ==========booster nft============
+        uncommonFishcakeNftJson = "https://www.fishcake.org/image/3.json";
+        rareShrimpNftJson = "https://www.fishcake.org/image/4.json";
+        epicSalmonNftJson = "https://www.fishcake.org/image/5.json";
+        legendaryTunaNftJson = "https://www.fishcake.org/image/6.json";
+
+        feManagerAddress = _feManagerAddress;
+        boosterAddress = _boosterAddress;
     }
 }

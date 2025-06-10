@@ -18,9 +18,10 @@ contract FishcakeEventManagerV1 is
     ReentrancyGuardUpgradeable,
     FishcakeEventManagerStorage
 {
-    //    constructor(address _fccAddress, address _usdtTokenAddr, address _NFTManagerAddr) FishcakeEventManagerStorage(_fccAddress, _usdtTokenAddr, _NFTManagerAddr) {
-    //        _disableInitializers();
-    //    }
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
 
     function initialize(address _initialOwner, address _fccAddress, address _usdtTokenAddr, address _NFTManagerAddr)
         public
@@ -232,6 +233,14 @@ contract FishcakeEventManagerV1 is
 
         emit Drop(_userAccount, _activityId, _dropAmt);
         return true;
+    }
+
+    function getMinerMineAmount(address _miner) external view returns (uint256) {
+        return minerMineAmount[_miner];
+    }
+
+    function deleteMinerMineAmount(address _miner) external  { //todo only nft manager can do this operate
+        delete minerMineAmount[_miner];
     }
 
     // ======================= internal =======================

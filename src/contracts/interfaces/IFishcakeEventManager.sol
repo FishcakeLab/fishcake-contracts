@@ -53,4 +53,7 @@ interface IFishcakeEventManager {
 
     function activityFinish(uint256 _activityId) external returns (bool);
     function drop(uint256 _activityId, address _userAccount, uint256 _dropAmt) external returns (bool);
+
+    function getMinerMineAmount(address _miner) external view returns (uint256);
+    function deleteMinerMineAmount(address _miner) external;
 }

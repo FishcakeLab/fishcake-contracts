@@ -65,11 +65,7 @@ abstract contract FishcakeEventManagerStorage is Initializable, IFishcakeEventMa
 
     mapping(uint256 => mapping(address => bool)) public activityDroppedToAccount;
 
-//    constructor(address _fccAddress, address _usdtTokenAddr, address _NFTManagerAddr){
-//        FccTokenAddr = IERC20(_fccAddress);
-//        UsdtTokenAddr = IERC20(_usdtTokenAddr);
-//        iNFTManager = INftManager(_NFTManagerAddr);
-//    }
+    mapping(address => uint256) public minerMineAmount;
 
     function __FishcakeEventManagerStorage_init(address _fccAddress, address _usdtTokenAddr, address _NFTManagerAddr) internal initializer {
         FccTokenAddr = IERC20(_fccAddress);
@@ -81,5 +77,5 @@ abstract contract FishcakeEventManagerStorage is Initializable, IFishcakeEventMa
         isMint = true;
     }
 
-    uint256[100] private __gap;
+    uint256[99] private __gap;
 }

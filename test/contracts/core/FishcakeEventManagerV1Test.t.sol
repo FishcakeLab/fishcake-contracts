@@ -10,7 +10,7 @@ import {FishCakeCoinStorage} from "@contracts/core/token/FishCakeCoinStorage.sol
 import {RedemptionPool} from "@contracts/core/RedemptionPool.sol";
 import {DirectSalePool} from "@contracts/core/sale/DirectSalePool.sol";
 import {InvestorSalePool} from "@contracts/core/sale/InvestorSalePool.sol";
-import {NftManagerV4 as NftManager} from "@contracts/core/token/NftManagerV4.sol";
+import {NftManager } from "@contracts/core/token/NftManager.sol";
 import {FishcakeEventManagerV1 as FishcakeEventManager} from "@contracts/core/FishcakeEventManagerV1.sol";
 import {UsdtERC20TestHelper} from "../UsdtERC20TestHelper.sol";
 

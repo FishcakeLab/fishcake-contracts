@@ -14,9 +14,10 @@ contract FishCakeCoin is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeab
     string private constant NAME = "Fishcake Coin";
     string private constant SYMBOL = "FCC";
 
-//    constructor() {
-//        _disableInitializers();
-//    }
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
 
     modifier onlyRedemptionPool() {
         require(msg.sender == RedemptionPool, "FishCakeCoin onlyRedemptionPool: Only RedemptionPool can call this function");
