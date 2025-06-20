@@ -7,6 +7,8 @@ import "@openzeppelin-upgrades/contracts/access/OwnableUpgradeable.sol";
 import "@openzeppelin-upgrades/contracts/utils/ReentrancyGuardUpgradeable.sol";
 
 import { StakingManagerStorage } from "./StakingManagerStorage.sol";
+import "../interfaces/IFishcakeEventManager.sol";
+import "../interfaces/INftManager.sol";
 
 
 contract StakingManager is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, StakingManagerStorage{
@@ -42,8 +44,9 @@ contract StakingManager is Initializable, OwnableUpgradeable, ReentrancyGuardUpg
                 messageNonce
             )
         );
-
-        (stakingTimestamp, _ ) = getStakingPeriodAndApr(stakingType);
+        uint256 stakingTimestamp = 0;
+        uint256 apr = 0;
+        (stakingTimestamp, apr) = getStakingPeriodAndApr(stakingType);
         uint endTime = block.timestamp + stakingTimestamp;
 
         stakeHolderStakingInfo memory ssInfo = stakeHolderStakingInfo({
@@ -64,7 +67,7 @@ contract StakingManager is Initializable, OwnableUpgradeable, ReentrancyGuardUpg
         messageNonce++;
     }
 
-    function withdrawFromStakingWithAprIncome(uint256 amount, uint256 messageNonce, uint8 stakingType) external nonReentrant {
+    function withdrawFromStakingWithAprIncome(uint256 amount, uint256 messageNonce) external nonReentrant {
         bytes32 txMessageHash = keccak256(
             abi.encode(
                 msg.sender,
@@ -87,7 +90,12 @@ contract StakingManager is Initializable, OwnableUpgradeable, ReentrancyGuardUpg
         totalStakingAmount -= amount;
         stakingQueued[msg.sender][txMessageHash].stakingStatus = 1; //staking end
 
-        uint256 rewardAprFunding = calculateArpFunding(msg.sender, stakingQueued[msg.sender][txMessageHash].amount, stakingQueued[msg.sender][txMessageHash].stakingType);
+        uint256 rewardAprFunding = calculateArpFunding(
+            msg.sender,
+            stakingQueued[msg.sender][txMessageHash].amount,
+            stakingQueued[msg.sender][txMessageHash].stakingType,
+            stakingQueued[msg.sender][txMessageHash].startStakingTime
+        );
 
         IERC20(fccAddress).safeTransfer(msg.sender, amount);
         IERC20(fccAddress).safeTransfer(msg.sender, rewardAprFunding);
@@ -95,47 +103,67 @@ contract StakingManager is Initializable, OwnableUpgradeable, ReentrancyGuardUpg
         emit StakeHolderWithdrawStaking(msg.sender, amount, messageNonce, txMessageHash);
     }
 
+    function getStakingAprFunding(uint256 amount, uint256 messageNonce)  external view returns(uint256) {
+        bytes32 txMessageHash = keccak256(
+            abi.encode(
+                msg.sender,
+                fccAddress,
+                amount,
+                messageNonce
+            )
+        );
+
+        uint256 rewardAprFunding = calculateArpFunding(
+            msg.sender,
+            stakingQueued[msg.sender][txMessageHash].amount,
+            stakingQueued[msg.sender][txMessageHash].stakingType,
+            stakingQueued[msg.sender][txMessageHash].startStakingTime
+        );
+        return rewardAprFunding;
+    }
 
     //==========================internal function===============================
-    function calculateArpFunding(address miner, uint256 stakingAmount, uint256 stakingType) internal pure returns(uint256) {
-        uint256 nftApr =getNftApr(miner);
+    function calculateArpFunding(address miner, uint256 stakingAmount, uint8 stakingType, uint256 stakingTime) internal view returns(uint256) {
         uint256 stakingArp = 0;
-        ( _,  stakingArp) = getStakingPeriodAndApr(stakingType);
+        uint256 lockType = 0;
+        uint256 nftApr = getNftApr(miner);
+        (lockType, stakingArp) = getStakingPeriodAndApr(stakingType);
         uint256 totalRewardApr = nftApr + stakingArp;
-        if (block.timestamp - startStakingTime >= lockOneYears) {
-            return stakingAmount * totalRewardApr / 100 / 2;
+        uint256 actualStakingDuration = block.timestamp - stakingTime;
+        if (block.timestamp >= halfAprTimeStamp) {
+            uint256 reward = stakingAmount * totalRewardApr * actualStakingDuration / (100 * 365 days);
+            return reward / 2;
         }
-        return stakingAmount * totalRewardApr / 100;
+        return stakingAmount * totalRewardApr * actualStakingDuration / (100 * 365 days);
     }
 
     function getNftApr(address miner) internal view returns(uint256) {
+        uint256 decimal = 10e6;
         uint8 nftType = nftManagerAddress.getActiveMinerBoosterNftType(miner);
-        if (nftType == 6) {
+        uint256 minerAmount = feManagerAddress.getMinerMineAmount(miner);
+        if (nftType == 6 || minerAmount >= 1600 * decimal) {
             return 20;
-        } else if (nftType == 5) {
+        } else if (nftType == 5 || (minerAmount < 1600 * decimal && minerAmount >= 1000 * decimal)) {
             return 15;
-        } else if (nftType == 4) {
+        } else if (nftType == 4 || (minerAmount < 1000 * decimal && minerAmount >= 160 * decimal)) {
             return 9;
-        } else if (nftType == 3) {
+        } else if (nftType == 3 || (minerAmount < 160 * decimal && minerAmount >= 100 * decimal)) {
             return 5;
         }  else {
             return 0;
         }
     }
 
-
-    function getStakingPeriodAndApr(uint8 stakingType) internal view returns(uint256, uint256) {
-        require(stakingType > 0 && stakingType < 6, "StakingManager getStakingPeriod: stakingType amount must be more than 0 and less than 4");
+    function getStakingPeriodAndApr(uint8 stakingType) internal pure returns(uint256, uint256) {
+        require(stakingType > 0 && stakingType < 5, "StakingManager getStakingPeriod: stakingType amount must be more than 0 and less than 4");
         if (stakingType == 1) {
             return (lockThirtyDays, 25);
         } else if (stakingType == 2) {
             return (lockSixtyDays, 99);
         } else if (stakingType == 3) {
             return (lockNinetyDays, 222);
-        } else if (stakingType==4) {
-            return (lockHalfYears, 740);
         } else {
-            return lockOneYears;
+            return (lockHalfYears, 740);
         }
     }
 }

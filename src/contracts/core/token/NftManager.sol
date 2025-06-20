@@ -85,23 +85,29 @@ contract NftManager is
         emit Received(msg.sender, msg.value);
     }
 
+    function nftUpgradeInit(address _feManagerAddress, address _boosterAddress) external onlyBooster {
+        uncommonFishcakeNftJson = "https://www.fishcake.org/image/3.json";
+        rareShrimpNftJson = "https://www.fishcake.org/image/4.json";
+        epicSalmonNftJson = "https://www.fishcake.org/image/5.json";
+        legendaryTunaNftJson = "https://www.fishcake.org/image/6.json";
+
+        feManagerAddress = IFishcakeEventManager(_feManagerAddress);
+        boosterAddress = _boosterAddress;
+    }
+
     function mintBoosterNFT(address miner) external onlyBooster nonReentrant returns (bool, uint256) {
-        require(
-            boosterNftType >= 3 && boosterNftType <= 6,
-            "NftManager mintBoosterNFT: booster nft type is not right"
-        );
-        uint256 = mineAmount = feManagerAddress.getMinerMineAmount(miner);
+        uint256 mineAmount = feManagerAddress.getMinerMineAmount(miner);
         if (mineAmount < 100) {
             revert MineAmountNotEnough(mineAmount);
         }
         uint256 boosterTokenId = _nextTokenId++;
         _safeMint(msg.sender, boosterTokenId);
-
-        if(mineAmount >= 100 && mineAmount < 160) {
+        uint256 decimal = 10e6;
+        if(mineAmount >= 100 * decimal && mineAmount < 160 * decimal) {
             nftMintType[boosterTokenId] = 3;
-        } else if(mineAmount >= 160 && mineAmount < 1000) {
+        } else if(mineAmount >= 160 * decimal && mineAmount < 1000 * decimal) {
             nftMintType[boosterTokenId] = 4;
-        } else if(mineAmount >= 1000 && mineAmount < 1600) {
+        } else if(mineAmount >= 1000 * decimal && mineAmount < 1600 * decimal) {
             nftMintType[boosterTokenId] = 5;
         } else {
             nftMintType[boosterTokenId] = 6;

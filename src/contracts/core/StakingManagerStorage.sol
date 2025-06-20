@@ -10,7 +10,7 @@ import "../interfaces/IStakingManager.sol";
 
 
 abstract contract StakingManagerStorage is IStakingManager {
-    uint256 public constant minStakeAmount = 100 * 10 ** 6;
+    uint256 public constant minStakeAmount = 10 * 10 ** 6;
 
     uint256 public constant lockThirtyDays = 30 days;
 
@@ -22,7 +22,11 @@ abstract contract StakingManagerStorage is IStakingManager {
 
     uint256 public constant lockOneYears = 360 days;
 
-    uint256 public startStakingTime = block.timestamp;
+    uint256 public halfAprTimeStamp = 1767225600;
+
+    uint256 public aprOffset = 1000;
+
+    uint256 public dayTimeStamp = 86400;
 
     uint256 public totalStakingAmount;
 

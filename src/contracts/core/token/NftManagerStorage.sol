@@ -54,7 +54,7 @@ abstract contract NftManagerStorage is Initializable, INftManager {
 
     address public boosterAddress;
 
-    function __NftManagerStorage_init(address _fccTokenAddr, address _tokenUsdtAddr, address _redemptionPoolAddress,  address _feManagerAddress, address _boosterAddress) internal initializer {
+    function __NftManagerStorage_init(address _fccTokenAddr, address _tokenUsdtAddr, address _redemptionPoolAddress) internal initializer {
         fccTokenAddr = IERC20(_fccTokenAddr);
         tokenUsdtAddr = IERC20(_tokenUsdtAddr);
         redemptionPoolAddress = IRedemptionPool(_redemptionPoolAddress);
@@ -67,13 +67,5 @@ abstract contract NftManagerStorage is Initializable, INftManager {
         proNftJson = "https://www.fishcake.org/image/1.json";
         basicNftJson = "https://www.fishcake.org/image/2.json";
 
-        // ==========booster nft============
-        uncommonFishcakeNftJson = "https://www.fishcake.org/image/3.json";
-        rareShrimpNftJson = "https://www.fishcake.org/image/4.json";
-        epicSalmonNftJson = "https://www.fishcake.org/image/5.json";
-        legendaryTunaNftJson = "https://www.fishcake.org/image/6.json";
-
-        feManagerAddress = _feManagerAddress;
-        boosterAddress = _boosterAddress;
     }
 }

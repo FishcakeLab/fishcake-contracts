@@ -19,5 +19,5 @@ interface IStakingManager {
     error NoFundingForStaking();
 
     function DepositIntoStaking(uint256 amount, uint8 stakingType) external;
-    function withdrawFromStakingWithAprIncome(uint256 amount, uint256 messageNonce, uint8 stakingType) external;
+    function withdrawFromStakingWithAprIncome(uint256 amount, uint256 messageNonce) external;
 }
