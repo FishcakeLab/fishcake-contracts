@@ -157,13 +157,13 @@ contract StakingManager is Initializable, OwnableUpgradeable, ReentrancyGuardUpg
     function getStakingPeriodAndApr(uint8 stakingType) internal pure returns(uint256, uint256) {
         require(stakingType > 0 && stakingType < 5, "StakingManager getStakingPeriod: stakingType amount must be more than 0 and less than 4");
         if (stakingType == 1) {
-            return (lockThirtyDays, 25);
+            return (lockThirtyDays, 3);
         } else if (stakingType == 2) {
-            return (lockSixtyDays, 99);
+            return (lockSixtyDays, 6);
         } else if (stakingType == 3) {
-            return (lockNinetyDays, 222);
+            return (lockNinetyDays, 9);
         } else {
-            return (lockHalfYears, 740);
+            return (lockHalfYears, 15);
         }
     }
 }
