@@ -49,14 +49,19 @@ contract StakingManager is Initializable, OwnableUpgradeable, ReentrancyGuardUpg
         (stakingTimestamp, apr) = getStakingPeriodAndApr(stakingType);
         uint endTime = block.timestamp + stakingTimestamp;
 
+        uint256 tokenId = nftManagerAddress.getActiveMinerBoosterNft(msg.sender);
+
         stakeHolderStakingInfo memory ssInfo = stakeHolderStakingInfo({
             startStakingTime: block.timestamp,
             amount: amount,
             messageNonce: messageNonce,
             endStakingTime: endTime,
             stakingStatus: 0, // under staking now
-            stakingType: stakingType
+            stakingType: stakingType,
+            bindingNft: tokenId
         });
+
+        nftManagerAddress.inActiveMinerBoosterNft(msg.sender);
 
         stakingQueued[msg.sender][txMessageHash] = ssInfo;
 
@@ -94,7 +99,8 @@ contract StakingManager is Initializable, OwnableUpgradeable, ReentrancyGuardUpg
             msg.sender,
             stakingQueued[msg.sender][txMessageHash].amount,
             stakingQueued[msg.sender][txMessageHash].stakingType,
-            stakingQueued[msg.sender][txMessageHash].startStakingTime
+            stakingQueued[msg.sender][txMessageHash].startStakingTime,
+            stakingQueued[msg.sender][txMessageHash].bindingNft
         );
 
         IERC20(fccAddress).safeTransfer(msg.sender, amount);
@@ -117,16 +123,17 @@ contract StakingManager is Initializable, OwnableUpgradeable, ReentrancyGuardUpg
             msg.sender,
             stakingQueued[msg.sender][txMessageHash].amount,
             stakingQueued[msg.sender][txMessageHash].stakingType,
-            stakingQueued[msg.sender][txMessageHash].startStakingTime
+            stakingQueued[msg.sender][txMessageHash].startStakingTime,
+            stakingQueued[msg.sender][txMessageHash].bindingNft
         );
         return rewardAprFunding;
     }
 
     //==========================internal function===============================
-    function calculateArpFunding(address miner, uint256 stakingAmount, uint8 stakingType, uint256 stakingTime) internal view returns(uint256) {
+    function calculateArpFunding(address miner, uint256 stakingAmount, uint8 stakingType, uint256 stakingTime, uint256 tokenId) internal view returns(uint256) {
         uint256 stakingArp = 0;
         uint256 lockType = 0;
-        uint256 nftApr = getNftApr(miner);
+        uint256 nftApr = getNftApr(miner, tokenId);
         (lockType, stakingArp) = getStakingPeriodAndApr(stakingType);
         uint256 totalRewardApr = nftApr + stakingArp;
         uint256 actualStakingDuration = block.timestamp - stakingTime;
@@ -137,9 +144,9 @@ contract StakingManager is Initializable, OwnableUpgradeable, ReentrancyGuardUpg
         return stakingAmount * totalRewardApr * actualStakingDuration / (100 * 365 days);
     }
 
-    function getNftApr(address miner) internal view returns(uint256) {
+    function getNftApr(address miner, uint256 tokenId) internal view returns(uint256) {
         uint256 decimal = 10e6;
-        uint8 nftType = nftManagerAddress.getActiveMinerBoosterNftType(miner);
+        uint8 nftType = nftManagerAddress.getMinerBoosterNftType(tokenId);
         uint256 minerAmount = feManagerAddress.getMinerMineAmount(miner);
         if (nftType == 6 || minerAmount >= 1600 * decimal) {
             return 20;

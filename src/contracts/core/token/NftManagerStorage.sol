@@ -52,6 +52,8 @@ abstract contract NftManagerStorage is Initializable, INftManager {
 
     mapping(address => uint256) public minerActiveNft;
 
+    mapping(address => uint256[]) public minerHistoryBoosterNft;
+
     address public boosterAddress;
 
     function __NftManagerStorage_init(address _fccTokenAddr, address _tokenUsdtAddr, address _redemptionPoolAddress) internal initializer {

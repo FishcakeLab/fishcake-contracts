@@ -252,8 +252,15 @@ contract NftManager is
         return userNftDeadline[_account];
     }
 
-    function getActiveMinerBoosterNftType(address _miner) external view returns (uint8) {
-        uint256 tokenId = minerActiveNft[_miner];
+    function inActiveMinerBoosterNft(address _miner) external {
+        minerActiveNft[_miner] = 0;
+    }
+
+    function getActiveMinerBoosterNft(address _miner) external view returns (uint256) {
+        return minerActiveNft[_miner];
+    }
+
+    function getMinerBoosterNftType(uint256 tokenId) external view returns (uint8) {
         return nftMintType[tokenId];
     }
 

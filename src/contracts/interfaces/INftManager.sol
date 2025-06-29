@@ -21,5 +21,7 @@ interface INftManager {
     function withdrawNativeToken(address payable _recipient, uint256 _amount) external returns (bool);
     function getMerchantNTFDeadline(address _account) external view returns (uint256);
     function getUserNTFDeadline(address _account) external view returns (uint256);
-    function getActiveMinerBoosterNftType(address _miner) external view returns (uint8);
+    function inActiveMinerBoosterNft(address _miner) external;
+    function getActiveMinerBoosterNft(address _miner) external view returns (uint256);
+    function getMinerBoosterNftType(uint256 tokenId) external view returns (uint8);
 }
