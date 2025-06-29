@@ -157,7 +157,7 @@ contract StakingManager is Initializable, OwnableUpgradeable, ReentrancyGuardUpg
         } else if (nftType == 3 || (minerAmount < 160 * decimal && minerAmount >= 100 * decimal)) {
             return 5;
         }  else {
-            return 0;
+            return 1;
         }
     }
 
