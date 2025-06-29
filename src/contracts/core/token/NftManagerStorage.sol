@@ -8,6 +8,8 @@ import "@openzeppelin-upgrades/contracts/proxy/utils/Initializable.sol";
 import "../../interfaces/IRedemptionPool.sol";
 import "../../interfaces/IFishcakeEventManager.sol";
 import "../../interfaces/INftManager.sol";
+import "../../interfaces/IStakingManager.sol";
+
 
 
 abstract contract NftManagerStorage is Initializable, INftManager {
@@ -55,6 +57,8 @@ abstract contract NftManagerStorage is Initializable, INftManager {
     mapping(address => uint256[]) public minerHistoryBoosterNft;
 
     address public boosterAddress;
+
+    IStakingManager public stakingManagerAddress;
 
     function __NftManagerStorage_init(address _fccTokenAddr, address _tokenUsdtAddr, address _redemptionPoolAddress) internal initializer {
         fccTokenAddr = IERC20(_fccTokenAddr);

@@ -62,6 +62,14 @@ contract NftManager is
         _;
     }
 
+    modifier onlyStakingManager() {
+        require(
+            msg.sender == address(stakingManagerAddress),
+            "MessageManager: only staking manager can do this operate"
+        );
+        _;
+    }
+
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
@@ -85,13 +93,14 @@ contract NftManager is
         emit Received(msg.sender, msg.value);
     }
 
-    function nftUpgradeInit(address _feManagerAddress, address _boosterAddress) external onlyBooster {
+    function nftUpgradeInit(address _feManagerAddress, address _boosterAddress, address _stakingManagerAddress) external onlyBooster {
         uncommonFishcakeNftJson = "https://www.fishcake.org/image/3.json";
         rareShrimpNftJson = "https://www.fishcake.org/image/4.json";
         epicSalmonNftJson = "https://www.fishcake.org/image/5.json";
         legendaryTunaNftJson = "https://www.fishcake.org/image/6.json";
 
         feManagerAddress = IFishcakeEventManager(_feManagerAddress);
+        stakingManagerAddress = IStakingManager(_stakingManagerAddress);
         boosterAddress = _boosterAddress;
     }
 
@@ -252,7 +261,7 @@ contract NftManager is
         return userNftDeadline[_account];
     }
 
-    function inActiveMinerBoosterNft(address _miner) external {
+    function inActiveMinerBoosterNft(address _miner) external onlyStakingManager {
         minerActiveNft[_miner] = 0;
     }
 
