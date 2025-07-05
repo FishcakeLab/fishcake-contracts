@@ -11,8 +11,8 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
 import "./NftManagerStorage.sol";
 
-/// @custom:oz-upgrades-from NftManagerV3
-contract NftManager is
+/// @custom:oz-upgrades-from NftManagerV4
+contract NftManagerV5 is
     Initializable,
     ERC721Upgradeable,
     ERC721URIStorageUpgradeable,

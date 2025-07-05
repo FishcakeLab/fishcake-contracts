@@ -10,7 +10,7 @@ import "@openzeppelin-upgrades/contracts/utils/ReentrancyGuardUpgradeable.sol";
 import {FishcakeEventManagerStorage} from "./FishcakeEventManagerStorage.sol";
 
 /// @custom:oz-upgrades-from FishcakeEventManager
-contract FishcakeEventManagerV1 is
+contract FishcakeEventManagerV2 is
     Initializable,
     ERC20Upgradeable,
     ERC20BurnableUpgradeable,

@@ -23,7 +23,7 @@ contract FishcakeTestHelperTest is FishcakeDeployerTest {
             miningPool: address(proxyFishcakeEventManager),
             directSalePool: address(proxyDirectSalePool),
             investorSalePool: address(proxyInvestorSalePool),
-            nftSalesRewardsPool: address(proxyNftManager),
+            nftSalesRewardsPool: address(proxyNftManagerV5),
             ecosystemPool: ECOSYSTEM_POOL,
             foundationPool: FOUNDATION_POOL,
             redemptionPool: address(redemptionPool)
@@ -53,7 +53,7 @@ contract FishcakeTestHelperTest is FishcakeDeployerTest {
         console.log("FishCakeCoin test_PoolAllocate INVESTOR_SALE_POOL_balance:", INVESTOR_SALE_POOL_balance);
         assertTrue(tempFishCakeCoin.MaxTotalSupply() * 1 / 10 == INVESTOR_SALE_POOL_balance, "INVESTOR_SALE_POOL_balance is 100000000000000");
 
-        uint256 NFTSALES_REWARDS_POOL_balance = tempFishCakeCoin.balanceOf(address(proxyNftManager));
+        uint256 NFTSALES_REWARDS_POOL_balance = tempFishCakeCoin.balanceOf(address(proxyNftManagerV5));
         console.log("FishCakeCoin test_PoolAllocate NFTSALES_REWARDS_POOL_balance:", NFTSALES_REWARDS_POOL_balance);
         assertTrue(tempFishCakeCoin.MaxTotalSupply() * 2 / 10 == NFTSALES_REWARDS_POOL_balance, "NFTSALES_REWARDS_POOL_balance is 200000000000000");
 

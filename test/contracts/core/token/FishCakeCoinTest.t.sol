@@ -50,7 +50,7 @@ contract FishCakeCoinTest is FishcakeTestHelperTest {
             miningPool: address(proxyFishcakeEventManager),
             directSalePool: address(proxyDirectSalePool),
             investorSalePool: address(proxyInvestorSalePool),
-            nftSalesRewardsPool: address(proxyNftManager),
+            nftSalesRewardsPool: address(proxyNftManagerV5),
             ecosystemPool: ECOSYSTEM_POOL,
             foundationPool: FOUNDATION_POOL,
             redemptionPool: address(redemptionPool)

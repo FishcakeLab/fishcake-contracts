@@ -12,7 +12,7 @@ import {FishCakeCoin} from "@contracts/core/token/FishCakeCoin.sol";
 import {DirectSalePool} from "@contracts/core/sale/DirectSalePool.sol";
 import {InvestorSalePool} from "@contracts/core/sale/InvestorSalePool.sol";
 import {IInvestorSalePool} from "@contracts/interfaces/IInvestorSalePool.sol";
-import {NftManager} from "@contracts/core/token/NftManager.sol";
+import {NftManagerV5} from "@contracts/core/token/NftManagerV5.sol";
 import {FishcakeEventManager} from "@contracts/core/FishcakeEventManager.sol";
 import {UsdtERC20TestHelper} from "./UsdtERC20TestHelper.sol";
 
@@ -32,8 +32,7 @@ contract FishcakeDeployerTest is Test {
     address public proxyDirectSalePool;
     InvestorSalePool public investorSalePool;
     address public proxyInvestorSalePool;
-    NftManager public nftManager;
-    address public proxyNftManager;
+    address public proxyNftManagerV5;
     FishcakeEventManager public fishcakeEventManager;
     address public proxyFishcakeEventManager;
 
@@ -87,25 +86,12 @@ contract FishcakeDeployerTest is Test {
         console.log("deploy InvestorSalePool redemptionPool :", address(InvestorSalePool(address(proxyInvestorSalePool)).redemptionPool()));
         console.log("deploy InvestorSalePool tokenUsdtAddress :", address(InvestorSalePool((address(proxyInvestorSalePool))).tokenUsdtAddress()));
 
-        nftManager = new NftManager();
-        proxyNftManager = Upgrades.deployTransparentProxy(
-            "NftManager.sol:NftManager",
-            deployerAddress,
-            abi.encodeWithSelector(NftManager.initialize.selector, deployerAddress, proxyFishCakeCoin, usdtTokenAddress, redemptionPool)
-        );
-        console.log("deploy nftManager:", address(nftManager));
-        console.log("deploy proxyNftManager:", address(proxyNftManager));
-        console.log("deploy proxyNftManager fccTokenAddr :", address(NftManager(payable(address(proxyNftManager))).fccTokenAddr()));
-        console.log("deploy proxyNftManager tokenUsdtAddr :", address(NftManager(payable(address(proxyNftManager))).tokenUsdtAddr()));
-        console.log("deploy proxyNftManager redemptionPoolAddress :", address(NftManager(payable(address(proxyNftManager))).redemptionPoolAddress()));
-        console.log("deploy proxyNftManager redemptionPoolAddress :", NftManager(payable(address(proxyNftManager))).merchantValue());
-        console.log("deploy proxyNftManager redemptionPoolAddress :", NftManager(payable(address(proxyNftManager))).userValue());
 
         fishcakeEventManager = new FishcakeEventManager();
         proxyFishcakeEventManager = Upgrades.deployTransparentProxy(
             "FishcakeEventManager.sol:FishcakeEventManager",
             deployerAddress,
-            abi.encodeWithSelector(FishcakeEventManager.initialize.selector, deployerAddress, proxyFishCakeCoin, usdtTokenAddress, proxyNftManager)
+            abi.encodeWithSelector(FishcakeEventManager.initialize.selector, deployerAddress, proxyFishCakeCoin, usdtTokenAddress, proxyNftManagerV5)
         );
         console.log("deploy fishcakeEventManager:", address(fishcakeEventManager));
         console.log("deploy proxyFishcakeEventManager:", address(proxyFishcakeEventManager));
@@ -113,7 +99,6 @@ contract FishcakeDeployerTest is Test {
         console.log("deploy proxyFishcakeEventManager isMint :", FishcakeEventManager(address(proxyFishcakeEventManager)).isMint());
         console.log("deploy proxyFishcakeEventManager minePercent :", FishcakeEventManager(address(proxyFishcakeEventManager)).minePercent());
         console.log("deploy proxyFishcakeEventManager minedAmt :", FishcakeEventManager(address(proxyFishcakeEventManager)).minedAmt());
-        console.log("deploy proxyFishcakeEventManager iNFTManager :", address(FishcakeEventManager(address(proxyFishcakeEventManager)).iNFTManager()));
 
         // setUp
         FishCakeCoin(address(proxyFishCakeCoin)).setRedemptionPool(address(redemptionPool));
