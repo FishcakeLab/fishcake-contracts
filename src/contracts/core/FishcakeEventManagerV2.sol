@@ -150,10 +150,7 @@ contract FishcakeEventManagerV1 is
         }
 
         // ifReward There is only one reward in 24 hours
-        if (
-            isMint && ifReward() && iNFTManager.getMerchantNTFDeadline(_msgSender()) > block.timestamp
-                || iNFTManager.getUserNTFDeadline(_msgSender()) > block.timestamp
-        ) {
+        if (isMint && ifReward() && (iNFTManager.getMerchantNTFDeadline(_msgSender()) > block.timestamp || iNFTManager.getUserNTFDeadline(_msgSender()) > block.timestamp)) {
             // Get the current percentage of mined tokens
             uint8 currentMinePercent = 0;
             uint256 merchantOnceMaxMineTmpAmt = 0;
