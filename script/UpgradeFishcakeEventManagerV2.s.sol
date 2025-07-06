@@ -13,13 +13,17 @@ contract FishcakeEventManagerV2Script is Script {
         address deployerAddress = vm.addr(deployerPrivateKey);
         console.log("deploy deployerAddress:", address(deployerAddress));
 
+        console.log("address(this):", address(this));
+
         vm.startBroadcast(deployerPrivateKey);
         FishcakeEventManagerV2 newImplementation = new FishcakeEventManagerV2();
         console.log("New FishcakeEventManagerV2 implementation deployed at:", address(newImplementation));
 
+        console.log("Proxy Admin:", Upgrades.getAdminAddress(PROXY_FISH_CAKE_EVENT_MANAGER));
         console.log("upgraded before:", Upgrades.getImplementationAddress(PROXY_FISH_CAKE_EVENT_MANAGER));
-        Upgrades.upgradeProxy(PROXY_FISH_CAKE_EVENT_MANAGER, "FishcakeEventManagerV2.sol:FishcakeEventManagerV2", "");
-        console.log("NftManager proxy upgraded successfully");
+
+        Upgrades.upgradeProxy(PROXY_FISH_CAKE_EVENT_MANAGER, "FishcakeEventManagerV2.sol:FishcakeEventManagerV2", "", deployerAddress);
+        console.log("FishcakeEventManagerV2 proxy upgraded successfully");
         console.log("=======================================================================");
         vm.stopBroadcast();
         console.log("upgraded after:", Upgrades.getImplementationAddress(PROXY_FISH_CAKE_EVENT_MANAGER));

@@ -11,14 +11,14 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
 import "./NftManagerStorage.sol";
 
-/// @custom:oz-upgrades-from NftManagerV4
-contract NftManagerV5 is
-    Initializable,
-    ERC721Upgradeable,
-    ERC721URIStorageUpgradeable,
-    OwnableUpgradeable,
-    ReentrancyGuardUpgradeable,
-    NftManagerStorage
+/// @custom:oz-upgrades-from NftManagerV3
+contract NftManagerV4 is
+Initializable,
+ERC721Upgradeable,
+ERC721URIStorageUpgradeable,
+OwnableUpgradeable,
+ReentrancyGuardUpgradeable,
+NftManagerStorage
 {
     using Strings for uint256;
     using Strings for uint8;
@@ -54,27 +54,9 @@ contract NftManagerV5 is
     event UpdatedNftJson(address indexed creator, uint8 nftType, string newJsonUrl);
     event NameSymbolUpdated(string newName, string newSymbol);
 
-    modifier onlyBooster() {
-        require(
-            msg.sender == boosterAddress,
-            "MessageManager: only booster address can do this operate"
-        );
-        _;
-    }
-
-    modifier onlyStakingManager() {
-        require(
-            msg.sender == address(stakingManagerAddress),
-            "MessageManager: only staking manager can do this operate"
-        );
-        _;
-    }
-
-    /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor() {
-        _disableInitializers();
-    }
-
+    //    constructor(address _fccTokenAddr, address _tokenUsdtAddr, address _redemptionPoolAddress) NftManagerStorage (_fccTokenAddr, _tokenUsdtAddr, _redemptionPoolAddress){
+    //        _disableInitializers();
+    //    }
 
     function initialize(
         address _initialOwner,
@@ -84,7 +66,6 @@ contract NftManagerV5 is
     ) public initializer {
         require(_initialOwner != address(0), "NftManager initialize: _initialOwner can't be zero address");
         __ERC721_init("Fishcake Pass NFT", "FNFT");
-        __ReentrancyGuard_init();
         __Ownable_init(_initialOwner);
         _transferOwnership(_initialOwner);
         __NftManagerStorage_init(_fccTokenAddr, _tokenUsdtAddr, _redemptionPoolAddress);
@@ -94,18 +75,7 @@ contract NftManagerV5 is
         emit Received(msg.sender, msg.value);
     }
 
-    function nftUpgradeInit(address _feManagerAddress, address _boosterAddress, address _stakingManagerAddress) external onlyBooster {
-        uncommonFishcakeNftJson = "https://www.fishcake.org/image/3.json";
-        rareShrimpNftJson = "https://www.fishcake.org/image/4.json";
-        epicSalmonNftJson = "https://www.fishcake.org/image/5.json";
-        legendaryTunaNftJson = "https://www.fishcake.org/image/6.json";
-
-        feManagerAddress = IFishcakeEventManager(_feManagerAddress);
-        stakingManagerAddress = IStakingManager(_stakingManagerAddress);
-        boosterAddress = _boosterAddress;
-    }
-
-    function mintBoosterNFT(address miner) external onlyBooster nonReentrant returns (bool, uint256) {
+    function mintBoosterNFT(address miner) external nonReentrant returns (bool, uint256) {
         uint256 mineAmount = feManagerAddress.getMinerMineAmount(miner);
         if (mineAmount < 100) {
             revert MineAmountNotEnough(mineAmount);
@@ -182,26 +152,15 @@ contract NftManagerV5 is
     }
 
     function tokenURI(uint256 tokenId)
-        public
-        view
-        override(ERC721Upgradeable, ERC721URIStorageUpgradeable)
-        returns (string memory)
+    public
+    view
+    override(ERC721Upgradeable, ERC721URIStorageUpgradeable)
+    returns (string memory)
     {
         require(_ownerOf(tokenId) != address(0), "ERC721Metadata: URI query for nonexistent token");
+
         uint8 nftType = nftMintType[tokenId];
-        if(nftType == 1) {
-            return proNftJson;
-        } else if(nftType == 2) {
-            return basicNftJson;
-        } else if(nftType == 3) {
-            return uncommonFishcakeNftJson;
-        } else if(nftType == 4) {
-            return rareShrimpNftJson;
-        } else if(nftType == 5) {
-            return epicSalmonNftJson;
-        } else {
-            return legendaryTunaNftJson;
-        }
+        return nftType == 1 ? proNftJson : basicNftJson;
     }
 
     function uri(uint256 inputTokenId) public view virtual returns (string memory) {
@@ -226,10 +185,10 @@ contract NftManagerV5 is
     }
 
     function withdrawToken(address _tokenAddr, address _account, uint256 _value)
-        external
-        onlyOwner
-        nonReentrant
-        returns (bool)
+    external
+    onlyOwner
+    nonReentrant
+    returns (bool)
     {
         require(_tokenAddr != address(0x0), "NftManager withdrawToken:token address error.");
         require(IERC20(_tokenAddr).balanceOf(address(this)) >= _value, "NftManager withdrawToken: Balance not enough.");
@@ -242,10 +201,10 @@ contract NftManagerV5 is
     }
 
     function withdrawNativeToken(address payable _recipient, uint256 _amount)
-        public
-        onlyOwner
-        nonReentrant
-        returns (bool)
+    public
+    onlyOwner
+    nonReentrant
+    returns (bool)
     {
         require(_recipient != address(0x0), "NftManager withdrawNativeToken: recipient address error.");
         require(_amount <= address(this).balance, "NftManager withdrawNativeToken: Balance not enough.");
@@ -262,7 +221,7 @@ contract NftManagerV5 is
         return userNftDeadline[_account];
     }
 
-    function inActiveMinerBoosterNft(address _miner) external onlyStakingManager {
+    function inActiveMinerBoosterNft(address _miner) external {
         minerActiveNft[_miner] = 0;
     }
 
@@ -279,10 +238,10 @@ contract NftManagerV5 is
     }
 
     function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(ERC721Upgradeable, ERC721URIStorageUpgradeable)
-        returns (bool)
+    public
+    view
+    override(ERC721Upgradeable, ERC721URIStorageUpgradeable)
+    returns (bool)
     {
         return super.supportsInterface(interfaceId);
     }

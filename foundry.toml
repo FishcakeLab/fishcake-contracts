@@ -27,12 +27,12 @@ via_ir = true
 evm_version = "cancun"
 solc_version = "0.8.26"
 
-[etherscan]
-polygon = { key = "${POLYGON_API_KEY}", chain = 137, url = "https://api.polygonscan.com/api"}
-sepolia = { key = "${ETHERSCAN_API_KEY}" }
-
-[rpc_endpoints]
-holesky = "${HOLESKY_RPC_URL}"  
-sepolia = "${SEPOLIA_RPC_URL}"
-local = "${LOCAL_RPC_URL}"  
-polygon = "${POLYGON_RPC_URL}"  
+#[etherscan]
+#polygon = { key = "${POLYGON_API_KEY}", chain = 137, url = "https://api.polygonscan.com/api"}
+#sepolia = { key = "${ETHERSCAN_API_KEY}" }
+#
+#[rpc_endpoints]
+#holesky = "${HOLESKY_RPC_URL}"
+#sepolia = "${SEPOLIA_RPC_URL}"
+#local = "${LOCAL_RPC_URL}"
+#polygon = "${POLYGON_RPC_URL}"

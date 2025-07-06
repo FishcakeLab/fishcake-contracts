@@ -9,7 +9,7 @@ import "@openzeppelin-upgrades/contracts/utils/ReentrancyGuardUpgradeable.sol";
 
 import {FishcakeEventManagerStorage} from "./FishcakeEventManagerStorage.sol";
 
-/// @custom:oz-upgrades-from FishcakeEventManager
+/// @custom:oz-upgrades-from FishcakeEventManagerV1
 contract FishcakeEventManagerV2 is
     Initializable,
     ERC20Upgradeable,
@@ -37,9 +37,10 @@ contract FishcakeEventManagerV2 is
     {
         require(_initialOwner != address(0), "FishcakeEventManager initialize: _initialOwner can't be zero address");
         __Ownable_init(_initialOwner);
-        _transferOwnership(_initialOwner);
+        __ERC20_init("FishCake", "FCC");
         __ReentrancyGuard_init();
         __FishcakeEventManagerStorage_init(_fccAddress, _usdtTokenAddr, _NFTManagerAddr);
+        _transferOwnership(_initialOwner);
     }
 
     function activityAdd(

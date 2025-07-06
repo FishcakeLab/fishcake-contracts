@@ -15,6 +15,9 @@ interface IStakingManager {
         bytes32 messageHash
     );
 
+    event Received(address indexed receiver, uint256 _value);
+
+
     error FundingUnderStaking(uint256 amount, uint256 endTime);
     error NoFundingForStaking();
 

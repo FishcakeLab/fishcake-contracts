@@ -11,9 +11,9 @@ import {FishcakeEventManagerStorage} from "./FishcakeEventManagerStorage.sol";
 
 
 contract FishcakeEventManager is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable, FishcakeEventManagerStorage {
-    constructor() {
-        _disableInitializers();
-    }
+//    constructor() {
+//        _disableInitializers();
+//    }
 
     function initialize(address _initialOwner, address _fccAddress, address _usdtTokenAddr, address _NFTManagerAddr) public initializer {
         require(_initialOwner != address(0), "FishcakeEventManager initialize: _initialOwner can't be zero address");

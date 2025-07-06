@@ -18,10 +18,9 @@ contract FishcakeEventManagerV1 is
     ReentrancyGuardUpgradeable,
     FishcakeEventManagerStorage
 {
-    /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor() {
-        _disableInitializers();
-    }
+    //    constructor(address _fccAddress, address _usdtTokenAddr, address _NFTManagerAddr) FishcakeEventManagerStorage(_fccAddress, _usdtTokenAddr, _NFTManagerAddr) {
+    //        _disableInitializers();
+    //    }
 
     function initialize(address _initialOwner, address _fccAddress, address _usdtTokenAddr, address _NFTManagerAddr)
         public
@@ -144,7 +143,7 @@ contract FishcakeEventManagerV1 is
         // ifReward There is only one reward in 24 hours
         if (
             isMint && ifReward() && iNFTManager.getMerchantNTFDeadline(_msgSender()) > block.timestamp
-                || iNFTManager.getUserNTFDeadline(_msgSender()) > block.timestamp
+            || iNFTManager.getUserNTFDeadline(_msgSender()) > block.timestamp
         ) {
             // Get the current percentage of mined tokens
             uint8 currentMinePercent = 0;
@@ -156,7 +155,7 @@ contract FishcakeEventManagerV1 is
             }
             if (minePercent > 0 && address(FccTokenAddr) == ai.tokenContractAddr) {
                 uint8 percent =
-                    (iNFTManager.getMerchantNTFDeadline(_msgSender()) > block.timestamp ? minePercent : minePercent / 2);
+                (iNFTManager.getMerchantNTFDeadline(_msgSender()) > block.timestamp ? minePercent : minePercent / 2);
                 uint256 maxMineAmtLimit = (
                     iNFTManager.getMerchantNTFDeadline(_msgSender()) > block.timestamp
                         ? merchantOnceMaxMineTmpAmt
@@ -225,7 +224,7 @@ contract FishcakeEventManagerV1 is
         activityDroppedToAccount[_activityId][_userAccount] = true;
 
         DropInfo memory di =
-            DropInfo({activityId: _activityId, userAccount: _userAccount, dropTime: block.timestamp, dropAmt: _dropAmt});
+                        DropInfo({activityId: _activityId, userAccount: _userAccount, dropTime: block.timestamp, dropAmt: _dropAmt});
         dropInfoArrs.push(di);
 
         aie.alreadyDropAmts += _dropAmt;

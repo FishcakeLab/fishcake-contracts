@@ -14,8 +14,13 @@ import "../interfaces/INftManager.sol";
 contract StakingManager is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, StakingManagerStorage{
     using SafeERC20 for IERC20;
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
     constructor(){
         _disableInitializers();
+    }
+
+    receive() external payable {
+        emit Received(msg.sender, msg.value);
     }
 
     function initialize(address _initialOwner, IFishcakeEventManager _feManagerAddress, INftManager _nftManagerAddress)
