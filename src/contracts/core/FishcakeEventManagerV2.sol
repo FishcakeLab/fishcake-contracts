@@ -8,6 +8,7 @@ import "@openzeppelin-upgrades/contracts/access/OwnableUpgradeable.sol";
 import "@openzeppelin-upgrades/contracts/utils/ReentrancyGuardUpgradeable.sol";
 
 import {FishcakeEventManagerStorage} from "./FishcakeEventManagerStorage.sol";
+import "../history/FishcakeEventManagerV1.sol";
 
 /// @custom:oz-upgrades-from FishcakeEventManagerV1
 contract FishcakeEventManagerV2 is

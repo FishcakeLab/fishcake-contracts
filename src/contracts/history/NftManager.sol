@@ -9,10 +9,9 @@ import "@openzeppelin-upgrades/contracts/utils/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin-upgrades/contracts/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
-import "./NftManagerStorage.sol";
+import "../core/token/NftManagerStorage.sol";
 
-/// @custom:oz-upgrades-from NftManagerV2
-contract NftManagerV3 is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable, NftManagerStorage {
+contract NftManager is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable, NftManagerStorage {
     using Strings for uint256;
     using Strings for uint8;
     using SafeERC20 for IERC20;
@@ -51,16 +50,13 @@ contract NftManagerV3 is Initializable, ERC721Upgradeable, ERC721URIStorageUpgra
     event Withdraw(address indexed withdrawer, uint256 _amount);
     event Received(address indexed receiver, uint _value);
 
-    event UpdatedNftJson(address indexed creator, uint8 nftType, string newJsonUrl);
-    event NameSymbolUpdated(string newName, string newSymbol);
-
 //    constructor(address _fccTokenAddr, address _tokenUsdtAddr, address _redemptionPoolAddress) NftManagerStorage (_fccTokenAddr, _tokenUsdtAddr, _redemptionPoolAddress){
 //        _disableInitializers();
 //    }
 
     function initialize(address _initialOwner, address _fccTokenAddr, address _tokenUsdtAddr, address _redemptionPoolAddress) public initializer {
         require(_initialOwner != address(0), "NftManager initialize: _initialOwner can't be zero address");
-        __ERC721_init("Fishcake Pass NFT", "FNFT");
+        __ERC721_init("TheWebThree", "TWT");
         __Ownable_init(_initialOwner);
         _transferOwnership(_initialOwner);
         __NftManagerStorage_init(_fccTokenAddr, _tokenUsdtAddr, _redemptionPoolAddress);
@@ -118,8 +114,16 @@ contract NftManagerV3 is Initializable, ERC721Upgradeable, ERC721URIStorageUpgra
         tokenUsdtAddr.transfer(address(redemptionPoolAddress), (payUsdtAmount * 75) / 100);
 
         uint256 tokenId = _nextTokenId++;
-        _safeMint(msg.sender, tokenId);
+
+        _mint(msg.sender, tokenId);
+
         nftMintType[tokenId] = _type;
+
+        string memory uri = string(
+            abi.encodePacked(uriPrefix, _type.toString(), ".json")
+        );
+
+        _setTokenURI(tokenId, uri);
 
         emit CreateNFT(
             msg.sender,
@@ -138,22 +142,19 @@ contract NftManagerV3 is Initializable, ERC721Upgradeable, ERC721URIStorageUpgra
     }
 
     function tokenURI(uint256 tokenId) public view override(ERC721Upgradeable, ERC721URIStorageUpgradeable) returns (string memory) {
-        require(_ownerOf(tokenId) != address(0), "ERC721Metadata: URI query for nonexistent token");
-
-        uint8 nftType = nftMintType[tokenId];
-        return nftType == 1 ? proNftJson : basicNftJson;
+        string memory baseURI = _baseURI();
+        uint256 _type = nftMintType[tokenId];
+        return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, _type.toString(), ".json")) : "";
     }
 
-    function uri(uint256 inputTokenId) public view virtual returns (string memory) {
-        return tokenURI(inputTokenId);
+    function uri(uint256 uri_) public view virtual returns (string memory) {
+        return tokenURI(uri_);
     }
 
-    // don't use 20241016 1630
     function _baseURI() internal view virtual override returns (string memory) {
         return uriPrefix;
     }
 
-    // don't use 20241016 1630
     function setUriPrefix(string memory _uriPrefix) external onlyOwner {
         uriPrefix = _uriPrefix;
         emit UriPrefixSet(msg.sender, _uriPrefix);
@@ -210,29 +211,5 @@ contract NftManagerV3 is Initializable, ERC721Upgradeable, ERC721URIStorageUpgra
 
     function supportsInterface(bytes4 interfaceId) public view override(ERC721Upgradeable, ERC721URIStorageUpgradeable) returns (bool) {
         return super.supportsInterface(interfaceId);
-    }
-
-    function updateNftJson(uint8 _type, string memory _newJsonUrl) external onlyOwner {
-        require(_type == 1 || _type == 2, "Invalid NFT type");
-        if (_type == 1) {
-            proNftJson = _newJsonUrl;
-        } else {
-            basicNftJson = _newJsonUrl;
-        }
-        emit UpdatedNftJson(msg.sender, _type, _newJsonUrl);
-    }
-
-    function updateNameAndSymbol(string memory newName, string memory newSymbol) external onlyOwner {
-        _customName = newName;
-        _customSymbol = newSymbol;
-        emit NameSymbolUpdated(newName, newSymbol);
-    }
-
-    function name() public view virtual override returns (string memory) {
-        return bytes(_customName).length > 0 ? _customName : super.name();
-    }
-
-    function symbol() public view virtual override returns (string memory) {
-        return bytes(_customSymbol).length > 0 ? _customSymbol : super.symbol();
     }
 }

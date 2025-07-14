@@ -9,7 +9,7 @@ import "@openzeppelin-upgrades/contracts/utils/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin-upgrades/contracts/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
-import "./NftManagerStorage.sol";
+import "../../history/NftManagerV4.sol";
 
 /// @custom:oz-upgrades-from NftManagerV4
 contract NftManagerV5 is
@@ -107,17 +107,17 @@ contract NftManagerV5 is
 
     function mintBoosterNFT(address miner) external onlyBooster nonReentrant returns (bool, uint256) {
         uint256 mineAmount = feManagerAddress.getMinerMineAmount(miner);
-        if (mineAmount < 100) {
+        if (mineAmount < 30) {
             revert MineAmountNotEnough(mineAmount);
         }
         uint256 boosterTokenId = _nextTokenId++;
         _safeMint(msg.sender, boosterTokenId);
         uint256 decimal = 10e6;
-        if(mineAmount >= 100 * decimal && mineAmount < 160 * decimal) {
+        if(mineAmount >= 30 * decimal && mineAmount < 90 * decimal) {
             nftMintType[boosterTokenId] = 3;
-        } else if(mineAmount >= 160 * decimal && mineAmount < 1000 * decimal) {
+        } else if(mineAmount >= 90 * decimal && mineAmount < 300 * decimal) {
             nftMintType[boosterTokenId] = 4;
-        } else if(mineAmount >= 1000 * decimal && mineAmount < 1600 * decimal) {
+        } else if(mineAmount >= 300 * decimal && mineAmount < 900 * decimal) {
             nftMintType[boosterTokenId] = 5;
         } else {
             nftMintType[boosterTokenId] = 6;
@@ -159,7 +159,7 @@ contract NftManagerV5 is
         }
 
         tokenUsdtAddr.transferFrom(msg.sender, address(this), payUsdtAmount);
-        tokenUsdtAddr.transfer(address(redemptionPoolAddress), (payUsdtAmount * 50) / 100);
+        tokenUsdtAddr.transfer(address(redemptionPoolAddress), (payUsdtAmount * 75) / 100);
 
         uint256 tokenId = _nextTokenId++;
         _safeMint(msg.sender, tokenId);

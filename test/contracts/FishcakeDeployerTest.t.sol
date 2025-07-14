@@ -9,11 +9,11 @@ import "@openzeppelin-foundry-upgrades/Upgrades.sol";
 
 import {RedemptionPool} from "@contracts/core/RedemptionPool.sol";
 import {FishCakeCoin} from "@contracts/core/token/FishCakeCoin.sol";
-import {DirectSalePool} from "@contracts/core/sale/DirectSalePool.sol";
+import {DirectSalePool} from "../../src/contracts/history/DirectSalePool.sol";
 import {InvestorSalePool} from "@contracts/core/sale/InvestorSalePool.sol";
 import {IInvestorSalePool} from "@contracts/interfaces/IInvestorSalePool.sol";
 import {NftManagerV5} from "@contracts/core/token/NftManagerV5.sol";
-import {FishcakeEventManager} from "@contracts/core/FishcakeEventManager.sol";
+import {FishcakeEventManager} from "../../src/contracts/history/FishcakeEventManager.sol";
 import {UsdtERC20TestHelper} from "./UsdtERC20TestHelper.sol";
 
 contract FishcakeDeployerTest is Test {

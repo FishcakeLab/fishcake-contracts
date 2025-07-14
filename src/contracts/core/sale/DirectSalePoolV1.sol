@@ -8,6 +8,7 @@ import "@openzeppelin-upgrades/contracts/access/OwnableUpgradeable.sol";
 import "@openzeppelin-upgrades/contracts/utils/ReentrancyGuardUpgradeable.sol";
 
 import "./DirectSalePoolStorage.sol";
+import "../../history/DirectSalePool.sol";
 
 
 /// @custom:oz-upgrades-from DirectSalePool

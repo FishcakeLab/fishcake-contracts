@@ -152,14 +152,13 @@ contract StakingManager is Initializable, OwnableUpgradeable, ReentrancyGuardUpg
     function getNftApr(address miner, uint256 tokenId) internal view returns(uint256) {
         uint256 decimal = 10e6;
         uint8 nftType = nftManagerAddress.getMinerBoosterNftType(tokenId);
-        uint256 minerAmount = feManagerAddress.getMinerMineAmount(miner);
-        if (nftType == 6 || minerAmount >= 1600 * decimal) {
+        if (nftType == 6) {
             return 20;
-        } else if (nftType == 5 || (minerAmount < 1600 * decimal && minerAmount >= 1000 * decimal)) {
+        } else if (nftType == 5) {
             return 15;
-        } else if (nftType == 4 || (minerAmount < 1000 * decimal && minerAmount >= 160 * decimal)) {
+        } else if (nftType == 4) {
             return 9;
-        } else if (nftType == 3 || (minerAmount < 160 * decimal && minerAmount >= 100 * decimal)) {
+        } else if (nftType == 3) {
             return 5;
         }  else {
             return 1;
