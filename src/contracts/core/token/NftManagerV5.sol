@@ -94,7 +94,7 @@ contract NftManagerV5 is
         emit Received(msg.sender, msg.value);
     }
 
-    function nftUpgradeInit(address _feManagerAddress, address _boosterAddress, address _stakingManagerAddress) external onlyBooster {
+    function nftUpgradeInit(address _feManagerAddress, address _boosterAddress, address _stakingManagerAddress) external onlyOwner {
         uncommonFishcakeNftJson = "https://www.fishcake.org/image/3.json";
         rareShrimpNftJson = "https://www.fishcake.org/image/4.json";
         epicSalmonNftJson = "https://www.fishcake.org/image/5.json";
