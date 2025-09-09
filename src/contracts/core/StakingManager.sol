@@ -6,16 +6,20 @@ import "@openzeppelin-upgrades/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin-upgrades/contracts/access/OwnableUpgradeable.sol";
 import "@openzeppelin-upgrades/contracts/utils/ReentrancyGuardUpgradeable.sol";
 
-import { StakingManagerStorage } from "./StakingManagerStorage.sol";
+import {StakingManagerStorage} from "./StakingManagerStorage.sol";
 import "../interfaces/IFishcakeEventManager.sol";
 import "../interfaces/INftManager.sol";
 
-
-contract StakingManager is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, StakingManagerStorage{
+contract StakingManager is
+    Initializable,
+    OwnableUpgradeable,
+    ReentrancyGuardUpgradeable,
+    StakingManagerStorage
+{
     using SafeERC20 for IERC20;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor(){
+    constructor() {
         _disableInitializers();
     }
 
@@ -23,38 +27,48 @@ contract StakingManager is Initializable, OwnableUpgradeable, ReentrancyGuardUpg
         emit Received(msg.sender, msg.value);
     }
 
-    function initialize(address _initialOwner, IFishcakeEventManager _feManagerAddress, INftManager _nftManagerAddress)
-        public
-        initializer
-    {
-        require(_initialOwner != address(0), "StakingManager initialize: _initialOwner can't be zero address");
+    function initialize(
+        address _initialOwner,
+        address _fccAddress,
+        IFishcakeEventManager _feManagerAddress,
+        INftManager _nftManagerAddress
+    ) public initializer {
+        require(
+            _initialOwner != address(0),
+            "StakingManager initialize: _initialOwner can't be zero address"
+        );
         feManagerAddress = _feManagerAddress;
         nftManagerAddress = _nftManagerAddress;
+        fccAddress = _fccAddress;
         __Ownable_init(_initialOwner);
         _transferOwnership(_initialOwner);
         __ReentrancyGuard_init();
         messageNonce = 0;
     }
 
-    function DepositIntoStaking(uint256 amount, uint8 stakingType) external nonReentrant {
-        require(amount > minStakeAmount, "StakingManager DepositIntoStaking: staking amount must be more than minStakeAmount");
+    function depositIntoStaking(
+        uint256 amount,
+        uint8 stakingType
+    ) external nonReentrant {
+        require(
+            amount >= minStakeAmount,
+            "StakingManager DepositIntoStaking: staking amount must be at least minStakeAmount"
+        );
 
-        IERC20(fccAddress).safeTransfer(address(this), amount);
+        IERC20(fccAddress).safeTransferFrom(msg.sender, address(this), amount);
 
         bytes32 txMessageHash = keccak256(
-            abi.encode(
-                msg.sender,
-                fccAddress,
-                amount,
-                messageNonce
-            )
+            abi.encode(msg.sender, fccAddress, amount, messageNonce)
         );
+
         uint256 stakingTimestamp = 0;
         uint256 apr = 0;
         (stakingTimestamp, apr) = getStakingPeriodAndApr(stakingType);
         uint endTime = block.timestamp + stakingTimestamp;
 
-        uint256 tokenId = nftManagerAddress.getActiveMinerBoosterNft(msg.sender);
+        uint256 tokenId = nftManagerAddress.getActiveMinerBoosterNft(
+            msg.sender
+        );
 
         stakeHolderStakingInfo memory ssInfo = stakeHolderStakingInfo({
             startStakingTime: block.timestamp,
@@ -77,26 +91,26 @@ contract StakingManager is Initializable, OwnableUpgradeable, ReentrancyGuardUpg
         messageNonce++;
     }
 
-    function withdrawFromStakingWithAprIncome(uint256 amount, uint256 messageNonce) external nonReentrant {
+    function withdrawFromStakingWithAprIncome(
+        uint256 amount,
+        uint256 messageNonce
+    ) external nonReentrant {
         bytes32 txMessageHash = keccak256(
-            abi.encode(
-                msg.sender,
-                fccAddress,
-                amount,
-                messageNonce
-            )
+            abi.encode(msg.sender, fccAddress, amount, messageNonce)
         );
-        uint256 txLockEndTime = stakingQueued[msg.sender][txMessageHash].endStakingTime;
+        uint256 txLockEndTime = stakingQueued[msg.sender][txMessageHash]
+            .endStakingTime;
         if (block.timestamp < txLockEndTime) {
-            revert FundingUnderStaking(
-                amount,
-                txLockEndTime
-            );
+            revert FundingUnderStaking(amount, txLockEndTime);
         }
-        uint256 amountOut = stakingQueued[msg.sender][txMessageHash].amount;
-        if (amountOut < minStakeAmount) {
-            revert NoFundingForStaking();
-        }
+        require(
+            stakingQueued[msg.sender][txMessageHash].stakingStatus == 0,
+            "already withdrawn"
+        );
+        // uint256 amountOut = stakingQueued[msg.sender][txMessageHash].amount;
+        // // if (amountOut < minStakeAmount) {
+        // //     revert NoFundingForStaking();
+        // // }
         totalStakingAmount -= amount;
         stakingQueued[msg.sender][txMessageHash].stakingStatus = 1; //staking end
 
@@ -111,17 +125,20 @@ contract StakingManager is Initializable, OwnableUpgradeable, ReentrancyGuardUpg
         IERC20(fccAddress).safeTransfer(msg.sender, amount);
         IERC20(fccAddress).safeTransfer(msg.sender, rewardAprFunding);
 
-        emit StakeHolderWithdrawStaking(msg.sender, amount, messageNonce, txMessageHash);
+        emit StakeHolderWithdrawStaking(
+            msg.sender,
+            amount,
+            messageNonce,
+            txMessageHash
+        );
     }
 
-    function getStakingAprFunding(uint256 amount, uint256 messageNonce)  external view returns(uint256) {
+    function getStakingAprFunding(
+        uint256 amount,
+        uint256 messageNonce
+    ) external view returns (uint256) {
         bytes32 txMessageHash = keccak256(
-            abi.encode(
-                msg.sender,
-                fccAddress,
-                amount,
-                messageNonce
-            )
+            abi.encode(msg.sender, fccAddress, amount, messageNonce)
         );
 
         uint256 rewardAprFunding = calculateArpFunding(
@@ -134,8 +151,34 @@ contract StakingManager is Initializable, OwnableUpgradeable, ReentrancyGuardUpg
         return rewardAprFunding;
     }
 
+    function withdrawETHFromContract(
+        address to,
+        uint256 amount
+    ) external onlyOwner {
+        require(
+            to != address(0),
+            "StakingManager withdrawETHFromContract: to can't be zero address"
+        );
+        require(
+            amount <= address(this).balance,
+            "StakingManager withdrawETHFromContract: amount must be less than balance"
+        );
+        (bool success, ) = to.call{value: amount}("");
+        require(
+            success,
+            "StakingManager withdrawETHFromContract: Withdraw failed"
+        );
+        emit WithdrawETHFromContract(to, amount);
+    }
+
     //==========================internal function===============================
-    function calculateArpFunding(address miner, uint256 stakingAmount, uint8 stakingType, uint256 stakingTime, uint256 tokenId) internal view returns(uint256) {
+    function calculateArpFunding(
+        address miner,
+        uint256 stakingAmount,
+        uint8 stakingType,
+        uint256 stakingTime,
+        uint256 tokenId
+    ) internal view returns (uint256) {
         uint256 stakingArp = 0;
         uint256 lockType = 0;
         uint256 nftApr = getNftApr(miner, tokenId);
@@ -143,14 +186,21 @@ contract StakingManager is Initializable, OwnableUpgradeable, ReentrancyGuardUpg
         uint256 totalRewardApr = nftApr + stakingArp;
         uint256 actualStakingDuration = block.timestamp - stakingTime;
         if (block.timestamp >= halfAprTimeStamp) {
-            uint256 reward = stakingAmount * totalRewardApr * actualStakingDuration / (100 * 365 days);
+            uint256 reward = (stakingAmount *
+                totalRewardApr *
+                actualStakingDuration) / (100 * 365 days);
             return reward / 2;
         }
-        return stakingAmount * totalRewardApr * actualStakingDuration / (100 * 365 days);
+        return
+            (stakingAmount * totalRewardApr * actualStakingDuration) /
+            (100 * 365 days);
     }
 
-    function getNftApr(address miner, uint256 tokenId) internal view returns(uint256) {
-        uint256 decimal = 10e6;
+    function getNftApr(
+        address miner,
+        uint256 tokenId
+    ) internal view returns (uint256) {
+        // uint256 decimal = 10e6;
         uint8 nftType = nftManagerAddress.getMinerBoosterNftType(tokenId);
         if (nftType == 6) {
             return 20;
@@ -160,13 +210,20 @@ contract StakingManager is Initializable, OwnableUpgradeable, ReentrancyGuardUpg
             return 9;
         } else if (nftType == 3) {
             return 5;
-        }  else {
+        } else if (nftType == 0) {
+            return 0;
+        } else {
             return 1;
         }
     }
 
-    function getStakingPeriodAndApr(uint8 stakingType) internal pure returns(uint256, uint256) {
-        require(stakingType > 0 && stakingType < 5, "StakingManager getStakingPeriod: stakingType amount must be more than 0 and less than 4");
+    function getStakingPeriodAndApr(
+        uint8 stakingType
+    ) internal pure returns (uint256, uint256) {
+        require(
+            stakingType > 0 && stakingType < 5,
+            "StakingManager getStakingPeriod: stakingType amount must be more than 0 and less than 5"
+        );
         if (stakingType == 1) {
             return (lockThirtyDays, 3);
         } else if (stakingType == 2) {

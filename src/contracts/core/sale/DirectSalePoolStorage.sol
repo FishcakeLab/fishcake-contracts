@@ -17,7 +17,11 @@ abstract contract DirectSalePoolStorage is IDirectSalePool, Initializable {
     uint256 public totalSellFccAmount;
     uint256 public totalReceiveUsdtAmount;
 
-    function __DirectSalePoolStorage_init(address _fishCakeCoin, address _redemptionPool, address _tokenUsdtAddress) internal initializer {
+    function __DirectSalePoolStorage_init(
+        address _fishCakeCoin,
+        address _redemptionPool,
+        address _tokenUsdtAddress
+    ) internal {
         fishCakeCoin = IERC20(_fishCakeCoin);
         redemptionPool = IRedemptionPool(_redemptionPool);
         tokenUsdtAddress = IERC20(_tokenUsdtAddress);
@@ -26,5 +30,4 @@ abstract contract DirectSalePoolStorage is IDirectSalePool, Initializable {
     }
 
     uint256[100] private __gap;
-
 }

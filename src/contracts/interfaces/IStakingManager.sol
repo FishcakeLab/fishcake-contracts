@@ -17,10 +17,13 @@ interface IStakingManager {
 
     event Received(address indexed receiver, uint256 _value);
 
-
     error FundingUnderStaking(uint256 amount, uint256 endTime);
     error NoFundingForStaking();
 
-    function DepositIntoStaking(uint256 amount, uint8 stakingType) external;
-    function withdrawFromStakingWithAprIncome(uint256 amount, uint256 messageNonce) external;
+    function depositIntoStaking(uint256 amount, uint8 stakingType) external;
+
+    function withdrawFromStakingWithAprIncome(
+        uint256 amount,
+        uint256 messageNonce
+    ) external;
 }
