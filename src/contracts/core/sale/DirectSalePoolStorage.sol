@@ -21,7 +21,7 @@ abstract contract DirectSalePoolStorage is IDirectSalePool, Initializable {
         address _fishCakeCoin,
         address _redemptionPool,
         address _tokenUsdtAddress
-    ) internal {
+    ) internal onlyInitializing {
         fishCakeCoin = IERC20(_fishCakeCoin);
         redemptionPool = IRedemptionPool(_redemptionPool);
         tokenUsdtAddress = IERC20(_tokenUsdtAddress);
