@@ -197,7 +197,7 @@ contract NftManagerV5 is
         );
         tokenUsdtAddr.safeTransfer(
             address(redemptionPoolAddress),
-            (payUsdtAmount * 75) / 100
+            (payUsdtAmount * 25) / 100
         );
 
         uint256 tokenId = _nextTokenId++;
