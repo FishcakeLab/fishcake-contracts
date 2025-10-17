@@ -10,11 +10,14 @@ import {StakingManagerStorage} from "./StakingManagerStorage.sol";
 import "../interfaces/IFishcakeEventManager.sol";
 import "../interfaces/INftManager.sol";
 
+import "@openzeppelin-upgrades/contracts/proxy/utils/UUPSUpgradeable.sol";
+
 contract StakingManager is
     Initializable,
     OwnableUpgradeable,
     ReentrancyGuardUpgradeable,
-    StakingManagerStorage
+    StakingManagerStorage,
+    UUPSUpgradeable
 {
     using SafeERC20 for IERC20;
 
@@ -43,6 +46,7 @@ contract StakingManager is
         __Ownable_init(_initialOwner);
         _transferOwnership(_initialOwner);
         __ReentrancyGuard_init();
+        __UUPSUpgradeable_init();
         messageNonce = 0;
     }
 
@@ -234,4 +238,10 @@ contract StakingManager is
             return (lockHalfYears, 15);
         }
     }
+
+    /// @notice 授权升级逻辑合约的函数
+    /// @dev 只允许合约owner执行
+    function _authorizeUpgrade(
+        address newImplementation
+    ) internal override onlyOwner {}
 }

@@ -44,11 +44,17 @@ contract UpgradeNftManagerV5DeployerScript is Script {
             "NftManagerV5.sol:NftManagerV5",
             ""
         );
+
         vm.stopBroadcast();
         console.log(
-            "upgraded after:",
+            "=========upgraded logic address after:=========",
             Upgrades.getImplementationAddress(PROXY_NFT_MANAGER)
         );
+        console.log(
+            "New NftManagerV5 implementation:",
+            address(newImplementation)
+        );
+
         console.log(
             "Proxy Admin:",
             Upgrades.getAdminAddress(PROXY_NFT_MANAGER)
@@ -58,23 +64,16 @@ contract UpgradeNftManagerV5DeployerScript is Script {
         console.log(
             "======================================================================="
         );
-        console.log("Owner:", deployerAddress);
-        console.log(
-            "New NftManagerV5 implementation:",
-            address(newImplementation)
-        );
-        console.log("NftManager proxy:", PROXY_NFT_MANAGER);
 
-        // Verify upgraded state
         NftManagerV5 upgradedNftManager = NftManagerV5(
             payable(PROXY_NFT_MANAGER)
         );
-        upgradedNftManager.initialize(
-            INITIAL_OWNER,
-            FCC_ADDRESS,
-            USDT_ADDRESS,
-            REDEMPT_POOL
-        );
+        console.log("========Owner:==========", upgradedNftManager.owner());
+
+        console.log("=========NftManager proxy:==========", PROXY_NFT_MANAGER);
+
+        // Verify upgraded state
+
         console.log("Verifying upgraded state...");
         console.log(
             "fccTokenAddr:",

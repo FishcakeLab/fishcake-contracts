@@ -23,7 +23,7 @@ contract FishcakeEventManagerV2Script is Script {
         address deployerAddress = vm.addr(deployerPrivateKey);
         console.log("deploy deployerAddress:", address(deployerAddress));
 
-        console.log("address(this):", address(this));
+        // console.log("address(this):", address(this));
 
         vm.startBroadcast(deployerPrivateKey);
         FishcakeEventManagerV2 newImplementation = new FishcakeEventManagerV2();
@@ -41,16 +41,16 @@ contract FishcakeEventManagerV2Script is Script {
             Upgrades.getImplementationAddress(PROXY_FISH_CAKE_EVENT_MANAGER)
         );
 
-        // 加入初始化 data
-        bytes memory data = abi.encodeCall(
-            FishcakeEventManagerV2.initialize,
-            (INITIAL_OWNER, FCC_ADDRESS, USDT_ADDRESS, NFT_MANAGER)
-        );
+        // // 加入初始化 data
+        // bytes memory data = abi.encodeCall(
+        //     FishcakeEventManagerV2.initialize,
+        //     (INITIAL_OWNER, FCC_ADDRESS, USDT_ADDRESS, NFT_MANAGER)
+        // ); // 升级权限在 deployerAddress，逻辑权限在 INITIAL_OWNER
 
         Upgrades.upgradeProxy(
             PROXY_FISH_CAKE_EVENT_MANAGER,
             "FishcakeEventManagerV2.sol:FishcakeEventManagerV2",
-            data,
+            "",
             deployerAddress
         );
         console.log("FishcakeEventManagerV2 proxy upgraded successfully");
@@ -59,12 +59,20 @@ contract FishcakeEventManagerV2Script is Script {
         );
         vm.stopBroadcast();
         console.log(
-            "upgraded after:",
+            "==========upgraded logic address after: ============",
             Upgrades.getImplementationAddress(PROXY_FISH_CAKE_EVENT_MANAGER)
         );
         console.log(
             "Proxy Admin:",
             Upgrades.getAdminAddress(PROXY_FISH_CAKE_EVENT_MANAGER)
         );
+
+        FishcakeEventManagerV2 fishcakeEventManagerV2 = FishcakeEventManagerV2(
+            payable(PROXY_FISH_CAKE_EVENT_MANAGER)
+        );
+
+        console.log("========Proxy:==========", PROXY_FISH_CAKE_EVENT_MANAGER);
+
+        console.log("========Owner:==========", fishcakeEventManagerV2.owner());
     }
 }

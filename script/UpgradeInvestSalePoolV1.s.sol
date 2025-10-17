@@ -15,15 +15,15 @@ contract UpgradeInvestorSalePoolScript is Script {
     address public constant REDEMPT_POOL =
         0x036423643CEB603B7aff40A05627F09C04b9897E;
 
-    address public constant PROXY_DIRECT_SALE_POOL =
-        address(0xF71C97C9C6B2133A0Cb5c3ED4CC6eFe5e1BC534C);
+    address public constant PROXY_INVESTOR_SALE_POOL =
+        address(0x9dA9d48c3b1CB9B8c4AE3c195a6Bee5BAaa5314A);
 
     function run() public {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         address deployerAddress = vm.addr(deployerPrivateKey);
         console.log("deploy deployerAddress:", address(deployerAddress));
 
-        console.log("address(this):", address(this));
+        // console.log("address(this):", address(this));
 
         vm.startBroadcast(deployerPrivateKey);
         InvestorSalePool newImplementation = new InvestorSalePool();
@@ -34,35 +34,43 @@ contract UpgradeInvestorSalePoolScript is Script {
 
         console.log(
             "DirectSalePool Proxy Admin:",
-            Upgrades.getAdminAddress(PROXY_DIRECT_SALE_POOL)
+            Upgrades.getAdminAddress(PROXY_INVESTOR_SALE_POOL)
         );
         console.log(
             "DirectSalePool upgraded before:",
-            Upgrades.getImplementationAddress(PROXY_DIRECT_SALE_POOL)
+            Upgrades.getImplementationAddress(PROXY_INVESTOR_SALE_POOL)
         );
 
-        // 加入初始化 data
-        bytes memory data = abi.encodeCall(
-            InvestorSalePool.initialize,
-            (INITIAL_OWNER, FCC_ADDRESS, REDEMPT_POOL, USDT_ADDRESS)
-        );
+        // // 加入初始化 data
+        // bytes memory data = abi.encodeCall(
+        //     InvestorSalePool.initialize,
+        //     (INITIAL_OWNER, FCC_ADDRESS, REDEMPT_POOL, USDT_ADDRESS)
+        // ); // 升级权限在 deployerAddress，逻辑权限在 INITIAL_OWNER
 
         Upgrades.upgradeProxy(
-            PROXY_DIRECT_SALE_POOL,
+            PROXY_INVESTOR_SALE_POOL,
             "InvestorSalePool.sol:InvestorSalePool",
-            data,
+            "",
             deployerAddress
         );
         console.log("InvestorSalePool proxy upgraded successfully");
         vm.stopBroadcast();
 
         console.log(
-            "DirectSalePool upgraded after:",
-            Upgrades.getImplementationAddress(PROXY_DIRECT_SALE_POOL)
+            "======= InvestorSalePool logic address upgraded after:==========",
+            Upgrades.getImplementationAddress(PROXY_INVESTOR_SALE_POOL)
         );
         console.log(
-            "DirectSalePool Proxy Admin:",
-            Upgrades.getAdminAddress(PROXY_DIRECT_SALE_POOL)
+            "InvestorSalePool Proxy Admin:",
+            Upgrades.getAdminAddress(PROXY_INVESTOR_SALE_POOL)
         );
+
+        InvestorSalePool investorSalePool = InvestorSalePool(
+            payable(PROXY_INVESTOR_SALE_POOL)
+        );
+
+        console.log("========Proxy:==========", PROXY_INVESTOR_SALE_POOL);
+
+        console.log("========Owner:==========", investorSalePool.owner());
     }
 }

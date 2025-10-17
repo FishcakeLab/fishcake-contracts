@@ -29,14 +29,14 @@ contract DeployerStakingMangerScript is Script {
         StakingManager stakingManagerImplementation = new StakingManager();
 
         console.log(
-            "StakingManager address:",
+            "=========== StakingManager Logic address: =============",
             address(stakingManagerImplementation)
         );
 
         bytes memory data = abi.encodeCall(
             stakingManagerImplementation.initialize,
             (
-                deployerAddress,
+                deployerAddress, // 升级权限和逻辑权限都在deployerAddress
                 fccAddress,
                 PROXY_FISH_CAKE_EVENT_MANAGER,
                 PROXY_NFT_MANAGER
@@ -50,6 +50,14 @@ contract DeployerStakingMangerScript is Script {
 
         vm.stopBroadcast();
 
-        console.log("UUPS Proxy Address:", address(proxyStakingManager));
+        console.log(
+            "========UUPS Proxy StakingManager Address: =========",
+            address(proxyStakingManager)
+        );
+
+        console.log(
+            "========StakingManager Owner: =========",
+            StakingManager(payable(address(proxyStakingManager))).owner()
+        );
     }
 }
