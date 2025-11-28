@@ -52,7 +52,8 @@ contract StakingManager is
 
     function depositIntoStaking(
         uint256 amount,
-        uint8 stakingType
+        uint8 stakingType,
+        bool isAutoRenew
     ) external nonReentrant {
         require(
             amount >= minStakeAmount,
@@ -73,6 +74,7 @@ contract StakingManager is
         uint256 tokenId = nftManagerAddress.getActiveMinerBoosterNft(
             msg.sender
         );
+        uint256 nftApr = getNftApr(msg.sender, tokenId);
 
         stakeHolderStakingInfo memory ssInfo = stakeHolderStakingInfo({
             startStakingTime: block.timestamp,
@@ -81,7 +83,8 @@ contract StakingManager is
             endStakingTime: endTime,
             stakingStatus: 0, // under staking now
             stakingType: stakingType,
-            bindingNft: tokenId
+            bindingNft: tokenId,
+            isAutoRenew: isAutoRenew
         });
 
         nftManagerAddress.inActiveMinerBoosterNft(msg.sender);
@@ -90,7 +93,17 @@ contract StakingManager is
 
         totalStakingAmount += amount;
 
-        emit StakeHolderDepositStaking(msg.sender, amount, messageNonce);
+        emit StakeHolderDepositStaking(
+            msg.sender,
+            amount,
+            stakingType,
+            block.timestamp,
+            endTime,
+            tokenId,
+            nftApr,
+            isAutoRenew,
+            messageNonce
+        );
 
         messageNonce++;
     }
@@ -118,12 +131,13 @@ contract StakingManager is
         totalStakingAmount -= amount;
         stakingQueued[msg.sender][txMessageHash].stakingStatus = 1; //staking end
 
-        uint256 rewardAprFunding = calculateArpFunding(
+        uint256 rewardAprFunding = calculateAprFunding(
             msg.sender,
             stakingQueued[msg.sender][txMessageHash].amount,
             stakingQueued[msg.sender][txMessageHash].stakingType,
             stakingQueued[msg.sender][txMessageHash].startStakingTime,
-            stakingQueued[msg.sender][txMessageHash].bindingNft
+            stakingQueued[msg.sender][txMessageHash].bindingNft,
+            stakingQueued[msg.sender][txMessageHash].isAutoRenew
         );
 
         IERC20(fccAddress).safeTransfer(msg.sender, amount);
@@ -133,7 +147,8 @@ contract StakingManager is
             msg.sender,
             amount,
             messageNonce,
-            txMessageHash
+            txMessageHash,
+            rewardAprFunding
         );
     }
 
@@ -145,12 +160,13 @@ contract StakingManager is
             abi.encode(msg.sender, fccAddress, amount, messageNonce)
         );
 
-        uint256 rewardAprFunding = calculateArpFunding(
+        uint256 rewardAprFunding = calculateAprFunding(
             msg.sender,
             stakingQueued[msg.sender][txMessageHash].amount,
             stakingQueued[msg.sender][txMessageHash].stakingType,
             stakingQueued[msg.sender][txMessageHash].startStakingTime,
-            stakingQueued[msg.sender][txMessageHash].bindingNft
+            stakingQueued[msg.sender][txMessageHash].bindingNft,
+            stakingQueued[msg.sender][txMessageHash].isAutoRenew
         );
         return rewardAprFunding;
     }
@@ -176,28 +192,49 @@ contract StakingManager is
     }
 
     //==========================internal function===============================
-    function calculateArpFunding(
+    function calculateAprFunding(
         address miner,
         uint256 stakingAmount,
         uint8 stakingType,
         uint256 stakingTime,
-        uint256 tokenId
+        uint256 tokenId,
+        bool isAutoRenew
     ) internal view returns (uint256) {
-        uint256 stakingArp = 0;
-        uint256 lockType = 0;
+        uint256 stakingApr = 0;
+        uint256 lockTime = 0;
         uint256 nftApr = getNftApr(miner, tokenId);
-        (lockType, stakingArp) = getStakingPeriodAndApr(stakingType);
-        uint256 totalRewardApr = nftApr + stakingArp;
+        (lockTime, stakingApr) = getStakingPeriodAndApr(stakingType);
+        uint256 totalRewardApr = nftApr + stakingApr;
         uint256 actualStakingDuration = block.timestamp - stakingTime;
-        if (block.timestamp >= halfAprTimeStamp) {
-            uint256 reward = (stakingAmount *
-                totalRewardApr *
-                actualStakingDuration) / (100 * 365 days);
-            return reward / 2;
+
+        // First calculate effective staking duration
+        if (actualStakingDuration <= lockTime || isAutoRenew) {
+            actualStakingDuration = actualStakingDuration;
+        } else {
+            actualStakingDuration = lockTime;
         }
-        return
-            (stakingAmount * totalRewardApr * actualStakingDuration) /
-            (100 * 365 days);
+
+        // Then calculate reward: booster APR only counts for lock time, staking APR counts for all time
+        uint256 reward = 0;
+        if (actualStakingDuration < lockTime) {
+            reward =
+                (stakingAmount * totalRewardApr * actualStakingDuration) /
+                (100 * 365 days);
+        } else {
+            uint256 baseReward = (stakingAmount * totalRewardApr * lockTime) /
+                (100 * 365 days);
+            uint256 extraReward = (stakingAmount *
+                stakingApr *
+                (actualStakingDuration - lockTime)) / (100 * 365 days);
+            reward = baseReward + extraReward;
+        }
+
+        // Halve the reward if past halfAprTimeStamp(2026/01/01)
+        if (block.timestamp >= halfAprTimeStamp) {
+            return reward / 2;
+        } else {
+            return reward;
+        }
     }
 
     function getNftApr(

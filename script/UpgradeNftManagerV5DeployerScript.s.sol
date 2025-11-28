@@ -19,6 +19,8 @@ contract UpgradeNftManagerV5DeployerScript is Script {
         0xc2132D05D31c914a87C6611C10748AEb04B58e8F;
     address public constant REDEMPT_POOL =
         0x036423643CEB603B7aff40A05627F09C04b9897E;
+    address public constant STAKING_MANAGER =
+        0x19C6bf3Ae8DFf14967C1639b96887E8778738417;
 
     // main network
     address public constant PROXY_NFT_MANAGER =
@@ -44,8 +46,13 @@ contract UpgradeNftManagerV5DeployerScript is Script {
             "NftManagerV5.sol:NftManagerV5",
             ""
         );
+        NftManagerV5 upgradedNftManager = NftManagerV5(
+            payable(PROXY_NFT_MANAGER)
+        );
+        upgradedNftManager.initializeV5(STAKING_MANAGER);
 
         vm.stopBroadcast();
+
         console.log(
             "=========upgraded logic address after:=========",
             Upgrades.getImplementationAddress(PROXY_NFT_MANAGER)
@@ -65,12 +72,14 @@ contract UpgradeNftManagerV5DeployerScript is Script {
             "======================================================================="
         );
 
-        NftManagerV5 upgradedNftManager = NftManagerV5(
-            payable(PROXY_NFT_MANAGER)
-        );
         console.log("========Owner:==========", upgradedNftManager.owner());
 
         console.log("=========NftManager proxy:==========", PROXY_NFT_MANAGER);
+
+        console.log(
+            "========StakingManager:==========",
+            address(upgradedNftManager.stakingManagerAddress())
+        );
 
         // Verify upgraded state
 

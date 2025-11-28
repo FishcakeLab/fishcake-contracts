@@ -47,6 +47,7 @@ abstract contract StakingManagerStorage is IStakingManager {
         uint8 stakingStatus;
         uint8 stakingType;
         uint256 bindingNft;
+        bool isAutoRenew;
     }
 
     mapping(address => mapping(bytes32 => stakeHolderStakingInfo)) stakingQueued;
