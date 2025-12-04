@@ -105,6 +105,14 @@ contract NftManagerV5 is
             _tokenUsdtAddr,
             _redemptionPoolAddress
         );
+
+    }
+
+    function initializeV5(
+        address _stakingManagerAddress
+    ) public reinitializer(5) {
+        stakingManagerAddress = IStakingManager(_stakingManagerAddress);
+
     }
 
     receive() external payable {
@@ -120,6 +128,11 @@ contract NftManagerV5 is
         rareShrimpNftJson = "https://www.fishcake.org/image/4.json";
         epicSalmonNftJson = "https://www.fishcake.org/image/5.json";
         legendaryTunaNftJson = "https://www.fishcake.org/image/6.json";
+
+        // uncommonFishcakeNftJson_Used = "https://www.fishcake.org/image/3.json";
+        // rareShrimpNftJson_Used = "https://www.fishcake.org/image/4.json";
+        // epicSalmonNftJson_Used = "https://www.fishcake.org/image/5.json";
+        // legendaryTunaNftJson_Used = "https://www.fishcake.org/image/6.json";
 
         feManagerAddress = IFishcakeEventManager(_feManagerAddress);
         stakingManagerAddress = IStakingManager(_stakingManagerAddress);
@@ -197,7 +210,9 @@ contract NftManagerV5 is
         );
         tokenUsdtAddr.safeTransfer(
             address(redemptionPoolAddress),
-            (payUsdtAmount * 75) / 100
+
+            (payUsdtAmount * 25) / 100
+
         );
 
         uint256 tokenId = _nextTokenId++;
@@ -243,9 +258,20 @@ contract NftManagerV5 is
             return rareShrimpNftJson;
         } else if (nftType == 5) {
             return epicSalmonNftJson;
-        } else {
+        } else if (nftType == 6) {
             return legendaryTunaNftJson;
+        } else {
+            return "";
         }
+        // } else if (nftType == 3 + 10) {
+        //     return uncommonFishcakeNftJson_Used;
+        // } else if (nftType == 4 + 10) {
+        //     return rareShrimpNftJson_Used;
+        // } else if (nftType == 5 + 10) {
+        //     return epicSalmonNftJson_Used;
+        // } else if (nftType == 6 + 10) {
+        //     return legendaryTunaNftJson_Used;
+        // }
     }
 
     function uri(
@@ -327,7 +353,10 @@ contract NftManagerV5 is
     function inActiveMinerBoosterNft(
         address _miner
     ) external onlyStakingManager {
-        minerActiveNft[_miner] = 0;
+
+        uint256 activeNftId = minerActiveNft[_miner];
+        minerActiveNft[_miner] = activeNftId + 10;
+
     }
 
     function getActiveMinerBoosterNft(
