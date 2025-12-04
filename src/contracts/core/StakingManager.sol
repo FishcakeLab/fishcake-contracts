@@ -10,14 +10,17 @@ import {StakingManagerStorage} from "./StakingManagerStorage.sol";
 import "../interfaces/IFishcakeEventManager.sol";
 import "../interfaces/INftManager.sol";
 
+
 import "@openzeppelin-upgrades/contracts/proxy/utils/UUPSUpgradeable.sol";
 
 contract StakingManager is
     Initializable,
     OwnableUpgradeable,
     ReentrancyGuardUpgradeable,
+
     StakingManagerStorage,
     UUPSUpgradeable
+
 {
     using SafeERC20 for IERC20;
 
@@ -52,8 +55,10 @@ contract StakingManager is
 
     function depositIntoStaking(
         uint256 amount,
+
         uint8 stakingType,
         bool isAutoRenew
+
     ) external nonReentrant {
         require(
             amount >= minStakeAmount,
@@ -74,7 +79,9 @@ contract StakingManager is
         uint256 tokenId = nftManagerAddress.getActiveMinerBoosterNft(
             msg.sender
         );
+
         uint256 nftApr = getNftApr(msg.sender, tokenId);
+
 
         stakeHolderStakingInfo memory ssInfo = stakeHolderStakingInfo({
             startStakingTime: block.timestamp,
@@ -147,8 +154,10 @@ contract StakingManager is
             msg.sender,
             amount,
             messageNonce,
+
             txMessageHash,
             rewardAprFunding
+
         );
     }
 
@@ -192,16 +201,20 @@ contract StakingManager is
     }
 
     //==========================internal function===============================
+
     function calculateAprFunding(
+
         address miner,
         uint256 stakingAmount,
         uint8 stakingType,
         uint256 stakingTime,
+
         uint256 tokenId,
         bool isAutoRenew
     ) internal view returns (uint256) {
         uint256 stakingApr = 0;
         uint256 lockTime = 0;
+
         uint256 nftApr = getNftApr(miner, tokenId);
         (lockTime, stakingApr) = getStakingPeriodAndApr(stakingType);
         uint256 totalRewardApr = nftApr + stakingApr;
@@ -231,10 +244,14 @@ contract StakingManager is
 
         // Halve the reward if past halfAprTimeStamp(2026/01/01)
         if (block.timestamp >= halfAprTimeStamp) {
+
+
             return reward / 2;
         } else {
             return reward;
         }
+
+
     }
 
     function getNftApr(
@@ -254,7 +271,9 @@ contract StakingManager is
         } else if (nftType == 0) {
             return 0;
         } else {
+
             return 0;
+
         }
     }
 

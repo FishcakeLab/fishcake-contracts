@@ -27,11 +27,13 @@ interface IStakingManager {
     error FundingUnderStaking(uint256 amount, uint256 endTime);
     error NoFundingForStaking();
 
+
     function depositIntoStaking(
         uint256 amount,
         uint8 stakingType,
         bool isAutonew
     ) external;
+
 
     function withdrawFromStakingWithAprIncome(
         uint256 amount,

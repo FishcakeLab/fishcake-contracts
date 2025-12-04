@@ -105,12 +105,14 @@ contract NftManagerV5 is
             _tokenUsdtAddr,
             _redemptionPoolAddress
         );
+
     }
 
     function initializeV5(
         address _stakingManagerAddress
     ) public reinitializer(5) {
         stakingManagerAddress = IStakingManager(_stakingManagerAddress);
+
     }
 
     receive() external payable {
@@ -208,7 +210,9 @@ contract NftManagerV5 is
         );
         tokenUsdtAddr.safeTransfer(
             address(redemptionPoolAddress),
+
             (payUsdtAmount * 25) / 100
+
         );
 
         uint256 tokenId = _nextTokenId++;
@@ -349,8 +353,10 @@ contract NftManagerV5 is
     function inActiveMinerBoosterNft(
         address _miner
     ) external onlyStakingManager {
+
         uint256 activeNftId = minerActiveNft[_miner];
         minerActiveNft[_miner] = activeNftId + 10;
+
     }
 
     function getActiveMinerBoosterNft(
