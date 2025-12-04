@@ -10,8 +10,6 @@ import "../../interfaces/IFishcakeEventManager.sol";
 import "../../interfaces/INftManager.sol";
 import "../../interfaces/IStakingManager.sol";
 
-
-
 abstract contract NftManagerStorage is Initializable, INftManager {
     using Strings for uint256;
     using Strings for uint8;
@@ -50,6 +48,11 @@ abstract contract NftManagerStorage is Initializable, INftManager {
     string public epicSalmonNftJson;
     string public legendaryTunaNftJson;
 
+    // string public uncommonFishcakeNftJson_Used;
+    // string public rareShrimpNftJson_Used;
+    // string public epicSalmonNftJson_Used;
+    // string public legendaryTunaNftJson_Used;
+
     IFishcakeEventManager public feManagerAddress;
 
     mapping(address => uint256) public minerActiveNft;
@@ -60,7 +63,11 @@ abstract contract NftManagerStorage is Initializable, INftManager {
 
     IStakingManager public stakingManagerAddress;
 
-    function __NftManagerStorage_init(address _fccTokenAddr, address _tokenUsdtAddr, address _redemptionPoolAddress) internal initializer {
+    function __NftManagerStorage_init(
+        address _fccTokenAddr,
+        address _tokenUsdtAddr,
+        address _redemptionPoolAddress
+    ) internal initializer {
         fccTokenAddr = IERC20(_fccTokenAddr);
         tokenUsdtAddr = IERC20(_tokenUsdtAddr);
         redemptionPoolAddress = IRedemptionPool(_redemptionPoolAddress);
@@ -72,6 +79,5 @@ abstract contract NftManagerStorage is Initializable, INftManager {
 
         proNftJson = "https://www.fishcake.org/image/1.json";
         basicNftJson = "https://www.fishcake.org/image/2.json";
-
     }
 }

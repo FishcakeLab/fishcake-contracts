@@ -8,8 +8,9 @@ import "../interfaces/IFishcakeEventManager.sol";
 import "../interfaces/INftManager.sol";
 import "../interfaces/IStakingManager.sol";
 
-
 abstract contract StakingManagerStorage is IStakingManager {
+    event WithdrawETHFromContract(address indexed to, uint256 amount);
+
     uint256 public constant minStakeAmount = 10 * 10 ** 6;
 
     uint256 public constant lockThirtyDays = 30 days;
@@ -34,7 +35,6 @@ abstract contract StakingManagerStorage is IStakingManager {
 
     uint256 public messageNonce;
 
-
     IFishcakeEventManager public feManagerAddress;
 
     INftManager public nftManagerAddress;
@@ -44,10 +44,13 @@ abstract contract StakingManagerStorage is IStakingManager {
         uint256 amount;
         uint256 messageNonce;
         uint256 endStakingTime;
-        uint8  stakingStatus;
+        uint8 stakingStatus;
         uint8 stakingType;
         uint256 bindingNft;
+        bool isAutoRenew;
     }
 
     mapping(address => mapping(bytes32 => stakeHolderStakingInfo)) stakingQueued;
+
+    uint256[100] private __gap;
 }

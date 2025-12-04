@@ -4,7 +4,13 @@ pragma solidity ^0.8.0;
 interface IStakingManager {
     event StakeHolderDepositStaking(
         address indexed staker,
-        uint256 stakingAmount,
+        uint256 amount,
+        uint8 stakingType,
+        uint256 startStakingTime,
+        uint256 endStakingTime,
+        uint256 bindingNft,
+        uint256 nftApr,
+        bool isAutoRenew,
         uint256 messageNonce
     );
 
@@ -12,15 +18,23 @@ interface IStakingManager {
         address indexed recipant,
         uint256 withdrawAmount,
         uint256 messageNonce,
-        bytes32 messageHash
+        bytes32 messageHash,
+        uint256 rewardAprFunding
     );
 
     event Received(address indexed receiver, uint256 _value);
 
-
     error FundingUnderStaking(uint256 amount, uint256 endTime);
     error NoFundingForStaking();
 
-    function DepositIntoStaking(uint256 amount, uint8 stakingType) external;
-    function withdrawFromStakingWithAprIncome(uint256 amount, uint256 messageNonce) external;
+    function depositIntoStaking(
+        uint256 amount,
+        uint8 stakingType,
+        bool isAutonew
+    ) external;
+
+    function withdrawFromStakingWithAprIncome(
+        uint256 amount,
+        uint256 messageNonce
+    ) external;
 }

@@ -14,7 +14,6 @@ abstract contract InvestorSalePoolStorage is Initializable, IInvestorSalePool {
     uint256 public constant usdtDecimal = 10 ** 6;
     uint256 public constant fccDecimal = 10 ** 6;
 
-
     IERC20 public fishCakeCoin;
     IRedemptionPool public redemptionPool;
     IERC20 public tokenUsdtAddress;
@@ -24,7 +23,11 @@ abstract contract InvestorSalePoolStorage is Initializable, IInvestorSalePool {
     uint256 public totalSellFccAmount;
     uint256 public totalReceiveUsdtAmount;
 
-    function __InvestorSalePoolStorage_init(address _fishCakeCoin, address _redemptionPool, address _tokenUsdtAddress) internal initializer {
+    function __InvestorSalePoolStorage_init(
+        address _fishCakeCoin,
+        address _redemptionPool,
+        address _tokenUsdtAddress
+    ) internal onlyInitializing {
         fishCakeCoin = IERC20(_fishCakeCoin);
         redemptionPool = IRedemptionPool(_redemptionPool);
         tokenUsdtAddress = IERC20(_tokenUsdtAddress);

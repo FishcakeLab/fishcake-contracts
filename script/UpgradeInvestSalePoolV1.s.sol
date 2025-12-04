@@ -3,9 +3,9 @@ pragma solidity ^0.8.13;
 
 import "@openzeppelin-foundry-upgrades/Upgrades.sol";
 import "forge-std/Script.sol";
-import {DirectSalePoolV1} from "../src/contracts/core/sale/DirectSalePoolV1.sol";
+import {InvestorSalePool} from "../src/contracts/core/sale/InvestorSalePool.sol";
 
-contract UpgradeDirectSalePoolV1Script is Script {
+contract UpgradeInvestorSalePoolScript is Script {
     address public constant INITIAL_OWNER =
         0x7a129d41bb517aD9A6FA49afFAa92eBeea2DFe07;
     address public constant FCC_ADDRESS =
@@ -15,8 +15,8 @@ contract UpgradeDirectSalePoolV1Script is Script {
     address public constant REDEMPT_POOL =
         0x036423643CEB603B7aff40A05627F09C04b9897E;
 
-    address public constant PROXY_DIRECT_SALE_POOL =
-        address(0xF71C97C9C6B2133A0Cb5c3ED4CC6eFe5e1BC534C);
+    address public constant PROXY_INVESTOR_SALE_POOL =
+        address(0x9dA9d48c3b1CB9B8c4AE3c195a6Bee5BAaa5314A);
 
     function run() public {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
@@ -26,51 +26,51 @@ contract UpgradeDirectSalePoolV1Script is Script {
         // console.log("address(this):", address(this));
 
         vm.startBroadcast(deployerPrivateKey);
-        DirectSalePoolV1 newImplementation = new DirectSalePoolV1();
+        InvestorSalePool newImplementation = new InvestorSalePool();
         console.log(
-            "New DirectSalePoolV1 implementation deployed at:",
+            "New InvestorSalePool implementation deployed at:",
             address(newImplementation)
         );
 
         console.log(
             "DirectSalePool Proxy Admin:",
-            Upgrades.getAdminAddress(PROXY_DIRECT_SALE_POOL)
+            Upgrades.getAdminAddress(PROXY_INVESTOR_SALE_POOL)
         );
         console.log(
             "DirectSalePool upgraded before:",
-            Upgrades.getImplementationAddress(PROXY_DIRECT_SALE_POOL)
+            Upgrades.getImplementationAddress(PROXY_INVESTOR_SALE_POOL)
         );
 
         // // 加入初始化 data
         // bytes memory data = abi.encodeCall(
-        //     DirectSalePoolV1.initialize,
+        //     InvestorSalePool.initialize,
         //     (INITIAL_OWNER, FCC_ADDRESS, REDEMPT_POOL, USDT_ADDRESS)
         // ); // 升级权限在 deployerAddress，逻辑权限在 INITIAL_OWNER
 
         Upgrades.upgradeProxy(
-            PROXY_DIRECT_SALE_POOL,
-            "DirectSalePoolV1.sol:DirectSalePoolV1",
+            PROXY_INVESTOR_SALE_POOL,
+            "InvestorSalePool.sol:InvestorSalePool",
             "",
             deployerAddress
         );
-        console.log("DirectSalePoolV1 proxy upgraded successfully");
+        console.log("InvestorSalePool proxy upgraded successfully");
         vm.stopBroadcast();
 
         console.log(
-            "=========DirectSalePool upgraded logic address after: ===========",
-            Upgrades.getImplementationAddress(PROXY_DIRECT_SALE_POOL)
+            "======= InvestorSalePool logic address upgraded after:==========",
+            Upgrades.getImplementationAddress(PROXY_INVESTOR_SALE_POOL)
         );
         console.log(
-            "DirectSalePool Proxy Admin:",
-            Upgrades.getAdminAddress(PROXY_DIRECT_SALE_POOL)
+            "InvestorSalePool Proxy Admin:",
+            Upgrades.getAdminAddress(PROXY_INVESTOR_SALE_POOL)
         );
 
-        DirectSalePoolV1 directSalePoolV1 = DirectSalePoolV1(
-            payable(PROXY_DIRECT_SALE_POOL)
+        InvestorSalePool investorSalePool = InvestorSalePool(
+            payable(PROXY_INVESTOR_SALE_POOL)
         );
 
-        console.log("========Proxy:==========", PROXY_DIRECT_SALE_POOL);
+        console.log("========Proxy:==========", PROXY_INVESTOR_SALE_POOL);
 
-        console.log("========Owner:==========", directSalePoolV1.owner());
+        console.log("========Owner:==========", investorSalePool.owner());
     }
 }
