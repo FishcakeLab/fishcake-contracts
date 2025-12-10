@@ -10,7 +10,7 @@ import "@openzeppelin-upgrades/contracts/utils/ReentrancyGuardUpgradeable.sol";
 import {FishcakeEventManagerStorage} from "../core/FishcakeEventManagerStorage.sol";
 
 /// @custom:oz-upgrades-from FishcakeEventManager
-contract FishcakeEventManagerV1 is
+abstract contract FishcakeEventManagerV1 is
     Initializable,
     ERC20Upgradeable,
     ERC20BurnableUpgradeable,
@@ -22,15 +22,24 @@ contract FishcakeEventManagerV1 is
     //        _disableInitializers();
     //    }
 
-    function initialize(address _initialOwner, address _fccAddress, address _usdtTokenAddr, address _NFTManagerAddr)
-        public
-        initializer
-    {
-        require(_initialOwner != address(0), "FishcakeEventManager initialize: _initialOwner can't be zero address");
+    function initialize(
+        address _initialOwner,
+        address _fccAddress,
+        address _usdtTokenAddr,
+        address _NFTManagerAddr
+    ) public initializer {
+        require(
+            _initialOwner != address(0),
+            "FishcakeEventManager initialize: _initialOwner can't be zero address"
+        );
         __Ownable_init(_initialOwner);
         _transferOwnership(_initialOwner);
         __ReentrancyGuard_init();
-        __FishcakeEventManagerStorage_init(_fccAddress, _usdtTokenAddr, _NFTManagerAddr);
+        __FishcakeEventManagerStorage_init(
+            _fccAddress,
+            _usdtTokenAddr,
+            _NFTManagerAddr
+        );
     }
 
     function activityAdd(
@@ -45,11 +54,21 @@ contract FishcakeEventManagerV1 is
         uint256 _maxDropAmt,
         address _tokenContractAddr
     ) public nonReentrant returns (bool, uint256) {
-        require(_dropType == 2 || _dropType == 1, "FishcakeEventManager activityAdd: Drop Type Error.");
-        require(_maxDropAmt >= _minDropAmt, "FishcakeEventManager activityAdd: MaxDropAmt Setup Error.");
-        require(_totalDropAmts > 0, "FishcakeEventManager activityAdd: Drop Amount Error.");
         require(
-            block.timestamp < _activityDeadLine && _activityDeadLine < block.timestamp + maxDeadLine,
+            _dropType == 2 || _dropType == 1,
+            "FishcakeEventManager activityAdd: Drop Type Error."
+        );
+        require(
+            _maxDropAmt >= _minDropAmt,
+            "FishcakeEventManager activityAdd: MaxDropAmt Setup Error."
+        );
+        require(
+            _totalDropAmts > 0,
+            "FishcakeEventManager activityAdd: Drop Amount Error."
+        );
+        require(
+            block.timestamp < _activityDeadLine &&
+                _activityDeadLine < block.timestamp + maxDeadLine,
             "FishcakeEventManager activityAdd: Activity DeadLine Error."
         );
 
@@ -58,7 +77,8 @@ contract FishcakeEventManagerV1 is
             "FishcakeEventManager activityAdd: Drop Number Not Meet Total Drop Amounts."
         );
         require(
-            _totalDropAmts >= 10e5, "FishcakeEventManager activityAdd: Total Drop Amounts Too Little , Minimum of 1."
+            _totalDropAmts >= 10e5,
+            "FishcakeEventManager activityAdd: Total Drop Amounts Too Little , Minimum of 1."
         );
         require(
             _dropNumber <= 101 || _dropNumber <= _totalDropAmts / 10e6,
@@ -66,7 +86,8 @@ contract FishcakeEventManagerV1 is
         );
 
         require(
-            _tokenContractAddr == address(UsdtTokenAddr) || _tokenContractAddr == address(FccTokenAddr),
+            _tokenContractAddr == address(UsdtTokenAddr) ||
+                _tokenContractAddr == address(FccTokenAddr),
             "FishcakeEventManager activityAdd: Token contract address error"
         );
 
@@ -75,7 +96,11 @@ contract FishcakeEventManagerV1 is
         }
 
         // Transfer token to this contract for locking.
-        IERC20(_tokenContractAddr).transferFrom(msg.sender, address(this), _totalDropAmts);
+        IERC20(_tokenContractAddr).transferFrom(
+            msg.sender,
+            address(this),
+            _totalDropAmts
+        );
 
         ActivityInfo memory ai = ActivityInfo({
             activityId: activityInfoArrs.length + 1,
@@ -121,7 +146,9 @@ contract FishcakeEventManagerV1 is
         return (true, ai.activityId);
     }
 
-    function activityFinish(uint256 _activityId) public nonReentrant returns (bool) {
+    function activityFinish(
+        uint256 _activityId
+    ) public nonReentrant returns (bool) {
         require(
             _activityId > 0 && _activityId <= activityInfoArrs.length,
             "FishcakeEventManager activityFinish: Activity Id Error."
@@ -129,11 +156,19 @@ contract FishcakeEventManagerV1 is
         ActivityInfo storage ai = activityInfoArrs[_activityId - 1];
         ActivityInfoExt storage aie = activityInfoExtArrs[_activityId - 1];
 
-        require(ai.businessAccount == msg.sender, "FishcakeEventManager activityFinish: Not The Owner.");
-        require(aie.activityStatus == 1, "FishcakeEventManager activityFinish: Activity Status Error.");
+        require(
+            ai.businessAccount == msg.sender,
+            "FishcakeEventManager activityFinish: Not The Owner."
+        );
+        require(
+            aie.activityStatus == 1,
+            "FishcakeEventManager activityFinish: Activity Status Error."
+        );
 
         aie.activityStatus = 2;
-        uint256 returnAmount = ai.maxDropAmt * ai.dropNumber - aie.alreadyDropAmts;
+        uint256 returnAmount = ai.maxDropAmt *
+            ai.dropNumber -
+            aie.alreadyDropAmts;
 
         uint256 minedAmount = 0;
         if (returnAmount > 0) {
@@ -142,29 +177,46 @@ contract FishcakeEventManagerV1 is
 
         // ifReward There is only one reward in 24 hours
         if (
-            isMint && ifReward() && iNFTManager.getMerchantNTFDeadline(_msgSender()) > block.timestamp
-            || iNFTManager.getUserNTFDeadline(_msgSender()) > block.timestamp
+            (isMint &&
+                ifReward() &&
+                iNFTManager.getMerchantNTFDeadline(_msgSender()) >
+                block.timestamp) ||
+            iNFTManager.getUserNTFDeadline(_msgSender()) > block.timestamp
         ) {
             // Get the current percentage of mined tokens
             uint8 currentMinePercent = 0;
             uint256 merchantOnceMaxMineTmpAmt = 0;
             uint256 userOnceMaxMineTmpAmt = 0;
-            (currentMinePercent, merchantOnceMaxMineTmpAmt, userOnceMaxMineTmpAmt) = getCurrentMinePercent();
+            (
+                currentMinePercent,
+                merchantOnceMaxMineTmpAmt,
+                userOnceMaxMineTmpAmt
+            ) = getCurrentMinePercent();
             if (minePercent != currentMinePercent) {
                 minePercent = currentMinePercent;
             }
-            if (minePercent > 0 && address(FccTokenAddr) == ai.tokenContractAddr) {
-                uint8 percent =
-                (iNFTManager.getMerchantNTFDeadline(_msgSender()) > block.timestamp ? minePercent : minePercent / 2);
+            if (
+                minePercent > 0 && address(FccTokenAddr) == ai.tokenContractAddr
+            ) {
+                uint8 percent = (
+                    iNFTManager.getMerchantNTFDeadline(_msgSender()) >
+                        block.timestamp
+                        ? minePercent
+                        : minePercent / 2
+                );
                 uint256 maxMineAmtLimit = (
-                    iNFTManager.getMerchantNTFDeadline(_msgSender()) > block.timestamp
+                    iNFTManager.getMerchantNTFDeadline(_msgSender()) >
+                        block.timestamp
                         ? merchantOnceMaxMineTmpAmt
                         : userOnceMaxMineTmpAmt
                 );
                 // For each FCC release activity hosted on the platform, the activity initiator can mine tokens based on either 50% of the total token quantity consumed by the activity or 50% of the total number of participants multiplied by 20, whichever is lower.
                 uint256 tmpDroppedVal = aie.alreadyDropNumber * 20 * 1e6;
-                uint256 tmpBusinessMinedAmt =
-                    ((aie.alreadyDropAmts > tmpDroppedVal ? tmpDroppedVal : aie.alreadyDropAmts) * percent) / 100;
+                uint256 tmpBusinessMinedAmt = ((
+                    aie.alreadyDropAmts > tmpDroppedVal
+                        ? tmpDroppedVal
+                        : aie.alreadyDropAmts
+                ) * percent) / 100;
                 if (tmpBusinessMinedAmt > maxMineAmtLimit) {
                     tmpBusinessMinedAmt = maxMineAmtLimit;
                 }
@@ -188,32 +240,55 @@ contract FishcakeEventManagerV1 is
 
         activityInfoChangedIdx.push(_activityId - 1);
 
-        emit ActivityFinish(_activityId, ai.tokenContractAddr, returnAmount, minedAmount);
+        emit ActivityFinish(
+            _activityId,
+            ai.tokenContractAddr,
+            returnAmount,
+            minedAmount
+        );
 
         return true;
     }
 
-    function drop(uint256 _activityId, address _userAccount, uint256 _dropAmt) external nonReentrant returns (bool) {
+    function drop(
+        uint256 _activityId,
+        address _userAccount,
+        uint256 _dropAmt
+    ) external nonReentrant returns (bool) {
         require(
-            activityDroppedToAccount[_activityId][_userAccount] == false, "FishcakeEventManager drop: User Has Dropped."
+            activityDroppedToAccount[_activityId][_userAccount] == false,
+            "FishcakeEventManager drop: User Has Dropped."
         );
 
         ActivityInfo storage ai = activityInfoArrs[_activityId - 1];
         ActivityInfoExt storage aie = activityInfoExtArrs[_activityId - 1];
 
-        require(aie.activityStatus == 1, "FishcakeEventManager drop: Activity Status Error.");
-        require(ai.businessAccount == msg.sender, "FishcakeEventManager drop: Not The Owner.");
-        require(ai.activityDeadLine >= block.timestamp, "FishcakeEventManager drop: Activity Has Expired.");
+        require(
+            aie.activityStatus == 1,
+            "FishcakeEventManager drop: Activity Status Error."
+        );
+        require(
+            ai.businessAccount == msg.sender,
+            "FishcakeEventManager drop: Not The Owner."
+        );
+        require(
+            ai.activityDeadLine >= block.timestamp,
+            "FishcakeEventManager drop: Activity Has Expired."
+        );
 
         if (ai.dropType == 2) {
             require(
-                _dropAmt <= ai.maxDropAmt && _dropAmt >= ai.minDropAmt, "FishcakeEventManager drop: Drop Amount Error."
+                _dropAmt <= ai.maxDropAmt && _dropAmt >= ai.minDropAmt,
+                "FishcakeEventManager drop: Drop Amount Error."
             );
         } else {
             _dropAmt = ai.maxDropAmt;
         }
 
-        require(ai.dropNumber > aie.alreadyDropNumber, "FishcakeEventManager drop: Exceeded the number of rewards.");
+        require(
+            ai.dropNumber > aie.alreadyDropNumber,
+            "FishcakeEventManager drop: Exceeded the number of rewards."
+        );
         require(
             ai.maxDropAmt * ai.dropNumber >= _dropAmt + aie.alreadyDropAmts,
             "FishcakeEventManager drop: The reward amount has been exceeded."
@@ -223,8 +298,12 @@ contract FishcakeEventManagerV1 is
 
         activityDroppedToAccount[_activityId][_userAccount] = true;
 
-        DropInfo memory di =
-                        DropInfo({activityId: _activityId, userAccount: _userAccount, dropTime: block.timestamp, dropAmt: _dropAmt});
+        DropInfo memory di = DropInfo({
+            activityId: _activityId,
+            userAccount: _userAccount,
+            dropTime: block.timestamp,
+            dropAmt: _dropAmt
+        });
         dropInfoArrs.push(di);
 
         aie.alreadyDropAmts += _dropAmt;
@@ -234,16 +313,23 @@ contract FishcakeEventManagerV1 is
         return true;
     }
 
-    function getMinerMineAmount(address _miner) external view returns (uint256) {
+    function getMinerMineAmount(
+        address _miner
+    ) external view returns (uint256) {
         return minerMineAmount[_miner];
     }
 
-    function deleteMinerMineAmount(address _miner) external  { //todo only nft manager can do this operate
+    function deleteMinerMineAmount(address _miner) external {
+        //todo only nft manager can do this operate
         delete minerMineAmount[_miner];
     }
 
     // ======================= internal =======================
-    function getCurrentMinePercent() internal view returns (uint8, uint256, uint256) {
+    function getCurrentMinePercent()
+        internal
+        view
+        returns (uint8, uint256, uint256)
+    {
         uint8 currentMinePercent = 0;
         uint256 merchantOnceMaxMineTmpAmt = 0;
         uint256 userOnceMaxMineTmpAmt = 0;
@@ -268,7 +354,11 @@ contract FishcakeEventManagerV1 is
             merchantOnceMaxMineTmpAmt = 0;
             userOnceMaxMineTmpAmt = 0;
         }
-        return (currentMinePercent, merchantOnceMaxMineTmpAmt, userOnceMaxMineTmpAmt);
+        return (
+            currentMinePercent,
+            merchantOnceMaxMineTmpAmt,
+            userOnceMaxMineTmpAmt
+        );
     }
 
     function ifReward() internal view returns (bool _ret) {

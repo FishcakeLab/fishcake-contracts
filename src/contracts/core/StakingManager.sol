@@ -276,6 +276,10 @@ contract StakingManager is
         }
     }
 
+    function setHalfAprTimeStamp(uint256 t) public onlyOwner {
+        halfAprTimeStamp = t;
+    }
+
     /// @notice 授权升级逻辑合约的函数
     /// @dev 只允许合约owner执行
     function _authorizeUpgrade(

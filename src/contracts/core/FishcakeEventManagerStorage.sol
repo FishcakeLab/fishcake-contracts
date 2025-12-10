@@ -71,6 +71,8 @@ abstract contract FishcakeEventManagerStorage is
 
     mapping(address => uint256) public minerMineAmount;
 
+    mapping(address => uint256) public minedFishcakePower;
+
     function __FishcakeEventManagerStorage_init(
         address _fccAddress,
         address _usdtTokenAddr,
@@ -85,5 +87,5 @@ abstract contract FishcakeEventManagerStorage is
         isMint = true;
     }
 
-    uint256[99] private __gap;
+    uint256[98] private __gap;
 }

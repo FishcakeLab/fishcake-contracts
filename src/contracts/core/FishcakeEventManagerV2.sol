@@ -237,12 +237,14 @@ contract FishcakeEventManagerV2 is
                         minedAmt += tmpBusinessMinedAmt;
                         FccTokenAddr.transfer(msg.sender, tmpBusinessMinedAmt);
                         minerMineAmount[msg.sender] += tmpBusinessMinedAmt;
+                        minedFishcakePower[msg.sender] += tmpBusinessMinedAmt;
                         minedAmount = tmpBusinessMinedAmt;
                     } else {
                         aie.businessMinedAmt = totalMineAmt - minedAmt;
                         minedAmt += aie.businessMinedAmt;
                         FccTokenAddr.transfer(msg.sender, aie.businessMinedAmt);
                         minerMineAmount[msg.sender] += aie.businessMinedAmt;
+                        minedFishcakePower[msg.sender] += aie.businessMinedAmt;
                         minedAmount = aie.businessMinedAmt;
                         isMint = false;
                     }
@@ -334,6 +336,16 @@ contract FishcakeEventManagerV2 is
 
     function deleteMinerMineAmount(address _miner) external onlyNftManager {
         delete minerMineAmount[_miner];
+    }
+
+    function getMinedFishcakePower(
+        address _miner
+    ) external view returns (uint256) {
+        return minedFishcakePower[_miner];
+    }
+
+    function deleteMinedFishcakePower(address _miner) external onlyNftManager {
+        delete minedFishcakePower[_miner];
     }
 
     // ======================= internal =======================

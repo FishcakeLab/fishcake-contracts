@@ -62,4 +62,10 @@ interface IFishcakeEventManager {
     function getMinerMineAmount(address _miner) external view returns (uint256);
 
     function deleteMinerMineAmount(address _miner) external;
+
+    function getMinedFishcakePower(
+        address _miner
+    ) external view returns (uint256);
+
+    function deleteMinedFishcakePower(address _miner) external;
 }

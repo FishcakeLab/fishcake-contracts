@@ -23,7 +23,7 @@ abstract contract StakingManagerStorage is IStakingManager {
 
     uint256 public constant lockOneYears = 360 days;
 
-    uint256 public halfAprTimeStamp = 1767225600;
+    uint256 public halfAprTimeStamp = 1780185600; // 2026-05-31 00:00:00
 
     uint256 public aprOffset = 1000;
 

@@ -48,11 +48,6 @@ abstract contract NftManagerStorage is Initializable, INftManager {
     string public epicSalmonNftJson;
     string public legendaryTunaNftJson;
 
-    // string public uncommonFishcakeNftJson_Used;
-    // string public rareShrimpNftJson_Used;
-    // string public epicSalmonNftJson_Used;
-    // string public legendaryTunaNftJson_Used;
-
     IFishcakeEventManager public feManagerAddress;
 
     mapping(address => uint256) public minerActiveNft;
@@ -62,6 +57,12 @@ abstract contract NftManagerStorage is Initializable, INftManager {
     address public boosterAddress;
 
     IStakingManager public stakingManagerAddress;
+
+    // Add Used NFT metadata URIs
+    string public uncommonFishcakeNftJson_Used;
+    string public rareShrimpNftJson_Used;
+    string public epicSalmonNftJson_Used;
+    string public legendaryTunaNftJson_Used;
 
     function __NftManagerStorage_init(
         address _fccTokenAddr,
