@@ -68,4 +68,6 @@ interface IFishcakeEventManager {
     ) external view returns (uint256);
 
     function deleteMinedFishcakePower(address _miner) external;
+
+    function updateMinedFishcakePower(address _miner, uint256 _power) external;
 }

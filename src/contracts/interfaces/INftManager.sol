@@ -14,7 +14,7 @@ interface INftManager {
         uint8 _type
     ) external returns (bool, uint256);
 
-    function mintBoosterNFT() external returns (bool, uint256);
+    function mintBoosterNFT(uint256 nft_type) external returns (bool, uint256);
 
     function setUriPrefix(string memory _uriPrefix) external;
 

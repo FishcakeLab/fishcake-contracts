@@ -348,6 +348,13 @@ contract FishcakeEventManagerV2 is
         delete minedFishcakePower[_miner];
     }
 
+    function updateMinedFishcakePower(
+        address _miner,
+        uint256 _power
+    ) external onlyNftManager {
+        minedFishcakePower[_miner] = _power;
+    }
+
     // ======================= internal =======================
     function getCurrentMinePercent()
         internal

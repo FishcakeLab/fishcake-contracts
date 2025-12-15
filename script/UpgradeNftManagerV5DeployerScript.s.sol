@@ -3,6 +3,7 @@ pragma solidity ^0.8.13;
 
 import {Script} from "forge-std/Script.sol";
 import {console} from "forge-std/console.sol";
+import "forge-std/Vm.sol";
 
 import "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
@@ -26,6 +27,8 @@ contract UpgradeNftManagerV5DeployerScript is Script {
     address public constant PROXY_NFT_MANAGER =
         address(0x2F2Cb24BaB1b6E2353EF6246a2Ea4ce50487008B);
 
+    ProxyAdmin public nftManagerV5ProxyAdmin;
+
     function run() public {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         address deployerAddress = vm.addr(deployerPrivateKey);
@@ -41,15 +44,27 @@ contract UpgradeNftManagerV5DeployerScript is Script {
             "upgraded before:",
             Upgrades.getImplementationAddress(PROXY_NFT_MANAGER)
         );
-        Upgrades.upgradeProxy(
-            PROXY_NFT_MANAGER,
-            "NftManagerV5.sol:NftManagerV5",
+        // Upgrades.upgradeProxy(
+        //     PROXY_NFT_MANAGER,
+        //     "NftManagerV5.sol:NftManagerV5",
+        //     ""
+        // );
+        NftManagerV5 NftManagerV5Imple = new NftManagerV5();
+
+        nftManagerV5ProxyAdmin = ProxyAdmin(
+            getProxyAdminAddress(PROXY_NFT_MANAGER)
+        );
+        // Perform the upgrade
+        nftManagerV5ProxyAdmin.upgradeAndCall(
+            ITransparentUpgradeableProxy(address(PROXY_NFT_MANAGER)),
+            address(NftManagerV5Imple),
             ""
         );
+
         NftManagerV5 upgradedNftManager = NftManagerV5(
             payable(PROXY_NFT_MANAGER)
         );
-        upgradedNftManager.initializeV5(STAKING_MANAGER);
+        // upgradedNftManager.initializeV5(STAKING_MANAGER);
 
         vm.stopBroadcast();
 
@@ -99,5 +114,15 @@ contract UpgradeNftManagerV5DeployerScript is Script {
 
         console.log("New name:", upgradedNftManager.name());
         console.log("New symbol:", upgradedNftManager.symbol());
+    }
+
+    function getProxyAdminAddress(
+        address proxy
+    ) internal view returns (address) {
+        address CHEATCODE_ADDRESS = 0x7109709ECfa91a80626fF3989D68f67F5b1DD12D;
+        Vm vm = Vm(CHEATCODE_ADDRESS);
+
+        bytes32 adminSlot = vm.load(proxy, ERC1967Utils.ADMIN_SLOT);
+        return address(uint160(uint256(adminSlot)));
     }
 }
