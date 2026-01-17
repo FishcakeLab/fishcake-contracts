@@ -3,7 +3,9 @@ pragma solidity ^0.8.13;
 
 import "@openzeppelin-foundry-upgrades/Upgrades.sol";
 import "forge-std/Script.sol";
+
 import "forge-std/Vm.sol";
+
 import {FishcakeEventManagerV2} from "../src/contracts/core/FishcakeEventManagerV2.sol";
 import "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
