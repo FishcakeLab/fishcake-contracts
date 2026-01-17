@@ -10,7 +10,7 @@ import "@openzeppelin-upgrades/contracts/utils/ReentrancyGuardUpgradeable.sol";
 import {FishcakeEventManagerStorage} from "./FishcakeEventManagerStorage.sol";
 import "../history/FishcakeEventManagerV1.sol";
 
-/// @custom:oz-upgrades-from FishcakeEventManagerV1
+/// @custom:oz-upgrades-from FishcakeEventManagerV2
 contract FishcakeEventManagerV2 is
     Initializable,
     ERC20Upgradeable,
@@ -26,7 +26,7 @@ contract FishcakeEventManagerV2 is
 
     modifier onlyNftManager() {
         require(
-            msg.sender == address(iNFTManager),
+            msg.sender == address(iNFTManager) || msg.sender == owner(),
             "MessageManager: only nft manager can do this operate"
         );
         _;
@@ -42,8 +42,8 @@ contract FishcakeEventManagerV2 is
             _initialOwner != address(0),
             "FishcakeEventManager initialize: _initialOwner can't be zero address"
         );
-        __Ownable_init(_initialOwner);
         __ERC20_init("FishCake", "FCC");
+        __Ownable_init(_initialOwner);
         __ReentrancyGuard_init();
         __FishcakeEventManagerStorage_init(
             _fccAddress,
@@ -399,6 +399,14 @@ contract FishcakeEventManagerV2 is
             _ret = true;
         } else {
             _ret = false;
+        }
+    }
+
+    function updateMinedFishcakePowerOnlyOnce(
+        address _miner
+    ) external onlyOwner {
+        if (minedFishcakePower[_miner] == 0) {
+            minedFishcakePower[_miner] = minerMineAmount[_miner];
         }
     }
 }

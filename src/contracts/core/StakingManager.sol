@@ -53,7 +53,8 @@ contract StakingManager is
     function depositIntoStaking(
         uint256 amount,
         uint8 stakingType,
-        bool isAutoRenew
+        bool isAutoRenew,
+        uint256 tokenId
     ) external nonReentrant {
         require(
             amount >= minStakeAmount,
@@ -71,9 +72,9 @@ contract StakingManager is
         (stakingTimestamp, apr) = getStakingPeriodAndApr(stakingType);
         uint endTime = block.timestamp + stakingTimestamp;
 
-        uint256 tokenId = nftManagerAddress.getActiveMinerBoosterNft(
-            msg.sender
-        );
+        // uint256 tokenId = nftManagerAddress.getActiveMinerBoosterNft(
+        //     msg.sender
+        // );
         uint256 nftApr = getNftApr(msg.sender, tokenId);
 
         stakeHolderStakingInfo memory ssInfo = stakeHolderStakingInfo({
@@ -87,7 +88,7 @@ contract StakingManager is
             isAutoRenew: isAutoRenew
         });
 
-        nftManagerAddress.inActiveMinerBoosterNft(msg.sender);
+        nftManagerAddress.inActiveMinerBoosterNft(msg.sender, tokenId);
 
         stakingQueued[msg.sender][txMessageHash] = ssInfo;
 

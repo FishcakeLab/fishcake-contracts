@@ -68,6 +68,7 @@ contract NftManagerV5 is
     event MintBoosterNFT(
         address indexed miner,
         uint256 indexed tokenId,
+        uint8 nftType,
         uint256 usedFishCakePower,
         uint256 mintTime
     );
@@ -146,7 +147,7 @@ contract NftManagerV5 is
     }
 
     function mintBoosterNFT(
-        uint256 nft_type
+        uint8 nft_type
     ) external nonReentrant returns (bool, uint256) {
         uint256 mineFishCakePower = feManagerAddress.getMinedFishcakePower(
             msg.sender
@@ -181,9 +182,14 @@ contract NftManagerV5 is
         );
 
         minerActiveNft[msg.sender] = boosterTokenId;
+        nftOwner[boosterTokenId] = msg.sender;
+
+        minerHistoryBoosterNft[msg.sender].push(boosterTokenId);
+
         emit MintBoosterNFT(
             msg.sender,
             boosterTokenId,
+            nft_type,
             usedFishCakePower,
             block.timestamp
         );
@@ -376,12 +382,16 @@ contract NftManagerV5 is
     }
 
     function inActiveMinerBoosterNft(
-        address _miner
+        address _miner,
+        uint256 tokenId
     ) external onlyStakingManager {
-        uint256 activeNftId = minerActiveNft[_miner];
-        if (activeNftId >= 3 && activeNftId <= 6) {
-            nftMintType[activeNftId] += 10;
-        }
+        require(nftOwner[tokenId] == _miner, "Invalid tokenId");
+
+        // uint256 activeNftId = minerActiveNft[_miner];
+        uint256 nftType = nftMintType[tokenId];
+        require(nftType >= 3 && nftType <= 6, "No active booster NFT");
+
+        nftMintType[tokenId] += 10;
     }
 
     function getActiveMinerBoosterNft(

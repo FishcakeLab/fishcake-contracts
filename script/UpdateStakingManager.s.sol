@@ -23,7 +23,7 @@ contract UpgradeStakingManagerScript is Script {
 
         console.log("Upgrade completed!");
 
-        StakingManagerImpl(payable(PROXY)).setHalfAprTimeStamp(1780185600); // 2026-05-31 00:00:00
+        // StakingManagerImpl(payable(PROXY)).setHalfAprTimeStamp(1780185600); // 2026-05-31 00:00:00
 
         vm.stopBroadcast();
 

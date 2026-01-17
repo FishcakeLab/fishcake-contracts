@@ -30,7 +30,8 @@ interface IStakingManager {
     function depositIntoStaking(
         uint256 amount,
         uint8 stakingType,
-        bool isAutonew
+        bool isAutonew,
+        uint256 tokenId
     ) external;
 
     function withdrawFromStakingWithAprIncome(

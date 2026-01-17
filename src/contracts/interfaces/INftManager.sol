@@ -14,7 +14,7 @@ interface INftManager {
         uint8 _type
     ) external returns (bool, uint256);
 
-    function mintBoosterNFT(uint256 nft_type) external returns (bool, uint256);
+    function mintBoosterNFT(uint8 nft_type) external returns (bool, uint256);
 
     function setUriPrefix(string memory _uriPrefix) external;
 
@@ -39,7 +39,7 @@ interface INftManager {
         address _account
     ) external view returns (uint256);
 
-    function inActiveMinerBoosterNft(address _miner) external;
+    function inActiveMinerBoosterNft(address _miner, uint256 tokenId) external;
 
     function getActiveMinerBoosterNft(
         address _miner

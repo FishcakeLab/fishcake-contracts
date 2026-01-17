@@ -64,6 +64,9 @@ abstract contract NftManagerStorage is Initializable, INftManager {
     string public epicSalmonNftJson_Used;
     string public legendaryTunaNftJson_Used;
 
+    // Add NFT owner mapping
+    mapping(uint256 => address) public nftOwner;
+
     function __NftManagerStorage_init(
         address _fccTokenAddr,
         address _tokenUsdtAddr,
