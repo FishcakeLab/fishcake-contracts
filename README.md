@@ -1,72 +1,30 @@
-<!--
-parent:
-  order: false
--->
+# My Fishcake Multi-Chain Event Manager – Hackathon Project (Direction 2)
 
-<div align="center">
-  <h1> Fishcake Contracts Repo</h1>
-</div>
+Simplified, USDT-only Event Manager contract for Fishcake (AI × Web3 Hackathon).
 
-<div align="center">
-  <a href="https://github.com/FishcakeLab/fishcake-contracts/releases/latest">
-    <img alt="Version" src="https://img.shields.io/github/tag/FishcakeLab/fishcake-contracts.svg" />
-  </a>
-  <a href="https://github.com/FishcakeLab/fishcake-contracts/blob/main/LICENSE">
-    <img alt="License: Apache-2.0" src="https://img.shields.io/github/license/FishcakeLab/fishcake-contracts.svg" />
-  </a>
-</div>
+## What I Built
+- Forked original Fishcake repo
+- Removed all non-core features (FCC mining, NFT logic, complex rewards)
+- Focused on **USDT stablecoin activities**
+- Added upgradeability (Transparent Proxy via OpenZeppelin)
+- Security: ReentrancyGuard, Pausable, SafeERC20, emergency withdraw
+- Basic frontend attempt (React + wagmi + RainbowKit)
+- Local deployment proof with Foundry Anvil
 
-Fishcake Contracts Project
+## Requirements Met (Direction 2)
+- ✅ Supports multi-chain deployment (pure EVM Solidity)
+- ✅ Simplified ecological functions, core only
+- ✅ USDT stablecoin-based activities
+- ✅ Consistent logic across chains
+- ✅ Event creation, reward distribution, verification/finish
 
-## Installation
+## Tech Stack
+- Solidity 0.8.26 + Foundry
+- OpenZeppelin upgradeable contracts
 
-For prerequisites and detailed build instructions please read the [Installation](https://github.com/FishcakeLab/fishcake-contracts/) instructions. Once the dependencies are installed, run:
+## Future Plans
+- Deploy to Sepolia + BSC Testnet when test ETH is available
+- Add USDC support + token registry
+- Build a full React frontend using wagmi + RainbowKit, with event listing, creation flows, and enhanced UI/UX.
 
-```bash
-git submodule update --init --recursive --remote
-```
-or
-```bash
-forge install foundry-rs/forge-std --no-commit
-forge install OpenZeppelin/openzeppelin-contracts-upgradeable --no-commit
-forge install OpenZeppelin/openzeppelin-contracts --no-commit
-forge install OpenZeppelin/openzeppelin-foundry-upgrades --no-commit
-```
-
-Or check out the latest [release](https://github.com/FishcakeLab/fishcake-contracts).
-
-##  Test And Depoly
-
-```bash
-$env:PRIVATE_KEY = "0x2a871"
-$env:USDT_ADDRESS = "0x3C4249f1cDfaAAFf"
-$env:OPENZEPPELIN_BASH_PATH = "C:/Users/65126/Documents/Git/bin/bash.exe"
-```
-
-
-### test
-```
-forge test --ffi
-```
-
-### Depoly
-
-```
-forge script script/DeployerV2.s.sol:DeployerScript --rpc-url $RPC_URL --private-key $PRIVKEY --ffi
-
-```
-
-### Upgrade
-
-```
-forge script script/UpgradeInvestorSalePoolDeployerV2.s.sol:UpgradeInvestorSalePoolDeployer --rpc-url $RPC_URL --private-key $PRIVKEY --ffi
-```
-
-## Community
-
-
-## Contributing
-
-Looking for a good place to start contributing? Check out some [`good first issues`](https://github.com/FishcakeLab/fishcake-contracts/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22).
-
-For additional instructions, standards and style guides, please refer to the [Contributing](./CONTRIBUTING.md) document.
+Open to feedback & collaboration!
