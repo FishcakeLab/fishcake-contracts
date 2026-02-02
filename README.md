@@ -8,7 +8,7 @@ Simplified, USDT-only Event Manager contract for Fishcake (AI × Web3 Hackathon)
 - Focused on **USDT stablecoin activities**
 - Added upgradeability (Transparent Proxy via OpenZeppelin)
 - Security: ReentrancyGuard, Pausable, SafeERC20, emergency withdraw
-- Basic frontend attempt (React + wagmi + RainbowKit)
+- Basic frontend attempt (React + wagmi + RainbowKit still building..)
 - Local deployment proof with Foundry Anvil
 
 ## Requirements Met (Direction 2)
