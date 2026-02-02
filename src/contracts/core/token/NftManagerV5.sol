@@ -385,7 +385,10 @@ contract NftManagerV5 is
         address _miner,
         uint256 tokenId
     ) external onlyStakingManager {
-        require(nftOwner[tokenId] == _miner, "Invalid tokenId");
+        require(
+            nftOwner[tokenId] == _miner || minerActiveNft[_miner] == tokenId,
+            "Invalid tokenId"
+        );
 
         // uint256 activeNftId = minerActiveNft[_miner];
         uint256 nftType = nftMintType[tokenId];

@@ -75,7 +75,12 @@ contract StakingManager is
         // uint256 tokenId = nftManagerAddress.getActiveMinerBoosterNft(
         //     msg.sender
         // );
-        uint256 nftApr = getNftApr(msg.sender, tokenId);
+        uint256 nftApr = 0;
+        if (tokenId != 0) {
+            nftApr = getNftApr(msg.sender, tokenId);
+
+            nftManagerAddress.inActiveMinerBoosterNft(msg.sender, tokenId);
+        }
 
         stakeHolderStakingInfo memory ssInfo = stakeHolderStakingInfo({
             startStakingTime: block.timestamp,
@@ -87,8 +92,6 @@ contract StakingManager is
             bindingNft: tokenId,
             isAutoRenew: isAutoRenew
         });
-
-        nftManagerAddress.inActiveMinerBoosterNft(msg.sender, tokenId);
 
         stakingQueued[msg.sender][txMessageHash] = ssInfo;
 
@@ -203,7 +206,10 @@ contract StakingManager is
     ) internal view returns (uint256) {
         uint256 stakingApr = 0;
         uint256 lockTime = 0;
-        uint256 nftApr = getNftApr(miner, tokenId);
+        uint256 nftApr = 0;
+        if (tokenId != 0) {
+            nftApr = getNftApr(miner, tokenId);
+        }
         (lockTime, stakingApr) = getStakingPeriodAndApr(stakingType);
         uint256 totalRewardApr = nftApr + stakingApr;
         uint256 actualStakingDuration = block.timestamp - stakingTime;
